@@ -69,8 +69,9 @@ Inductive conc_state_set : Type :=
 |Empty 
 |Cons (x : conc_state) (s: conc_state_set).
 
+Variable general_set : conc_state_set.
 
-Definition unif (x : SymState.sym_state) := conc_state_set.
+Definition unif (x : SymState.sym_state) : conc_state_set := general_set.
 
 (*Definition conc_state_set := conc_state -> Prop.*)
 
@@ -133,10 +134,13 @@ Module SETree.
  n is a root in tree T. *)
 (* get_root(T) returns the root of tree T. *)
 (*Modified version of FSet RBT https://github.com/coq-contribs/fsets/blob/master/FSetRBT.v *)
-
+Definition state := SymState.sym_state.
 
 Inductive SE_tree : Type :=
-|root.
+| leaf: SE_tree
+| node: SE_tree -> state -> SE_tree -> SE_tree.
+
+
 
 
 
