@@ -69,8 +69,9 @@ Inductive conc_state_set : Type :=
 |Empty 
 |Cons (x : conc_state) (s: conc_state_set).
 
+Variable general_set : conc_state_set.
 
-Definition unif (x : SymState.sym_state) := conc_state_set.
+Definition unif (x : SymState.sym_state) : conc_state_set := general_set.
 
 (*Definition conc_state_set := conc_state -> Prop.*)
 
