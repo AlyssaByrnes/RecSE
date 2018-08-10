@@ -1,63 +1,3 @@
-
-Module SymState.
-(* Symbolic state contains abstract state 
-and path constraint. *)
-
-
-Variable Phi PC : Type.
-
-Inductive sym_state : Type :=
-|ConstructState (a : Phi) (p : PC)
-|SymEx (x : sym_state).
-
-
-(* sym_ex(A) returns an object
- in the equivalence class of SymState
- that results from 
-the symbolic execution of an object
-in the equivalence class of SymState A  *)
-Fixpoint sym_ex (A:sym_state) : sym_state:=
-match A with 
-| ConstructState phi pc => SymEx A
-| SymEx a => SymEx (SymEx a)
-end.
-
-(* get_phi returns abstract state *)
-Fixpoint get_phi (x : sym_state) : Phi :=
-match x with
-|ConstructState phi pc => phi
-|SymEx a => get_phi a
-end.
-
-(* get_pc returns the path constraint *)
-Fixpoint get_pc (x : sym_state) : PC :=
-match x with
-|ConstructState phi pc => pc
-|SymEx a => get_pc a
-end.
-
-
-Fixpoint sym_ex_n (x:sym_state) (n:nat) : sym_state :=
-match n with
-|0 => x
-|S n' => sym_ex (sym_ex_n x (n'))
-end.
-
-
-(* unif(A) returns the set of concrete states
- represented by symbolic state A. *)
-(* Not convinced that this is saying what I want it to. 
-I think it's returning the entire set of conc states, not just a subset.*)
-(*Definition unif (A:sym_state) : ConcState.conc_state_set :=
-match A with 
-| sym_state => ConcState.conc_state_set
-end.*)
-
-
-End SymState.
-
-Import SymState. 
-
 Module ConcState.
 (*Variable conc_state : Type.*)
 
@@ -69,9 +9,7 @@ Inductive conc_state_set : Type :=
 |Empty 
 |Cons (x : conc_state) (s: conc_state_set).
 
-Variable general_set : conc_state_set.
 
-Definition unif (x : SymState.sym_state) : conc_state_set := general_set.
 
 (*Definition conc_state_set := conc_state -> Prop.*)
 
@@ -101,6 +39,101 @@ the concrete execution of ConcState A  *)
 End ConcState.
 
 Import ConcState.
+
+
+Module SymState.
+(* Symbolic state contains abstract state 
+and path constraint. *)
+
+
+Variable Phi PC : Type.
+
+
+
+
+(*Variable general_set : conc_state_set.*)
+
+(*Definition unif (x : SymState.sym_state) : conc_state_set := general_set.*)
+
+(* sym_ex(A) returns an object
+ in the equivalence class of SymState
+ that results from 
+the symbolic execution of an object
+in the equivalence class of SymState A  *)
+
+
+(*Inductive sym_state : Type :=
+|ConstructState (a : Phi) (p : PC)
+|SymEx (x : sym_state)
+|Intermediate_Sym_Ex (x : sym_state).*)
+
+Inductive sym_state: Type :=
+|ConstructState (a : Phi) (p : PC)
+|SymEx (x : sym_state).
+
+
+Definition up_pc := PC -> PC.
+Axiom update_pc : up_pc.
+Definition up_phi := Phi -> Phi.
+Axiom update_phi: up_phi.
+
+(* get_phi returns abstract state *)
+Fixpoint get_phi (x : sym_state) : Phi :=
+match x with
+|ConstructState phi pc => phi
+|SymEx a => update_phi (get_phi a)
+end.
+
+(* get_pc returns the path constraint *)
+Fixpoint get_pc (x : sym_state) : PC :=
+match x with
+|ConstructState phi pc => pc
+|SymEx a => update_pc (get_pc a)
+end.
+
+Fixpoint sym_ex (A:sym_state) : sym_state:=
+match A with 
+| ConstructState phi pc => SymEx A
+| SymEx a => SymEx (sym_ex a)
+end.
+
+
+(*Class SymExec (pc phi: Type) := {
+  get_phi : phi -> Phi ;
+  get_pc : pc -> PC;
+  update_phi : phi -> Prop;
+  update_pc : pc -> Prop;
+  cons_state : pc -> phi -> sym_state;
+  unif : pc -> phi -> conc_state_set;
+  sym_ex : pc -> phi -> sym_state;
+  intermediate_sym_ex : phi -> sym_state}.*)
+
+
+Fixpoint sym_ex_n (x:sym_state) (n:nat) : sym_state :=
+match n with
+|0 => x
+|S n' => sym_ex (sym_ex_n x (n'))
+end.
+
+
+(* unif(A) returns the set of concrete states
+ represented by symbolic state A. *)
+(* Not convinced that this is saying what I want it to. 
+I think it's returning the entire set of conc states, not just a subset.*)
+(*Definition unif (A:sym_state) : ConcState.conc_state_set :=
+match A with 
+| sym_state => ConcState.conc_state_set
+end.*)
+
+Definition uni := sym_state -> ConcState.conc_state_set.
+Axiom unif : uni.
+
+
+End SymState.
+
+Import SymState. 
+
+
 
 
 
@@ -138,20 +171,42 @@ Definition state := SymState.sym_state.
 
 Inductive SE_tree : Type :=
 | leaf: SE_tree
-| node: SE_tree -> state -> SE_tree -> SE_tree.
+| sym_node: SE_tree -> state -> SE_tree -> SE_tree
+| intermediate_node : SE_tree -> state ->SE_tree.
 
+Fixpoint max (m n : nat) : nat :=
+match m, n with
+|0, _ => n
+|S m', 0 => m
+|S m', S n' => S (max m' n')
+end.
 
-
-
+Fixpoint tree_height (t : SE_tree) : nat :=
+match t with
+|leaf => O
+|sym_node l n r  => S (max (tree_height l) (tree_height r))
+|intermediate_node child n => S (tree_height child)
+end.
 
 Inductive SE_tree_list : Type :=
-|EmptyList
-|ConsList (x : SE_tree) (s: SE_tree_list).
+|nil: SE_tree_list
+|cons: SE_tree -> SE_tree_list -> SE_tree_list.
 
-Fixpoint in_tree_list  (tlist : SE_tree_list) (t : SETree.SE_tree) : Prop :=
+Notation "x :: l" := (cons x l) (at level 60, right associativity).
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..).
+
+Fixpoint length (l:SE_tree_list) : nat := 
+  match l with
+  | nil => O
+  | h :: t => S (length t)
+  end.
+
+
+Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SETree.SE_tree) : Prop :=
 match tlist with 
-|EmptyList => False
-|ConsList x s => (x = t) \/ (in_tree_list s x)
+|nil => False
+|h :: t => (x = h) \/ (in_tree_list t x)
 end.
 
 
