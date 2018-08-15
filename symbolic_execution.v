@@ -41,10 +41,35 @@ End ConcState.
 Import ConcState.
 
 
-Module SymState.
-(* Symbolic state contains abstract state 
-and path constraint. *)
 
+
+
+
+
+Module System.
+(* System initializes with a defined set of
+ initial configuration states, InitStates *)
+(*Inductive init_conc_states : Set :=
+| IsConc (a : ConcState.conc_state).*)
+
+
+Definition conc_ex (A: ConcState.conc_state) : ConcState.conc_state := 
+match A with
+|concstate => NextState A
+|NextState x => NextState (NextState x)
+end.
+
+Fixpoint conc_ex_n (x: ConcState.conc_state) (n:nat) : ConcState.conc_state :=
+match n with
+|0 => x
+|S n' => conc_ex (conc_ex_n x (n'))
+end.
+
+End System.
+
+Import System. 
+
+Module SymbolicExec.
 
 Variable Phi PC : Type.
 
@@ -53,13 +78,13 @@ Variable Phi PC : Type.
 
 (*Variable general_set : conc_state_set.*)
 
-(*Definition unif (x : SymState.sym_state) : conc_state_set := general_set.*)
+(*Definition unif (x : SymbolicExec.sym_state) : conc_state_set := general_set.*)
 
 (* sym_ex(A) returns an object
- in the equivalence class of SymState
+ in the equivalence class of SymbolicExec
  that results from 
 the symbolic execution of an object
-in the equivalence class of SymState A  *)
+in the equivalence class of SymbolicExec A  *)
 
 
 (*Inductive sym_state : Type :=
@@ -67,6 +92,8 @@ in the equivalence class of SymState A  *)
 |SymEx (x : sym_state)
 |Intermediate_Sym_Ex (x : sym_state).*)
 
+(* Symbolic state contains abstract state 
+and path constraint. *)
 Inductive sym_state: Type :=
 |ConstructState (a : Phi) (p : PC)
 |SymEx (x : sym_state).
@@ -128,46 +155,13 @@ end.*)
 Definition uni := sym_state -> ConcState.conc_state_set.
 Axiom unif : uni.
 
-
-End SymState.
-
-Import SymState. 
-
-
-
-
-
-Module System.
-(* System initializes with a defined set of
- initial configuration states, InitStates *)
-(*Inductive init_conc_states : Set :=
-| IsConc (a : ConcState.conc_state).*)
-
-
-Definition conc_ex (A: ConcState.conc_state) : ConcState.conc_state := 
-match A with
-|concstate => NextState A
-|NextState x => NextState (NextState x)
-end.
-
-Fixpoint conc_ex_n (x: ConcState.conc_state) (n:nat) : ConcState.conc_state :=
-match n with
-|0 => x
-|S n' => conc_ex (conc_ex_n x (n'))
-end.
-
-End System.
-
-Import System. 
-
-Module SETree.
 (* is_leaf(T, n) returns true if
  n is a leaf in tree T. *)
 (* is_root(T, n) returns true if
  n is a root in tree T. *)
 (* get_root(T) returns the root of tree T. *)
 (*Modified version of FSet RBT https://github.com/coq-contribs/fsets/blob/master/FSetRBT.v *)
-Definition state := SymState.sym_state.
+Definition state := SymbolicExec.sym_state.
 
 Inductive SE_tree : Type :=
 | leaf: SE_tree
@@ -203,7 +197,7 @@ Fixpoint length (l:SE_tree_list) : nat :=
   end.
 
 
-Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SETree.SE_tree) : Prop :=
+Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SymbolicExec.SE_tree) : Prop :=
 match tlist with 
 |nil => False
 |h :: t => (x = h) \/ (in_tree_list t x)
@@ -212,32 +206,32 @@ end.
 
 
 
-Definition is_leaf (T: SE_tree) (n : SymState.sym_state) : Prop := True.
+Definition is_leaf (T: SE_tree) (n : SymbolicExec.sym_state) : Prop := True.
 
 
 
 (* SE Properties Go Here *)
 Axiom lem_1 : forall (conc1 conc2 : ConcState.conc_state)
- (sym1: SymState.sym_state),
+ (sym1: SymbolicExec.sym_state),
 (conc_ex conc1 = conc2) /\ (In (unif sym1) conc1)  ->
 exists sym2, 
 (In (unif sym2) conc2) /\ sym_ex sym1 = sym2. 
 
 Axiom lem_1_n : forall (conc1 conc2 : ConcState.conc_state)
- (sym1: SymState.sym_state) (n : nat),
+ (sym1: SymbolicExec.sym_state) (n : nat),
 (conc_ex_n conc1 n = conc2) /\ (In (unif sym1) conc1)  ->
 exists sym2, 
 (In (unif sym2) conc2) /\ sym_ex_n sym1 n = sym2.
 
 Axiom lem_2 : forall (conc2 : ConcState.conc_state)
- (sym1 sym2: SymState.sym_state),
+ (sym1 sym2: SymbolicExec.sym_state),
 (sym_ex sym1 = sym2) /\ (In (unif sym2) conc2)  ->
 exists conc1, 
 (In (unif sym1) conc1) /\ 
 (conc_ex conc1 = conc2).
 
 Axiom lem_2_n : forall (conc2 : ConcState.conc_state)
- (sym1 sym2: SymState.sym_state) (n:nat),
+ (sym1 sym2: SymbolicExec.sym_state) (n:nat),
 (sym_ex_n sym1 n = sym2) /\ (In (unif sym2) conc2)  ->
 exists conc1, 
 (In (unif sym1) conc1) /\ 
@@ -250,27 +244,27 @@ exists conc1,
 
 
 
-End SETree.
+End SymbolicExec.
 
 
-Import SETree. 
+Import SymbolicExec. 
 
 
-Module SETreeList. 
+Module SymbolicExecList. 
 
 
 
-End SETreeList.
+End SymbolicExecList.
 
-Import SETreeList.
+Import SymbolicExecList.
 
 Module SERecurs.
 
 
-Definition circle_op_1 (sym : SymState.sym_state) : ConcState.conc_state_set :=
+Definition circle_op_1 (sym : SymbolicExec.sym_state) : ConcState.conc_state_set :=
 unif sym.
 
-Definition circle_op_2 (sym : SymState.sym_state) : ConcState.conc_state_set :=
+Definition circle_op_2 (sym : SymbolicExec.sym_state) : ConcState.conc_state_set :=
 unif (sym_ex sym).
 
 Fixpoint set_in_set (set1 set2 : ConcState.conc_state_set) : Prop :=
@@ -284,17 +278,17 @@ Variable init_conc_states: ConcState.conc_state_set.
 (* 3 properties and sufficiency go here *)
 Variable ErrorStates: ConcState.conc_state_set.
 
-Variable tree_list : SETree.SE_tree_list.
+Variable tree_list : SymbolicExec.SE_tree_list.
 (* NEED TREE LIST GENERATION *)
 
 
-Definition is_connected (tlist : SETree.SE_tree_list) : Prop := True.
+Definition is_connected (tlist : SymbolicExec.SE_tree_list) : Prop := True.
 
 
-Axiom properties : forall (e : SETree.SE_tree), 
+Axiom properties : forall (e : SymbolicExec.SE_tree), 
 in_tree_list tree_list e -> 
 exists n,
-(SETree.is_leaf e n)
+(SymbolicExec.is_leaf e n)
 /\(set_in_set init_conc_states  (circle_op_1 n))
 /\ (set_in_set  ErrorStates (circle_op_2 n))
 /\ (is_connected tree_list). 
