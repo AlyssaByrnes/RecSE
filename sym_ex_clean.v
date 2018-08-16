@@ -61,7 +61,8 @@ Variable Phi PC : Type.
 
 Inductive sym_state: Type :=
 |ConstructState (a : Phi) (p : PC)
-|SymEx (x : sym_state).
+|nilstate.
+
 
 
 Definition up_pc := PC -> PC.
@@ -97,26 +98,46 @@ Axiom unif : uni.
  n is a root in tree T. *)
 (* get_root(T) returns the root of tree T. *)
 (*Modified version of FSet RBT https://github.com/coq-contribs/fsets/blob/master/FSetRBT.v *)
-Definition state := SymbolicExec.sym_state.
+Definition state := sym_state.
 
 Inductive SE_tree : Type :=
 | leaf: SE_tree
-| sym_node: SE_tree -> state -> SE_tree -> SE_tree
-| intermediate_node : SE_tree -> state ->SE_tree.
+| ConsNode: SE_tree -> state -> SE_tree -> SE_tree.
 
-Fixpoint max (m n : nat) : nat :=
-match m, n with
-|0, _ => n
-|S m', 0 => m
-|S m', S n' => S (max m' n')
+Definition root (t : SE_tree) : sym_state :=
+match t with 
+|leaf => nilstate
+|ConsNode l n r => n
 end.
 
 Fixpoint tree_height (t : SE_tree) : nat :=
 match t with
 |leaf => O
-|sym_node l n r  => S (max (tree_height l) (tree_height r))
-|intermediate_node child n => S (tree_height child)
+|ConsNode l n r  => S (max (tree_height l) (tree_height r))
 end.
+
+
+Fixpoint is_leaf_state (tree : SE_tree) (state : sym_state) : Prop :=
+match tree with 
+|leaf => False
+|ConsNode l n r => 
+  ((n = state) /\ (l = leaf))
+  \/ (is_leaf_state l state)
+  \/ (is_leaf_state r state)
+end.
+
+
+Definition sym_ex_with_branching (state : sym_state) : SE_tree :=
+match state with 
+|ConstructState phi pc => 
+ConsNode 
+(ConsNode leaf (ConstructState (update_phi phi ) (update_pc pc)) leaf)
+ state
+(ConsNode leaf (ConstructState (update_phi phi ) (update_pc pc)) leaf)
+|nilstate => leaf
+end.
+
+
 
 Inductive SE_tree_list : Type :=
 |nil: SE_tree_list
@@ -133,11 +154,46 @@ Fixpoint length (l:SE_tree_list) : nat :=
   end.
 
 
-Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SymbolicExec.SE_tree) : Prop :=
+
+
+Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SE_tree) : Prop :=
 match tlist with 
 |nil => False
 |h :: t => (x = h) \/ (in_tree_list t x)
 end.
+
+Definition head (tlist : SE_tree_list) : SE_tree :=
+match tlist with 
+|nil => leaf
+|h :: t => h
+end.
+
+Fixpoint tail (tlist : SE_tree_list) : SE_tree :=
+match tlist with 
+|nil => leaf
+|h :: t => 
+  match t with
+  |nil => h
+  |tailh :: tailt => tail t
+  end
+end.
+
+(*is_consecutive_in_order checks if A and B are consecutive in the tree list
+and if A comes before B *)
+Fixpoint is_consecutive_in_order (A B : SE_tree) (tlist : SE_tree_list) : Prop :=
+match tlist with 
+|nil => False
+|h :: t => 
+  ((A = h) /\  (B = (head t))) 
+  \/ (is_consecutive_in_order A B t)
+end.
+
+
+
+Definition is_connected  (tlist : SE_tree_list) : Prop :=
+ forall (A B : SE_tree), 
+ (is_consecutive_in_order A B tlist) ->
+  is_leaf_state A (root B). 
 
 
 
@@ -221,12 +277,9 @@ Variable tree_list : SymbolicExec.SE_tree_list.
 Definition is_connected (tlist : SymbolicExec.SE_tree_list) : Prop := True.
 
 
-Axiom properties : forall (e : SymbolicExec.SE_tree), 
-in_tree_list tree_list e -> 
-exists n,
-(SymbolicExec.is_leaf e n)
-/\(set_in_set init_conc_states  (circle_op_1 n))
-/\ (set_in_set  ErrorStates (circle_op_2 n))
+Axiom properties : 
+(set_in_set init_conc_states  (circle_op_1 (root(head tree_list))))
+/\ (set_in_set  ErrorStates (circle_op_2 (root(tail tree_list))))
 /\ (is_connected tree_list). 
 
 End SERecurs.
