@@ -28,11 +28,6 @@ Import ConcState.
 
 
 
-
-
-
-
-
 Module System.
 (* System initializes with a defined set of
  initial configuration states, InitStates *)
@@ -139,6 +134,7 @@ end.
 
 
 
+
 Inductive SE_tree_list : Type :=
 |nil: SE_tree_list
 |cons: SE_tree -> SE_tree_list -> SE_tree_list.
@@ -195,8 +191,44 @@ Definition is_connected  (tlist : SE_tree_list) : Prop :=
  (is_consecutive_in_order A B tlist) ->
   is_leaf_state A (root B). 
 
+Inductive Sym_state_list : Type :=
+|nil_list: Sym_state_list
+|sscons: sym_state -> Sym_state_list -> Sym_state_list.
+
+(*Notation "x :: l" := (sscons x l) (at level 60, right associativity).
+Notation "[ ]" := endstate.
+Notation "[ x ; .. ; y ]" := (sscons x .. (sscons y nil) ..).*)
 
 
+Fixpoint list_of_leaf_states (tlist : SE_tree_list) : Sym_state_list:=
+match tlist with
+|nil => nil_list
+|h :: t => 
+  match t with 
+    |nil => nil_list
+    |headt :: tailt => sscons (root (head t)) (list_of_leaf_states t)
+  end
+end.
+
+Fixpoint remove_tail (slist : Sym_state_list) : Sym_state_list :=
+match slist with 
+|nil_list => nil_list
+|sscons h t => 
+  match t with
+  |nil_list => nil_list
+  |sscons headt tailt => sscons h (remove_tail t) 
+  end
+end.
+
+(*Fixpoint state_list_execution (slist : Sym_state_list) : conc_state_set :=
+match slist with
+|nil_list => Empty 
+|sscons h t => 
+  match t with 
+  |nil_list => conc_ex (unif h)
+  |sscons headt tailt => conc_ex (state_list_execution (remove_tail slist))
+  end
+end.*)
 
 Definition is_leaf (T: SE_tree) (n : SymbolicExec.sym_state) : Prop := True.
 
@@ -265,6 +297,7 @@ match set1 with
 |Cons y s => (set1 = set2) \/ (set_in_set s set2)
 end.
 
+
 Variable init_conc_states: ConcState.conc_state_set.
 
 (* 3 properties and sufficiency go here *)
@@ -274,13 +307,18 @@ Variable tree_list : SymbolicExec.SE_tree_list.
 (* NEED TREE LIST GENERATION *)
 
 
-Definition is_connected (tlist : SymbolicExec.SE_tree_list) : Prop := True.
+
 
 
 Axiom properties : 
 (set_in_set init_conc_states  (circle_op_1 (root(head tree_list))))
 /\ (set_in_set  ErrorStates (circle_op_2 (root(tail tree_list))))
 /\ (is_connected tree_list). 
+
+
+(*
+Theorem sufficiency : forall (tree : SE_tree), 
+tree*)
 
 End SERecurs.
 
