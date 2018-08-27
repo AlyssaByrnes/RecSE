@@ -1,4 +1,19 @@
+
+
 Module ConcState.
+
+Variable input : Type.
+
+Inductive input_list : Type :=
+|EmptyList
+|ConsList (i : input) (s : input_list).
+
+Fixpoint in_input_list (l : input_list) (i : input) : Prop :=
+match l with
+|EmptyList => False
+|ConsList item i_list => (item = i) \/ (in_input_list i_list i)
+end . 
+
 
 Inductive conc_state : Type :=
 |concstate.
@@ -10,16 +25,30 @@ Inductive conc_state_set : Type :=
 
 (* conc_ex(A) returns ConcState that results from 
 the concrete execution of ConcState A  *)
-Definition concrete_execution := conc_state_set -> conc_state_set.
+Definition concrete_execution := conc_state_set -> input -> conc_state_set.
 
 Axiom conc_ex : concrete_execution.
 
 
-Fixpoint In (A:conc_state_set) (x:conc_state) : Prop := 
+Fixpoint In (A : conc_state_set) (x : conc_state) : Prop := 
 match A with 
 |Empty => False
 |Cons y s => (y=x) \/ In s x
 end.
+
+(* Returns True is set2 is subset of set1 *)
+Fixpoint is_subset (set1 set2 : conc_state_set) : Prop :=
+match set2 with 
+|Empty => True
+|Cons y s => (In set1 y) /\ (is_subset set1 s)
+end.
+
+(*Inductive intersection (B C: conc_state_set) : conc_state_set :=
+    Intersection_intro :
+    forall x : conc_state, In B x -> In C x -> In (intersection B C) x.*)
+Definition intn := conc_state_set -> conc_state_set -> conc_state_set.
+
+Axiom intersection : intn.
 
 
 End ConcState.
@@ -32,14 +61,13 @@ Module System.
 (* System initializes with a defined set of
  initial configuration states, InitStates *)
 
-Definition conc_ex (A: ConcState.conc_state_set) : ConcState.conc_state_set := 
-conc_ex A.
 
-Fixpoint conc_ex_n (x: ConcState.conc_state) (n:nat) : ConcState.conc_state_set :=
+
+(*Fixpoint conc_ex_n (x: ConcState.conc_state) (n:nat) : ConcState.conc_state_set :=
 match n with
 |0 => Cons x Empty
 |S n' => conc_ex (conc_ex_n x (n'))
-end.
+end.*)
 
 End System.
 
@@ -60,11 +88,17 @@ Inductive sym_state: Type :=
 
 
 
-Definition up_pc := PC -> PC.
-Axiom update_pc : up_pc.
+Definition up_pc_l := PC -> PC.
+Axiom update_pc_left : up_pc_l.
 
-Definition up_phi := Phi -> Phi.
-Axiom update_phi: up_phi.
+Definition up_pc_r := PC -> PC.
+Axiom update_pc_right : up_pc_r.
+
+Definition up_phi_l := Phi -> Phi.
+Axiom update_phi_left: up_phi_l.
+
+Definition up_phi_r := Phi -> Phi.
+Axiom update_phi_right: up_phi_r.
 
 (* get_phi returns abstract state *)
 Definition get_sym_state  :=  sym_state -> Phi.
@@ -77,27 +111,21 @@ Axiom get_pc : get_path_constraint.
 Definition sym_execution := sym_state -> sym_state.
 Axiom sym_ex : sym_execution.
 
-Fixpoint sym_ex_n (x:sym_state) (n:nat) : sym_state :=
+(*Fixpoint sym_ex_n (x:sym_state) (n:nat) : sym_state :=
 match n with
 |0 => x
 |S n' => sym_ex (sym_ex_n x (n'))
 end.
+*)
 
-
-Definition uni := sym_state -> ConcState.conc_state_set.
+Definition uni := Phi -> PC -> ConcState.conc_state_set.
 Axiom unif : uni.
 
-(* is_leaf(T, n) returns true if
- n is a leaf in tree T. *)
-(* is_root(T, n) returns true if
- n is a root in tree T. *)
-(* get_root(T) returns the root of tree T. *)
-(*Modified version of FSet RBT https://github.com/coq-contribs/fsets/blob/master/FSetRBT.v *)
-Definition state := sym_state.
+
 
 Inductive SE_tree : Type :=
 | leaf: SE_tree
-| ConsNode: SE_tree -> state -> SE_tree -> SE_tree.
+| ConsNode: SE_tree -> sym_state -> SE_tree -> SE_tree.
 
 Definition root (t : SE_tree) : sym_state :=
 match t with 
@@ -105,12 +133,12 @@ match t with
 |ConsNode l n r => n
 end.
 
-Fixpoint tree_height (t : SE_tree) : nat :=
+(*Fixpoint tree_height (t : SE_tree) : nat :=
 match t with
 |leaf => O
 |ConsNode l n r  => S (max (tree_height l) (tree_height r))
 end.
-
+*)
 
 Fixpoint is_leaf_state (tree : SE_tree) (state : sym_state) : Prop :=
 match tree with 
@@ -126,9 +154,9 @@ Definition sym_ex_with_branching (state : sym_state) : SE_tree :=
 match state with 
 |ConstructState phi pc => 
 ConsNode 
-(ConsNode leaf (ConstructState (update_phi phi ) (update_pc pc)) leaf)
+(ConsNode leaf (ConstructState (update_phi_left phi ) (update_pc_left pc)) leaf)
  state
-(ConsNode leaf (ConstructState (update_phi phi ) (update_pc pc)) leaf)
+(ConsNode leaf (ConstructState (update_phi_right phi ) (update_pc_right pc)) leaf)
 |nilstate => leaf
 end.
 
@@ -162,6 +190,12 @@ Definition head (tlist : SE_tree_list) : SE_tree :=
 match tlist with 
 |nil => leaf
 |h :: t => h
+end.
+
+Definition second_elem (tlist : SE_tree_list) : SE_tree :=
+match tlist with
+|nil => leaf
+|h :: t => (head t)
 end.
 
 Fixpoint tail (tlist : SE_tree_list) : SE_tree :=
@@ -230,39 +264,39 @@ match slist with
   end
 end.*)
 
-Definition is_leaf (T: SE_tree) (n : SymbolicExec.sym_state) : Prop := True.
 
 
 
+(*
 (* SE Properties Go Here *)
 Axiom lem_1 : forall (conc1 conc2 : ConcState.conc_state)
  (sym1: SymbolicExec.sym_state),
-(conc_ex (Cons conc1 Empty) = (Cons conc2 Empty)) /\ (In (unif sym1) conc1)  ->
+(conc_ex (Cons conc1 Empty) = (Cons conc2 Empty)) /\ (In (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
 exists sym2, 
-(In (unif sym2) conc2) /\ sym_ex sym1 = sym2. 
+(In (unif (get_phi sym2) (get_pc sym2)) conc2) /\ sym_ex sym1 = sym2. 
 
 Axiom lem_1_n : forall (conc1 conc2 : ConcState.conc_state)
  (sym1: SymbolicExec.sym_state) (n : nat),
-(conc_ex_n conc1 n = (Cons conc2 Empty)) /\ (In (unif sym1) conc1)  ->
+(conc_ex_n conc1 n = (Cons conc2 Empty)) /\ (In (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
 exists sym2, 
-(In (unif sym2) conc2) /\ sym_ex_n sym1 n = sym2.
+(In (unif (get_phi sym2) (get_pc sym2)) conc2) /\ sym_ex_n sym1 n = sym2.
 
 Axiom lem_2 : forall (conc2 : ConcState.conc_state)
  (sym1 sym2: SymbolicExec.sym_state),
-(sym_ex sym1 = sym2) /\ (In (unif sym2) conc2)  ->
+(sym_ex sym1 = sym2) /\ (In (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
 exists conc1, 
-(In (unif sym1) conc1) /\ 
+(In (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
 ((conc_ex (Cons conc1 Empty)) = (Cons conc2 Empty)).
 
 Axiom lem_2_n : forall (conc2 : ConcState.conc_state)
  (sym1 sym2: SymbolicExec.sym_state) (n:nat),
-(sym_ex_n sym1 n = sym2) /\ (In (unif sym2) conc2)  ->
+(sym_ex_n sym1 n = sym2) /\ (In (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
 exists conc1, 
-(In (unif sym1) conc1) /\ 
+(In (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
 (conc_ex_n conc1 n = (Cons conc2 Empty)).
 
 
-
+*)
 
 
 
@@ -274,45 +308,40 @@ End SymbolicExec.
 Import SymbolicExec. 
 
 
-Module SymbolicExecList. 
-
-
-
-End SymbolicExecList.
-
-Import SymbolicExecList.
 
 Module SERecurs.
 
+(* Takes as input symbolic state of root and pc of its leaf 
+and returns all and only the concrete states that will take us down 
+the path that leads to the leaf. *)
+Definition circle_op_1 (sym sym_leaf : SymbolicExec.sym_state) : ConcState.conc_state_set :=
+unif (get_phi sym) (get_pc sym_leaf).
 
-Definition circle_op_1 (sym : SymbolicExec.sym_state) : ConcState.conc_state_set :=
-unif sym.
-
+(*Takes as input symbolic state of leaf state and pc of leaf state 
+and returns concrete states that correspond *)
 Definition circle_op_2 (sym : SymbolicExec.sym_state) : ConcState.conc_state_set :=
-unif (sym_ex sym).
+unif (get_phi (sym_ex sym)) (get_pc (sym_ex sym)).
 
-Fixpoint set_in_set (set1 set2 : ConcState.conc_state_set) : Prop :=
-match set1 with 
-|Empty => (set2 = Empty) \/ False
-|Cons y s => (set1 = set2) \/ (set_in_set s set2)
-end.
+
+
+
 
 
 Variable init_conc_states: ConcState.conc_state_set.
 
-(* 3 properties and sufficiency go here *)
+
 Variable ErrorStates: ConcState.conc_state_set.
 
 Variable tree_list : SymbolicExec.SE_tree_list.
-(* NEED TREE LIST GENERATION *)
+
 
 
 
 
 
 Axiom properties : 
-(set_in_set init_conc_states  (circle_op_1 (root(head tree_list))))
-/\ (set_in_set  ErrorStates (circle_op_2 (root(tail tree_list))))
+(is_subset init_conc_states  (circle_op_1 (root (head tree_list))))
+/\ (is_subset  ErrorStates (circle_op_2 (root (tail tree_list))))
 /\ (is_connected tree_list). 
 
 
