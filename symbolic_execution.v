@@ -16,15 +16,13 @@ match l with
 end . 
 
 
-(*Inductive conc_state : Type :=
-|concstate.*)
 
 
 Variable conc_state : Type.
 
 
-(* conc_ex(A) returns ConcState that results from 
-the concrete execution of ConcState A  *)
+(* conc_ex(A, input) returns ConcState that results from 
+the concrete execution of ConcState A with an input  *)
 Definition concrete_execution := Ensemble conc_state -> input -> Ensemble conc_state.
 
 Axiom conc_ex : concrete_execution.
@@ -43,21 +41,7 @@ Import ConcState.
 
 
 
-Module System.
-(* System initializes with a defined set of
- initial configuration states, InitStates *)
 
-
-
-(*Fixpoint conc_ex_n (x: ConcState.conc_state) (n:nat) : ConcState.Ensemble conc_state :=
-match n with
-|0 => Cons x Empty
-|S n' => conc_ex (conc_ex_n x (n'))
-end.*)
-
-End System.
-
-Import System. 
 
 Module SymbolicExec.
 
@@ -94,15 +78,6 @@ Axiom get_phi : get_sym_state.
 Definition get_path_constraint := sym_state -> PC.
 Axiom get_pc : get_path_constraint.
 
-(*Definition sym_execution := sym_state -> sym_state.
-Axiom sym_ex : sym_execution.*)
-
-(*Fixpoint sym_ex_n (x:sym_state) (n:nat) : sym_state :=
-match n with
-|0 => x
-|S n' => sym_ex (sym_ex_n x (n'))
-end.
-*)
 
 Definition uni := Phi -> PC -> Ensemble ConcState.conc_state.
 
@@ -120,12 +95,6 @@ match t with
 |ConsNode l n r => n
 end.
 
-(*Fixpoint tree_height (t : SE_tree) : nat :=
-match t with
-|leaf => O
-|ConsNode l n r  => S (max (tree_height l) (tree_height r))
-end.
-*)
 
 Fixpoint is_leaf_state (tree : SE_tree) (state : sym_state) : Prop :=
 match tree with 
@@ -158,8 +127,6 @@ ConsNode
 (ConsNode leaf (ConstructState (update_phi_right phi ) (update_pc_right pc)) leaf)
 |nilstate => leaf
 end.
-
-
 
 
 Inductive SE_tree_list : Type :=
@@ -228,40 +195,6 @@ Inductive Sym_state_list : Type :=
 |nil_list: Sym_state_list
 |sscons: sym_state -> Sym_state_list -> Sym_state_list.
 
-(*Notation "x :: l" := (sscons x l) (at level 60, right associativity).
-Notation "[ ]" := endstate.
-Notation "[ x ; .. ; y ]" := (sscons x .. (sscons y nil) ..).*)
-
-
-(*Fixpoint list_of_leaf_states (tlist : SE_tree_list) : Sym_state_list:=
-match tlist with
-|nil => nil_list
-|h :: t => 
-  match t with 
-    |nil => nil_list
-    |headt :: tailt => sscons (root (head t)) (list_of_leaf_states t)
-  end
-end.
-
-Fixpoint remove_tail (slist : Sym_state_list) : Sym_state_list :=
-match slist with 
-|nil_list => nil_list
-|sscons h t => 
-  match t with
-  |nil_list => nil_list
-  |sscons headt tailt => sscons h (remove_tail t) 
-  end
-end.*)
-
-(*Fixpoint state_list_execution (slist : Sym_state_list) : Ensemble conc_state :=
-match slist with
-|nil_list => Empty 
-|sscons h t => 
-  match t with 
-  |nil_list => conc_ex (unif h)
-  |sscons headt tailt => conc_ex (state_list_execution (remove_tail slist))
-  end
-end.*)
 
 
 
@@ -322,9 +255,12 @@ Definition circle_op_2 (sym : SymbolicExec.sym_state) : Ensemble ConcState.conc_
 unif (get_phi sym) (get_pc sym).
 
 
+Definition execution_of_tree_list := SE_tree_list -> Ensemble ConcState.conc_state.
+Axiom execute_tree_list : execution_of_tree_list.
 
+(*Fixpoint execute_tree_list (tlist : SE_tree_list) : Ensemble ConcState.conc_state :=
 
-
+*)
 
 Variable init_conc_states: Ensemble ConcState.conc_state.
 
@@ -332,10 +268,6 @@ Variable init_conc_states: Ensemble ConcState.conc_state.
 Variable ErrorStates: Ensemble ConcState.conc_state.
 
 Variable tree_list : SymbolicExec.SE_tree_list.
-
-
-
-
 
 
 Axiom properties : 
@@ -349,9 +281,11 @@ init_conc_states
 /\ (is_connected tree_list). 
 
 
-(*
-Theorem sufficiency : forall (tree : SE_tree), 
-tree*)
+
+Theorem sufficiency : 
+Included ConcState.conc_state
+(execute_tree_list tree_list)  ErrorStates.
+Proof. Abort.
 
 End SERecurs.
 
