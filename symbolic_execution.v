@@ -83,6 +83,8 @@ Definition uni := Phi -> PC -> Ensemble ConcState.conc_state.
 
 Axiom unif : uni.
 
+Definition get_inp := PC -> ConcState.input.
+Axiom get_input : get_inp.
 
 
 Inductive SE_tree : Type :=
@@ -255,14 +257,27 @@ Definition circle_op_2 (sym : SymbolicExec.sym_state) : Ensemble ConcState.conc_
 unif (get_phi sym) (get_pc sym).
 
 
-Definition execution_of_tree_list := SE_tree_list -> Ensemble ConcState.conc_state.
-Axiom execute_tree_list : execution_of_tree_list.
 
-(*Fixpoint execute_tree_list (tlist : SE_tree_list) : Ensemble ConcState.conc_state :=
-
-*)
 
 Variable init_conc_states: Ensemble ConcState.conc_state.
+
+Fixpoint execute_tree_list (tlist : SE_tree_list)  (cs : Ensemble ConcState.conc_state)  : Ensemble ConcState.conc_state :=
+match tlist with 
+|nil => Empty_set ConcState.conc_state
+|h :: t => 
+  match t with
+  |nil => conc_ex cs (get_input (get_pc (left_child h)))
+  |thead :: ttail => 
+    execute_tree_list 
+    t 
+    (conc_ex cs (get_input (get_pc (root (second_elem tlist)))))
+  end
+end.
+
+
+
+
+
 
 
 Variable ErrorStates: Ensemble ConcState.conc_state.
@@ -284,7 +299,7 @@ init_conc_states
 
 Theorem sufficiency : 
 Included ConcState.conc_state
-(execute_tree_list tree_list)  ErrorStates.
+(execute_tree_list tree_list init_conc_states)  ErrorStates.
 Proof. Abort.
 
 End SERecurs.
