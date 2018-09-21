@@ -28,22 +28,10 @@ Definition concrete_execution := Ensemble conc_state -> input -> Ensemble conc_s
 Axiom conc_ex : concrete_execution.
 
 
-
 Definition singleton (l : conc_state) : Ensemble conc_state :=
   Add conc_state (Empty_set conc_state) l.
 
 
-Fixpoint conc_ex_input_list (states : Ensemble conc_state) (ilist : input_list) : Ensemble conc_state:=
-match ilist with
-|EmptyList => states
-|ConsList inp list_tail => conc_ex_input_list (conc_ex states inp) list_tail
-end.
-
-Fixpoint list_size (l : input_list) : nat :=
-match l with
-|EmptyList => 0
-|ConsList head tail => 1 + list_size tail
-end.
 
 
 
@@ -119,17 +107,6 @@ match tree with
   \/ (is_leaf_state r state)
 end.
 
-Fixpoint in_tree (tree: SE_tree) (state : sym_state) : Prop :=
-match tree with
-|leaf => False
-|ConsNode l n r => 
-(in_tree l state)\/
-(n = state) \/
-(in_tree r state)
-end.
-
-
-
 Definition left_child (tree : SE_tree) : sym_state :=
 match tree with 
 |leaf => nilstate
@@ -151,16 +128,6 @@ ConsNode
  state
 (ConsNode leaf (ConstructState (update_phi_right phi ) (update_pc_right pc)) leaf)
 |nilstate => leaf
-end.
-
-
-Fixpoint sym_ex_n_with_branching (state : sym_state) (n:nat) : SE_tree :=
-match n with
-|0 => sym_ex_with_branching state
-|S n' => ConsNode 
-(sym_ex_n_with_branching (left_child (sym_ex_with_branching state)) n')
-state
-(sym_ex_n_with_branching (right_child (sym_ex_with_branching state)) n')
 end.
 
 
@@ -234,37 +201,35 @@ Inductive Sym_state_list : Type :=
 
 
 
-
+(*
 (* SE Properties Go Here *)
-Axiom lem_1 : forall (conc1 conc2 : ConcState.conc_state) (inp1 : ConcState.input)
+Axiom lem_1 : forall (conc1 conc2 : ConcState.conc_state)
  (sym1: SymbolicExec.sym_state),
-(conc_ex (singleton conc1) inp1 = (singleton conc2)) /\ (In ConcState.conc_state (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
+(conc_ex (singleton conc1) = (singleton conc2)) /\ (In (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
 exists sym2, 
-(In ConcState.conc_state (unif (get_phi sym2) (get_pc sym2)) conc2) /\ 
-((left_child (sym_ex_with_branching sym1)) = sym2) \/ ((right_child (sym_ex_with_branching sym1)) = sym2). 
+(In (unif (get_phi sym2) (get_pc sym2)) conc2) /\ sym_ex sym1 = sym2. 
 
-Axiom lem_1_n : forall (conc1 conc2 : ConcState.conc_state) (inp1 : ConcState.input_list)
+Axiom lem_1_n : forall (conc1 conc2 : ConcState.conc_state)
  (sym1: SymbolicExec.sym_state) (n : nat),
-(list_size inp1 = n)/\(conc_ex_input_list (singleton conc1) inp1 = (singleton conc2)) /\ (In ConcState.conc_state (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
+(conc_ex_n conc1 n = (Cons conc2 Empty)) /\ (In (unif (get_phi sym1) (get_pc sym1)) conc1)  ->
 exists sym2, 
-(In  ConcState.conc_state (unif (get_phi sym2) (get_pc sym2)) conc2) /\ (in_tree (sym_ex_n_with_branching sym1 n) sym2).
+(In (unif (get_phi sym2) (get_pc sym2)) conc2) /\ sym_ex_n sym1 n = sym2.
 
-Axiom lem_2 : forall (conc2 : ConcState.conc_state) (inp1 : ConcState.input)
+Axiom lem_2 : forall (conc2 : ConcState.conc_state)
  (sym1 sym2: SymbolicExec.sym_state),
-(in_tree (sym_ex_with_branching sym1) sym2) /\ (In ConcState.conc_state (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
+(sym_ex sym1 = sym2) /\ (In (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
 exists conc1, 
-(In ConcState.conc_state (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
-((conc_ex (singleton conc1) inp1) = (singleton conc2)).
+(In (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
+((conc_ex (Cons conc1 Empty)) = (Cons conc2 Empty)).
 
 Axiom lem_2_n : forall (conc2 : ConcState.conc_state)
  (sym1 sym2: SymbolicExec.sym_state) (n:nat),
-(in_tree (sym_ex_n_with_branching sym1 n) sym2) /\ (In ConcState.conc_state (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
-exists conc1, exists inp1,
-(list_size inp1 = n) /\
-(In ConcState.conc_state (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
-(conc_ex_input_list (singleton conc1) inp1 = (singleton conc2)).
+(sym_ex_n sym1 n = sym2) /\ (In (unif (get_phi sym2) (get_pc sym2)) conc2)  ->
+exists conc1, 
+(In (unif (get_phi sym1) (get_pc sym1)) conc1) /\ 
+(conc_ex_n conc1 n = (Cons conc2 Empty)).
 
-
+*)
 
 
 
