@@ -296,3 +296,163 @@ exists n,
 End SERecurs.
 
 
+
+(*Fixpoint list_size (l : input_list) : nat :=
+match l with
+|EmptyList => 0
+|ConsList head last_elem => 1 + list_size last_elem
+end.
+*)
+
+(*
+
+
+
+Fixpoint in_tree_list  (tlist : SE_tree_list) (x : SE_tree) : Prop :=
+match tlist with 
+|nil => False
+|h :: t => (x = h) \/ (in_tree_list t x)
+end.*)
+
+(*Fixpoint is_connected  (tlist : SE_tree_list) : Prop :=
+ match tlist with
+|nil => True
+|h :: t => (is_leaf_state (last_elem h) (root t)) /\ is_connected h
+end.*)
+
+(*
+(* SE Properties Go Here *)
+Axiom lem_1 : forall (conc1 conc2 : ConcState.conc_state) (inp1 : ConcState.input)
+ (sym1: SymbolicExec.sym_state),
+(conc_ex (singleton conc1) inp1 = (singleton conc2)) /\ (In ConcState.conc_state (concretize (get_phi sym1) (get_pc sym1)) conc1)  ->
+exists sym2, 
+(In ConcState.conc_state (concretize (get_phi sym2) (get_pc sym2)) conc2) /\ 
+((left_child (sym_ex_with_branching sym1)) = sym2) \/ ((right_child (sym_ex_with_branching sym1)) = sym2). 
+
+Axiom lem_1_n : forall (conc1 conc2 : ConcState.conc_state) (inp1 : ConcState.input_list)
+ (sym1: SymbolicExec.sym_state) (n : nat),
+(list_size inp1 = n)/\(conc_ex_input_list (singleton conc1) inp1 = (singleton conc2)) /\ (In ConcState.conc_state (concretize (get_phi sym1) (get_pc sym1)) conc1)  ->
+exists sym2, 
+(In  ConcState.conc_state (concretize (get_phi sym2) (get_pc sym2)) conc2) /\ (in_tree (sym_ex_n_with_branching sym1 n) sym2).
+
+Axiom lem_2 : forall (conc2 : ConcState.conc_state) (inp1 : ConcState.input)
+ (sym1 sym2: SymbolicExec.sym_state),
+(in_tree (sym_ex_with_branching sym1) sym2) /\ (In ConcState.conc_state (concretize (get_phi sym2) (get_pc sym2)) conc2)  ->
+exists conc1, 
+(In ConcState.conc_state (concretize (get_phi sym1) (get_pc sym1)) conc1) /\ 
+((conc_ex (singleton conc1) inp1) = (singleton conc2)).
+
+Axiom lem_2_n : forall (conc2 : ConcState.conc_state)
+ (sym1 sym2: SymbolicExec.sym_state) (n:nat),
+(in_tree (sym_ex_n_with_branching sym1 n) sym2) /\ (In ConcState.conc_state (concretize (get_phi sym2) (get_pc sym2)) conc2)  ->
+exists conc1, exists inp1,
+(list_size inp1 = n) /\
+(In ConcState.conc_state (concretize (get_phi sym1) (get_pc sym1)) conc1) /\ 
+(conc_ex_input_list (singleton conc1) inp1 = (singleton conc2)).*)
+
+(*Definition etl1 (tlist: SE_tree_list) (init_s: Ensemble ConcState.conc_state) : Ensemble ConcState.conc_state :=
+conc_ex init_s second_elem tlist.
+
+Fixpoint etl2 (tlist : SE_tree_list) (init_s: Ensemble ConcState.conc_state) : Ensemble ConcState.conc_state :=
+match tlist with
+|nil => Singleton ConcState.conc_state EmptyState
+|h::t => 
+  match t with 
+  |nil => elt1 tlist init_s
+  |th::tlast_elem => etl2 t (conc_ex get_input((get_pc (root (second_elem tlist))))*)
+
+(*Fixpoint execute_tree_list2 (tlist : SE_tree_list)  (cs : Ensemble ConcState.conc_state)  : Ensemble ConcState.conc_state :=
+match tlist with 
+|nil => Singleton ConcState.conc_state EmptyState
+|h :: t => 
+  match t with
+  |nil => cs
+  |thead :: tlast_elem => 
+    execute_tree_list2 
+    t 
+    (conc_ex cs (get_input (get_pc (root (second_elem tlist)))))
+  end
+end.*)
+
+(*
+Fixpoint etl_counter (tlist: SE_tree_list) (n:nat) (cs : Ensemble ConcState.conc_state) : Ensemble ConcState.conc_state:=
+match n, tlist with
+|S n, nil => Singleton ConcState.conc_state EmptyState
+|0, h::t => Singleton ConcState.conc_state EmptyState
+|0, nil => cs
+|S n, h::t => etl_counter t n (conc_ex cs (get_input (get_pc (root (second_elem tlist))))) 
+end.
+
+
+*)
+
+
+Inductive Sym_state_list : Type :=
+|nil_list: Sym_state_list
+|sscons: sym_state -> Sym_state_list -> Sym_state_list.
+
+(*This axiom states that these error states can be reached through normal concrete execution*)
+(*Axiom error_reachability:
+forall (state : ConcState.conc_state),
+(In ConcState.conc_state ErrorStates state) ->
+exists (ilist: ConcState.input_list),
+(In ConcState.conc_state 
+(conc_ex_input_list init_conc_states ilist) state).*)
+
+
+(*Axiom falsest : forall (x: ConcState.conc_state), 
+In ConcState.conc_state (Empty_set ConcState.conc_state) x -> 
+x = EmptyState.
+
+
+Axiom conc_inc: forall (state1 state2 : Ensemble ConcState.conc_state) (i : ConcState.input),
+Included ConcState.conc_state state1 state2 ->
+Included ConcState.conc_state (conc_ex state1 i) (conc_ex state2 i).
+
+
+
+Axiom sub1: forall s: SE_tree,
+Intersection conc_state
+  (conc_ex init_conc_states
+     (get_input (get_pc (root s))))
+  ErrorStates <> Empty_set conc_state. *)
+
+(*Axiom concretization: forall s : sym_state, concretize (get_phi s) (get_pc s) = Singleton ConsState (get_input (get_pc s)) (get_state (get_phi s)).*)
+
+
+
+(*Axiom concretize_elim: *)
+
+(*Axiom elt_ax_init: 
+execute_tree_list tree_list = conc_ex (execute_tree_list (tail tree_list)).
+*)
+
+(*Axiom basecase2: forall s: SE_tree, init_conc_states = circle_op_2 (root s).
+*)
+
+Axiom done2: forall tlist : SE_tree_list,
+is_connected tlist ->
+match tlist with
+|nil => True
+|nil :: t => True
+|h :: t => conc_ex (circle_op_2 (root (last_elem h))) (get_input (get_pc (root t))) = circle_op_2 (root t)
+end.
+
+Axiom done3: forall tlist : SE_tree_list,
+is_connected tlist ->
+ conc_ex (circle_op_2 (root (second_last_elem tlist))) (get_input (get_pc (root (last_elem tlist)))) = circle_op_2 (root (last_elem tlist)).
+
+Axiom cio: is_consecutive_in_order (second_last_elem tree_list) (last_elem tree_list) tree_list.
+
+Axiom sle : forall (s : SE_tree_list) (s1 s0: SE_tree),
+(second_last_elem ((s :: s1) :: s0)) = last_elem (s :: s1).
+
+Axiom cio_sle: forall (s : SE_tree_list) (s1 s0: SE_tree),
+tree_list = ((s :: s1) :: s0) ->
+is_consecutive_in_order 
+(last_elem(s :: s1))
+ (last_elem ((s :: s1) :: s0))
+ tree_list.
+
+(*Axiom bc3: forall s0: SE_tree, conc_ex init_conc_states (get_input (get_pc (root s0))) =
+circle_op_2 (root s0).*)
