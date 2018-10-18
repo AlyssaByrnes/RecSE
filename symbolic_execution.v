@@ -1,5 +1,6 @@
 Require Import Ensembles. 
-Require Import Arith.
+Require Import Arith PeanoNat.
+
 
 
 Module ConcState.
@@ -249,11 +250,16 @@ match tlist with
 end.
 
 
-
+Fixpoint size (tlist : SE_tree_list) : nat :=
+match tlist with
+|nil => 0
+|h :: t => S (size h)
+end.
  
 
 Definition is_connected  (tlist : SE_tree_list) : Prop :=
- forall (A B : SE_tree), 
+ forall (A B : SE_tree),
+ (size tlist) >= 2 ->
  (is_consecutive_in_order A B tlist) ->
   is_leaf_state A (root B). 
 
@@ -303,11 +309,7 @@ conc_ex (circle_op_1 s1 s0) (get_input (get_pc s0))
 Variable init_conc_states: Ensemble ConcState.conc_state.
 
 
-Fixpoint size (tlist : SE_tree_list) : nat :=
-match tlist with
-|nil => 0
-|h :: t => S (size h)
-end.
+
 
 
 Theorem tlist_size: 
@@ -376,27 +378,7 @@ Proof. intros. induction tlist.
 -apply tlist_size_1 in H. rewrite H. simpl;auto.
 Qed.
 
-(*Theorem etl_size2:
-forall tlist : SE_tree_list,
-(size tlist) = 2 ->
- execute_tree_list tlist = 
-conc_ex (conc_ex init_conc_states (get_input (get_pc (root s)))) (get_input (get_pc  (root t))).
-Proof. intros. destruct tlist.
--inversion H.
--destruct tlist.
-*simpl in H. inversion H.
-*simpl in H. destruct tlist.
-+simpl; auto.
-+simpl in H. inversion H. Qed.*)
 
-(*Theorem etl_size2_modified:
-forall (tlist : SE_tree_list) (s : SE_tree),
-(size tlist) = 1 ->
- execute_tree_list (tlist :: s) = 
-conc_ex init_conc_states (get_input (get_pc (root s))).
-Proof. intros. destruct tlist.
--inversion H.
--apply tlist_size_1 in H. rewrite H. simpl;auto. Qed.*)
 
 
 Theorem etl_size2_modified:
@@ -409,21 +391,6 @@ destruct tlist.
 -simpl. auto.
 -inversion H. Qed.
 
-(*Theorem etl_size_gt2:
-forall (tlist : SE_tree_list) (s t : SE_tree),
-(size tlist) > 1 ->
-execute_tree_list ((tlist :: s) :: t) =
-conc_ex
-(conc_ex 
-(Singleton conc_state EmptyState)
-(get_input (get_pc (root s))))
-(get_input (get_pc (root t)))
-Proof. intros.
-destruct tlist.
--inversion H.
--destruct tlist.
-*simpl; auto.
-simpl.*)
 
 Theorem tlist_size_1_mod:
 forall (s: SE_tree),
@@ -448,22 +415,6 @@ destruct tlist.
 
 
 
-Axiom conc_ex_empty: forall i : ConcState.input,
-conc_ex (Singleton conc_state EmptyState) i = Singleton conc_state EmptyState.
-
-(*
-Theorem etl_main : forall (s: SE_tree_list) (s1 : SE_tree),  
-execute_tree_list(s::s1) = conc_ex (execute_tree_list s) (get_input (get_pc  (root s1))).
-Proof.
-intros tlist tail.
-induction tlist.
--simpl. rewrite conc_ex_empty. reflexivity.
--induction tlist.
-*simpl. rewrite conc_ex_empty2. reflexivity.
-*auto. Qed.
-*)
-
-
 
 
 
@@ -473,9 +424,13 @@ Variable ErrorStates: Ensemble ConcState.conc_state.
 Axiom error_include_empty: In conc_state ErrorStates EmptyState.
 
 
+
 Variable tree_list : SymbolicExec.SE_tree_list.
 
-Axiom tl_size: (size tree_list) > 1.
+
+Axiom tl_size: (size tree_list) >= 2.
+
+
 
 (*Expand circle ops*)
 Axiom property1 : 
@@ -490,126 +445,10 @@ Axiom property2: (Intersection ConcState.conc_state (circle_op_2 (root (last_ele
 
 Axiom property3: is_connected tree_list.
 
-(*(*Necessary?*)
-Axiom tlist_non_empty: (tree_list <> nil).
 
 
+Axiom empt : [ ] = [ ] :: leaf. 
 
-Axiom basecase: Singleton conc_state EmptyState =
-circle_op_2 nilstate.
-
-
-Axiom bc2: forall s0: SE_tree, conc_ex
-  (Singleton conc_state EmptyState)
-  (get_input (get_pc (root s0))) =
-circle_op_2 (root s0).
-
-
-Axiom unif: 
-conc_ex 
-init_conc_states 
-(get_input(get_pc (root (second_elem tree_list))))
-= circle_op_2 (root(second_elem tree_list)).
-
-
-(*NEEDS TO BE PROVEN*)
-Axiom connected_conc: 
-forall s0 s1 : SE_tree,
-is_consecutive_in_order s0 s1 tree_list ->
-conc_ex (circle_op_2 (root s0))
-  (get_input (get_pc (root s1))) =
-circle_op_2 (root s1).
-
-
-Axiom ch : forall (tlist : SE_tree_list) (s0 : SE_tree),
-conc_ex (execute_tree_list (tlist))
-  (get_input (get_pc (root s0))) =
-circle_op_2
-  (root (last_elem (tlist :: s0))).
-
-Axiom dks : forall (s0 s1 : SE_tree),
-is_consecutive_in_order_2 s1 s0 tree_list -> 
-conc_ex (circle_op_2 (root s1))
-  (get_input (get_pc (root s0))) =
-circle_op_2 (root s0).
-
-Axiom last_2_elem: forall (s1 s0: SE_tree) (tl: SE_tree_list), 
-second_last_elem tl = s1 /\ last_elem tl = s0
--> is_consecutive_in_order_2 s1 s0 tl.
-
-Axiom base: forall s0: SE_tree, Singleton conc_state EmptyState =
-circle_op_2 (root s0).
-
-Axiom co_unif : forall (s: SE_tree_list) (s0 s1 : SE_tree),
- is_connected ((s :: s1) :: s0) -> 
-conc_ex (circle_op_1 (root s1) (root s0)) (get_input (get_pc (root s0))) 
-= circle_op_2 (root s0).
-
-Axiom p1_alt: forall s0 s1 : SE_tree,
-conc_ex init_conc_states
-  (get_input (get_pc (root s0))) =
-conc_ex (circle_op_1 (root s1) (root s0))
-  (get_input (get_pc (root s0))).
-
-Axiom leaf_eq : forall (A B : SE_tree), 
-is_leaf_state A (root B) ->
-circle_op_2 (root B) = 
-conc_ex (circle_op_1 (root A) (root B))
-  (get_input (get_pc (root B))).
-
-Axiom etl_elim : forall (s: SE_tree_list) (s0 : SE_tree),
-is_connected (s::s0) ->
-execute_tree_list (s::s0) = 
-conc_ex (execute_tree_list s) (get_input (get_pc(root s0))).
-
-Axiom connection : forall (d: SE_tree_list) (a b c : SE_tree),
-is_connected (((d :: a) :: b) :: c) -> is_connected ((d :: a) :: b).
-
-
-Axiom p1 : forall (s: SE_tree_list) (s0 s1 : SE_tree),
- is_connected ((s :: s1) :: s0) -> 
-execute_tree_list ((s :: s1) :: s0) =
-conc_ex (circle_op_1 (root s1) (root s0))
-  (get_input (get_pc (root s0))).
-
-Axiom bcbc: forall s0:SE_tree, conc_ex init_conc_states
-  (get_input (get_pc (root s0))) =
-circle_op_2 (root s0).
-
-Axiom co2_unif: 
-forall (t : SE_tree) (s : sym_state),
-is_leaf_state t s ->
-circle_op_2 (root t) s
-
-
-Theorem x : forall (s : SE_tree_list) (s0: SE_tree), 
-is_connected (s :: s0)
-/\ (size s >0 ) ->
-execute_tree_list (s :: s0) =
-circle_op_2 (root s0).
-Proof. intros. induction s.
--inversion H. inversion H1.
--destruct s.
-*simpl. unfold circle_op_2. rewrite etl_size_1.
-
- rewrite etl_main. rewrite etl_main in IHs. rewrite etl_main. rewrite <- IHs.  pose H as H2. apply y in H2. 
-
- rewrite <- H2. rewrite circle_op_unif. apply p1; auto. Qed.*)
-
-Axiom circle_op_unification: 
-forall (t : SE_tree) (s : sym_state),
-is_leaf_state t s ->
-(circle_op_1 (root t) s)
-= conc_ex (circle_op_2 (root t)) (get_input (get_pc s)).
-
-
-Axiom empt : [ ] = [ ] :: leaf.
-
-Axiom basecase : Singleton conc_state EmptyState = circle_op_2 nilstate.
-
-Axiom size1: forall tl : SE_tree_list,
-size tl = 1 ->
-execute_tree_list tl = circle_op_2 (root (last_elem tl)).
 
 Theorem tlist_structure : forall t : SE_tree_list,
 t = (headlist t)::(last_elem t).
@@ -619,35 +458,140 @@ induction t.
 -simpl. auto. Qed.
 
 
-Axiom co2_leaf: 
-forall (t: SE_tree) (l: sym_state),
-is_leaf_state t l ->
-conc_ex (circle_op_2 (root t))
-  (get_input (get_pc l)) = circle_op_2 l.
 
 Theorem tree_list_struct : 
 tree_list = headlist tree_list :: last_elem tree_list.
 Proof. apply tlist_structure. Qed.
-  
 
-Axiom cio : forall (tl tl2 : SE_tree_list) (a b : SE_tree),
+
+(*Axiom cio : forall (tl tl2 : SE_tree_list) (a b : SE_tree),
 tl2 = ((tl :: a ) :: b) ->
-is_consecutive_in_order a b tl2.
+is_consecutive_in_order a b tl2.*)
 
-Axiom x : forall (s : SE_tree_list) (a b : SE_tree),
-is_consecutive_in_order (last_elem (s :: a)) (last_elem ((s:: a)::b))  ((s:: a)::b).
+Axiom base_case: 
+forall s0 s : SE_tree,
+is_connected (([ ] :: s0) :: s) ->
+conc_ex
+  (conc_ex init_conc_states
+     (get_input (get_pc (root s0))))
+  (get_input (get_pc (root s))) =
+circle_op_2 (root s).
+
+
+Axiom base_case_2 : forall (s s0 s1 : SE_tree),
+is_connected ((([] :: s1) :: s0) :: s) ->
+conc_ex (execute_tree_list (([] :: s1) :: s0))
+  (get_input (get_pc (root s))) =
+circle_op_2
+  (root (last_elem ((([] :: s1) :: s0) :: s))).
+
+
+Axiom co_2_def:
+forall (s0 : SE_tree) (s: sym_state),
+is_leaf_state s0 s ->
+conc_ex (circle_op_2 (root s0))
+  (get_input (get_pc s)) =
+(circle_op_2  s).
+
+Theorem etl_size_gt2:
+forall (x : SE_tree_list) (y z : SE_tree),
+(size ((x :: y) :: z)) > 2 ->
+execute_tree_list ((x :: y) :: z) = 
+conc_ex (execute_tree_list (x::y)) (get_input (get_pc  (root z))).
+Proof. intros. induction x.
+-simpl in H. inversion H. inversion H1. inversion H3.
+-simpl;auto. Qed.
+
+
+Theorem size_const_helper: forall (t : SE_tree_list) (s0 s1 s2 : SE_tree),
+size (((t :: s2) :: s1) :: s0) >= 2.
+Proof. intros.
+induction t.
+-simpl;auto.
+-simpl; auto. Qed.
+
+Theorem size_const_2_helper: forall (t : SE_tree_list) (s s0 s1 s2 : SE_tree),
+size ((((t :: s2) :: s1) :: s0) :: s) > 2.
+Proof. intros.
+induction t.
+-simpl;auto.
+-simpl; auto. Qed.
+
+Theorem size_const_3_helper: forall (t : SE_tree_list) (s0 s1 s2 s3 : SE_tree),
+size ((((t :: s3) :: s2) :: s1) :: s0)  >= 2.
+Proof. intros.
+induction t.
+-simpl;auto.
+-simpl; auto. Qed.
+
+
+Theorem cio_fundamental : 
+forall (x : SE_tree_list) (y z : SE_tree),
+  is_consecutive_in_order y z ((x::y)::z).
+Proof. intros. simpl; auto. Qed.
+
+
+Theorem connection:
+forall (t : SE_tree_list) (s s0 s1 s2 : SE_tree),
+is_connected ((((t :: s2) :: s1) :: s0) :: s) ->
+conc_ex
+  (circle_op_2
+     (root (last_elem (((t :: s2) :: s1) :: s0))))
+  (get_input (get_pc (root s))) =
+circle_op_2
+  (root
+     (last_elem ((((t :: s2) :: s1) :: s0) :: s))).
+Proof. intros. unfold last_elem. apply co_2_def. 
+unfold is_connected in H. apply H.
+-apply size_const_3_helper.
+- apply cio_fundamental. Qed.
+
+
+
+Axiom connected_elim: 
+forall (t : SE_tree_list) (s0 s : SE_tree),
+is_connected ((t :: s0) :: s)->
+is_connected (t :: s0).
+
+
+
+
+Theorem etl_con : 
+forall t: SE_tree_list,
+is_connected t /\ (size t) >= 2 -> 
+execute_tree_list t = 
+(circle_op_2 (root (last_elem t))).
+Proof. intros. destruct H.
+induction t. 
+-inversion H0.
+-destruct t.
+*inversion H0. inversion H2.
+*destruct t.
++rewrite etl_size2_modified. unfold last_elem.
+++apply base_case. apply H.
+++auto.
++destruct t.
+++rewrite etl_size_gt2. 
++++apply base_case_2. assumption.
++++simpl;auto.
+++rewrite etl_size_gt2.
++++ rewrite IHt. apply connection.
+assumption.
+++++ apply connected_elim in H. assumption.
+++++apply size_const_helper.
++++apply size_const_2_helper.
+Qed.
+
+
+
+
+
 
 Theorem etl : execute_tree_list tree_list = (circle_op_2 (root (last_elem tree_list))).
-Proof.  induction tree_list. pose property3 as p3.
--simpl. apply basecase.
-- induction s.
-*rewrite size1. 
-+auto. 
-+simpl; auto.
-* rewrite etl_size_gt1.
-+pose x. rewrite IHs. 
-apply co2_leaf.  unfold is_connected in p3. apply p3. apply x. 
-Qed.
+Proof. apply etl_con. split.
+-apply property3.
+-apply tl_size.  Qed.
+
 
 
 Theorem sufficiency : 
