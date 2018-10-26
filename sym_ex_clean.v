@@ -518,6 +518,68 @@ Axiom size1: forall tl : SE_tree_list,
 size tl = 1 ->
 execute_tree_list tl = circle_op_2 (root (last_elem tl)).*)
 
+
+
+(*
+Axiom conc_ex_empty: forall i : ConcState.input,
+conc_ex (Singleton conc_state EmptyState) i = Singleton conc_state EmptyState.
+*)
+(*
+Theorem etl_main : forall (s: SE_tree_list) (s1 : SE_tree),  
+execute_tree_list(s::s1) = conc_ex (execute_tree_list s) (get_input (get_pc  (root s1))).
+Proof.
+intros tlist tail.
+induction tlist.
+-simpl. rewrite conc_ex_empty. reflexivity.
+-induction tlist.
+*simpl. rewrite conc_ex_empty2. reflexivity.
+*auto. Qed.
+*)
+
+
+
+
+(*
+Theorem etl_size_gt2:
+forall (tlist : SE_tree_list) (s t : SE_tree),
+(size tlist) > 1 ->
+execute_tree_list ((tlist :: s) :: t) =
+conc_ex
+(conc_ex 
+(Singleton conc_state EmptyState)
+(get_input (get_pc (root s))))
+(get_input (get_pc (root t))).
+Proof. intros.
+destruct tlist.
+-inversion H.
+-destruct tlist.
+*simpl; auto.
+simpl.*)
+
+
+
+
+(*Theorem etl_size2:
+forall tlist : SE_tree_list,
+(size tlist) = 2 ->
+ execute_tree_list tlist = 
+conc_ex (conc_ex init_conc_states (get_input (get_pc (root s)))) (get_input (get_pc  (root t))).
+Proof. intros. destruct tlist.
+-inversion H.
+-destruct tlist.
+*simpl in H. inversion H.
+*simpl in H. destruct tlist.
++simpl; auto.
++simpl in H. inversion H. Qed.*)
+
+(*Theorem etl_size2_modified:
+forall (tlist : SE_tree_list) (s : SE_tree),
+(size tlist) = 1 ->
+ execute_tree_list (tlist :: s) = 
+conc_ex init_conc_states (get_input (get_pc (root s))).
+Proof. intros. destruct tlist.
+-inversion H.
+-apply tlist_size_1 in H. rewrite H. simpl;auto. Qed.*)
 End SERecurs.
 
 
