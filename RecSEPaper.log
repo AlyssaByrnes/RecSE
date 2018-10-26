@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  25 OCT 2018 22:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  25 OCT 2018 23:07
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -749,19 +749,19 @@ it/10 cir-cle_op_1 (root(head(tree_list)), root (sec-ond_elem
 
 No file RecSEPaper.bbl.
 [2]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 286.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 286.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 280.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 280.
  (./RecSEPaper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 286.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 286.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 280.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 280.
 Package rerunfilecheck Info: File `RecSEPaper.out' has not changed.
 (rerunfilecheck)             Checksum: CD8C5746AD92A411DBE60FD309911B4B;580.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 286.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 280.
  ) 
 Here is how much of TeX's memory you used:
- 17398 strings out of 492649
- 323272 string characters out of 6129622
- 415066 words of memory out of 5000000
+ 17397 strings out of 492649
+ 323262 string characters out of 6129622
+ 414066 words of memory out of 5000000
  20937 multiletter control sequences out of 15000+600000
  15121 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -779,10 +779,10 @@ xlive/2018/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texl
 ive/2018/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texliv
 e/2018/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/
 2018/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb>
-Output written on RecSEPaper.pdf (2 pages, 186345 bytes).
+Output written on RecSEPaper.pdf (2 pages, 186020 bytes).
 PDF statistics:
- 128 PDF objects out of 1000 (max. 8388607)
- 110 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
+ 126 PDF objects out of 1000 (max. 8388607)
+ 108 compressed objects within 2 object streams
+ 24 named destinations out of 1000 (max. 500000)
  93 words of extra memory for PDF output out of 10000 (max. 10000000)
 

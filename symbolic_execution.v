@@ -234,10 +234,32 @@ Axiom property2: (Intersection ConcState.conc_state (circle_op_2 (root (last_ele
 
 Axiom property3: is_connected tree_list.
 
-Axiom connected_elim: 
+Theorem cio_helper: 
+forall (t : SE_tree_list) (A B s : SE_tree),
+(is_consecutive_in_order A B t)
+-> (is_consecutive_in_order A B (t::s)).
+Proof. intros. 
+destruct t.
+-simpl;auto.
+-simpl. simpl in H. right. assumption. Qed.
+
+
+
+
+Theorem connected_elim: 
 forall (t : SE_tree_list) (s0 s : SE_tree),
 is_connected ((t :: s0) :: s)->
 is_connected (t :: s0).
+Proof. intros.  
+unfold is_connected in H.
+destruct t.
+-unfold is_connected. intros. inversion H0.
+apply H.  
+*simpl;auto.
+*apply cio_helper. apply H1.
+-unfold is_connected. intros. apply H.
+*simpl;auto.
+*apply cio_helper. apply H1. Qed.
 
 Axiom base_case: 
 forall s0 s : SE_tree,
