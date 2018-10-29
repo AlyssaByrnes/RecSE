@@ -1,0 +1,242 @@
+\section{Abstract Variables and Methods}
+\subsection{Concrete Execution}
+
+Abstract Variables
+\begin{itemize}
+\item input - string of inputs
+\item state - system state
+\end{itemize}
+
+Inductive-type Variables
+\begin{itemize}
+\item input\_list - list of elements of type ``input''
+\item conc\_state - constructs a concrete state given a system state and an input, (elements of type ``state'' and ``input''.)
+\end{itemize}
+
+Abstract Methods
+\begin{itemize}
+\item conc\_ex - inputs elements of type ``conc\_state'' and and ``input'' and outputs new ``conc\_state''.
+\end{itemize}
+
+
+\subsection{Symbolic Execution}
+
+Abstract Variables
+\begin{itemize}
+\item phi - Abstract State
+\item pc - path constraint
+\end{itemize}
+
+Inductive-type Variables
+\begin{itemize}
+\item sym\_state - constructs a symbolic state given elements of type ``phi'' and ``pc''
+\item SE\_tree - tree structure consisting of sym\_state elements
+\item SE\_tree\_list - list containing SE\_tree elements
+\end{itemize}
+
+Abstract Methods
+\begin{itemize}
+\item get\_phi - inputs sym\_state and returns phi
+\item get\_pc - inputs sym\_state and returns pc
+\item concretize - takes a phi and pc and returns a concrete state
+\item get\_input - takes a pc and outputs an element of type ``input''
+\end{itemize}
+
+\section{Definitions}
+
+\subsection{Variables}
+\begin{itemize}
+\item init\_conc\_states - an ensemble of conc\_states.
+\item tree\_list - an SE\_tree\_list
+\end{itemize}
+
+\subsection{General Methods}
+\begin{define}
+ is\_connected(tlist) :=
+ forall A B $\in$, 
+ tlist $\geq 2$  $\rightarrow$
+if A and B are consecutive, then the root of B is a leaf of A.
+\end{define}
+
+\begin{define}
+execute\_tree\_list(tlist):  steps through tlist, 
+executing a list of size 2 (or the first two elements of a list) as conc\_ex( conc\_ex(init\_conc\_states, x), y)
+where x = get\_input (get\_pc (root(second\_element))) and y = get\_input (get\_pc (root(third\_element))).
+For any other element in the list, it recurses as conc\_ex(execute\_tree\_list(tlist', z)), where tlist' = tlist with the last element removed, and z = get\_input (get\_pc (root(next\_element))).
+\end{define}
+
+\subsection{Circle Operations}
+Circle\_op\_1 takes as input symbolic state of root and pc of its leaf 
+and returns all and only the concrete states that will take us down 
+the path that leads to the leaf.
+
+\begin{define}
+circle\_op\_1 (sym, sym\_leaf) :=
+concretize (get\_phi sym) (get\_pc sym\_leaf).
+\end{define}
+
+Circle\_op\_2 takes as input symbolic state of leaf state and pc of leaf state 
+and returns concrete states that correspond.
+
+\begin{define}
+circle\_op\_2 (sym) :=
+concretize (get\_phi sym) (get\_pc sym).
+\end{define}
+
+
+\section{Assumptions}
+\begin{property}
+Property 1 : init\_conc\_states $\in $ circle\_op\_1 (root(head(tree\_list)), root (second\_elem (tree\_list))).
+\end{property}
+
+\begin{property}
+Property 2 :  circle\_op\_2 (root (last\_elem(tree\_list))) $\bigcap$ ErrorStates
+$\neq$ Empty\_set.
+\end{property}
+
+\begin{property}
+Property 3 :  is\_connected tree\_list.
+\end{property}
+
+\begin{property}
+tl\_size : size(tree\_list) $\geq$ 2.
+\end{property}
+
+
+\begin{property}
+base\_case: 
+forall s0 s : SE\_tree,
+is\_connected (([ ] :: s0) :: s) ->
+conc\_ex
+  (conc\_ex init\_conc\_states
+     (get\_input (get\_pc (root s0))))
+  (get\_input (get\_pc (root s))) =
+circle\_op\_2 (root s).
+\end{property}
+
+\begin{property}
+ co\_2\_def:
+forall (s0 : SE\_tree) (s: sym\_state),
+is\_leaf\_state s0 s ->
+conc\_ex (circle\_op\_2 (root s0))
+  (get\_input (get\_pc s)) =
+(circle\_op\_2  s).
+\end{property}
+
+
+
+
+\section{Theorem}
+\begin{thm}
+Theorem sufficiency : 
+
+(execute\_tree\_list tree\_list) $\bigcap$ ErrorStates)
+$\neq$ Empty\_set.
+\end{thm}
+%
+%
+%\begin{itemize}
+%
+%\item Object of type $\varphi$ to represent nodes on the symbolic execution tree.
+%
+%\begin{itemize}
+%\item  get\_phi($n$)  returns $\phi$, the abstract state.
+%\item  get\_pc($n$) returns $\pi$, the path constraint.
+%\item $B =$ sym\_ex($A$), or $[A]_\sim \Rightarrow_{\mathcal{S}}^{S^*} [B]_\sim$, represents symbolic execution of state $A$ for one clock cycle, where $A$ and $B$ are of type $\varphi$.
+%\item unif($A$), or $[\![ A ]\!]$  represents the set of concrete states represented by symbolic state $A$. 
+%
+%\end{itemize}
+%\item Object of type $\mathcal{E}$ to represent a symbolic execution tree made of objects of type $n$.
+%\begin{itemize}
+%\item  is\_leaf($\mathcal{E}$, $n$)  returns $true$ if $n$ is a leaf in $\mathcal{E}$.
+%\item is\_root($\mathcal{E}$, $n$) returns $true$ if $n$ is the root in $\mathcal{E}$.
+%\item get\_root($\mathcal{E}$)  returns object of type $n$ that is the root of the tree.
+%
+%\end{itemize}
+%
+%
+%\item Object of type $\gamma$ to represent concrete state.
+%\begin{itemize}
+%\item $B =$ conc\_ex($A$), or $A \Rightarrow_{\mathcal{S}}^* B$, represents concrete execution of state $A$ for one clock cycle, where $A$ and $B$ are of type $\gamma$.
+%
+%\end{itemize}
+%\item Object $E$ to represent set of concrete states.
+%\begin{itemize}
+%\item Contains set of initial configuration states $\mathcal{T}_{\mathit{Cfg}}$.
+%\end{itemize}
+%\end{itemize}
+%
+%
+%\subsection*{Shorthand:}
+%\begin{itemize}
+%\item $\bar{s}_{r,m} =$ get\_phi(get\_root($\mathcal{E}_m$)) 
+%\item $\pi_{r,m} =$ get\_pc(get\_root($\mathcal{E}_m$)) 
+%\item $ \bar{s}_{l,m} =$ get\_phi($n_{l,m}$), where $n_{l,m} \in \mathcal{E}_m$.
+%\item $ \pi_{l,m} =$ get\_pc($n_{l,m}$), where $n_{l,m} \in \mathcal{E}_m$.
+%\end{itemize}
+%
+%\section{Accepted Knowledge}
+%These are the properties outlined in Arusoaie et al.'s paper \cite{arusoaie2013generic}.
+%\begin{lemma}
+%If $\gamma \Rightarrow_{\mathcal{S}} \gamma'$, and $\gamma \in [\![\varphi ]\!]$, then there exists $\varphi'$ such that $\gamma' \in [\![\varphi' ]\!]$ and $[\varphi]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi']_{\sim}$.
+%\cite{arusoaie2013generic}
+%\end{lemma}
+%
+%\begin{cor}
+%For every concrete execution $\gamma_0  \Rightarrow_{\mathcal{S}} \gamma_1  \Rightarrow_{\mathcal{S}} \ldots \gamma_n  \Rightarrow_{\mathcal{S}} \ldots$, and pattern $\varphi_0$ such that $\gamma_0 \in [\![\varphi_0 ]\!]$, there exists a symbolic execution $[\varphi_0]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi_1]_{\sim} \Rightarrow_{\mathcal{S}}^S \ldots [\varphi_n]_{\sim} \Rightarrow_{\mathcal{S}}^S \ldots $ such that $\gamma_i \in [\![\varphi_i ]\!]$ for all $i = 0, 1, \ldots$.
+%\cite{arusoaie2013generic}
+%\end{cor}
+%
+%\begin{lemma}
+%If $\gamma' \in [\![\varphi' ]\!]$ and $[\varphi]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi']_{\sim}$ then there exists $\gamma \in \mathcal{T}_{\mathit{Cfg}}$ such that $\gamma \Rightarrow_{\mathcal{S}} \gamma'$ and $\gamma \in [\![\varphi]\!]$.
+%\cite{arusoaie2013generic}
+%\end{lemma}
+%
+%\begin{cor}
+%For every feasible symbolic execution $[\varphi_0]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi_1]_{\sim} \Rightarrow_{\mathcal{S}}^S \ldots [\varphi_n]_{\sim} \Rightarrow_{\mathcal{S}}^S \ldots $ there is a concrete execution $\gamma_0  \Rightarrow_{\mathcal{S}} \gamma_1  \Rightarrow_{\mathcal{S}} \ldots \gamma_n  \Rightarrow_{\mathcal{S}} \ldots$ such that $\gamma_i \in [\![\varphi_i ]\!]$ for all $i = 0, 1, \ldots$.
+%\cite{arusoaie2013generic}
+%\end{cor}
+%
+%
+%Lemma $1$ states that all concrete states have corresponding symbolic representations, and Lemma $2$ states that if a program symbolically executes to a set of possible concrete assignments, then initial concrete assignments exist so the program can concretely execute to that state.
+%
+%Corollaries $1$ and $2$ lift this definition to a consecutive sequence of executions. From here on, a sequence symbolic executions of an unbounded, finite length, $[\varphi_0]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi_1]_{\sim} \Rightarrow_{\mathcal{S}}^S \ldots [\varphi_n]_{\sim}$ will be denoted by $[\varphi_0]_{\sim} \Rightarrow_{\mathcal{S}}^{S^*} [\varphi_n]_{\sim} $. A sequence of concrete executions of an unbounded, finite length, $\gamma_0  \Rightarrow_{\mathcal{S}} \gamma_1  \Rightarrow_{\mathcal{S}} \ldots \gamma_n  \Rightarrow_{\mathcal{S}}$ will be denoted by $\gamma_0   \Rightarrow_{\mathcal{S}}^{*}  \gamma_n $
+%
+%\section{Circle Operations}
+%These use the notation defined in Arusoaie et al.'s paper \cite{arusoaie2013generic}.
+%
+%\begin{define}
+%circle\_op\_1 = the set $\gamma \in [\![\varphi ]\!] $ $\forall$  $\gamma' \in [\![\varphi' ]\!]$ of a given $\varphi'$ where $[\varphi]_{\sim} \Rightarrow_{\mathcal{S}}^{S^*} [\varphi']_{\sim}$ such that $\gamma \Rightarrow_{\mathcal{S}}^* \gamma'$ and is\_leaf($\varphi'$)$ = true$.
+%\end{define}
+%
+%\begin{define}
+%circle\_op\_2 = the set $\gamma' \in [\![\varphi' ]\!] $ $\forall$  $\gamma \in [\![\varphi ]\!]$ of a given $\varphi$ where $[\varphi]_{\sim} \Rightarrow_{\mathcal{S}}^S [\varphi']_{\sim}$ such that $\gamma \Rightarrow_{\mathcal{S}} \gamma'$ and is\_leaf($\varphi'$)$ = true$.
+%\end{define}
+%
+%
+%circle\_op\_1 represents all concrete states that will take us down exactly one path in the symbolic execution tree. circle\_op\_2 represents all concrete output states of a given path in the symbolic execution tree.
+%
+%\section{Properties}
+%For a given $E, X = $ a sequence $\mathcal{E}_0, ..., \mathcal{E}_m$ such that $\forall \mathcal{E}_x$, $\exists n_{l,x}$ such that the conjunction of the following is true:
+%\begin{enumerate}
+%\item $s_0 \in$ circle\_op\_1($\bar{s}_{r,0} $, $\pi_{l,0}$)
+%\item $E \bigcap$ circle\_op\_2($\bar{s}_{l,m} $, $\pi_{l,m}$) $\neq \{\}$
+%\item for $j = \{0,...,m-1\}$, circle\_op\_2($\bar{s}_{l,j} $, $\pi_{l,j}$) $\subseteq$ circle\_op\_1($\bar{s}_{r,j+1} $, $\pi_{l,j+1}$)
+%\item is\_leaf($\mathcal{E}_x$, $n_{l,x}$) $= true$.
+%\end{enumerate}
+%\section{To Do}
+%\begin{itemize}
+%\item Reason about equivalence class, and how the notation transfers to our notation.
+%\item Representing unification in Coq.
+%\item Representing sequences in Coq.
+%\item Representing sufficiency requirement in Coq.
+%\item Representing ``equivalence'' of concrete states.
+%
+%\end{itemize}
+
+\section{Notes for Consideration}
+\begin{itemize}
+\item We need to consider uniqueness. This might come naturally from the overall tree structure.
+\item Our work assumes SAT-solver correctness.
+\item Our circle\_op returns concrete states, so we just need to be able to compare concrete states.
+\end{itemize}
