@@ -1,2 +1,29 @@
 \section{Prior Work}
-\cite{test}
+Symbolic execution was first formally defined by King in 1976~\cite{king1976symbolic} and has
+been widely adopted by the software engineering and software security
+communities. (See Schwartz et al.~\cite{schwartz2010all} for a recent survey.)
+
+\subsection{Use of Symbolic Execution in Hardware}
+In addition to the paper by Zhang and Sturton that lays out the three-part
+strategy we prove here~\cite{zhang2018recursive}, there are a handful of papers that examine
+the use of symbolic execution in hardware. In a subsequent paper, Zhang et
+al.~\cite{zhang2018recursive} make use of their recursive strategy to find new security
+vulnerabilities in processor designs. Their work demonstrates that the strategy
+is useful in practice.
+
+Prior work first explored the use of software-style symbolic execution for hardware designs. The STAR tool combines symbolic and concrete simulation of hardware designs to
+provide high statement and branch coverage~\cite{liu2009star}; PATH-SYMEX uses
+forward symbolic execution applied to an ANSI-C model of the hardware
+design~\cite{mukherjee2015hardware}. Both tools use a forward search strategy
+and have limits on how deep or broadly they can search.
+
+\subsection{Formalization of Symbolic Execution}
+\subsection{Backward Search Strategies in Symbolic Execution}
+
+A backward search strategy for symbolic execution of software has been
+studied~\cite{ma2011directed,chandra09,dinges04,charreteur10}. There the approach is to search
+backward through function call chains from a goal line of code to the program's
+entry point. The strategy is hindered by complications that arise in software,
+such as floating point calculations and external method calls. To the best of our knowledge, the strategy has not been formalized
+in the software community, nor its validity proven. \cks{double check these citations.}
+
