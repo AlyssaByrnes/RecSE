@@ -56,23 +56,10 @@ match t with
 |ConsNode l n r => n
 end.
 
-Fixpoint is_leaf_state (tree : SE_tree) (state : sym_state) : Prop :=
-match tree with 
-|leaf => False
-|ConsNode l n r => 
-  ((n = state) /\ (l = leaf))
-  \/ (is_leaf_state l state)
-  \/ (is_leaf_state r state)
-end.
 
 
 (*** TREE LIST STRUCTURE ***)
 
-
-
-(*Inductive list SE_tree : Type :=
- | nil : list SE_tree
- | cons : SE_tree -> list SE_tree -> list SE_tree.*)
 
 Notation "x :: l" := (cons x l) (at level 60, right associativity).
 
@@ -135,9 +122,6 @@ consecutive_in_order a b l.
 
 
 (*** SET OPERATION SHORT HANDS ***)
-Definition singleton (x : ConcState.conc_state) : Ensemble ConcState.conc_state :=
-Singleton ConcState.conc_state x.
-
 Definition is_subset (x y : Ensemble ConcState.conc_state) : Prop :=
 Included ConcState.conc_state x y.
 
@@ -210,13 +194,6 @@ Included ConcState.conc_state
 (circle_op_1 (root B) (find_leaf B)).
 
 
-
-(*Axiom Prop1 :
-forall t : list SE_tree,
-is_element_of 
-(circle_op_1 (root (first_elem t)) 
-(find_leaf (first_elem t))) init_conc_state.*)
-
 Axiom Prop1 : 
 is_element_of 
 (circle_op_1 (root (first_elem tree_list)) 
@@ -246,11 +223,6 @@ in_list tree_list a ->
 
 
 (*** SUFFICIENCY ***)
-(*Definition etl_first_step (tlist : list SE_tree) : ConcState.conc_state :=
-match tlist with
-|nil => EmptyState
-|h :: t => conc_ex init_conc_state (get_input (get_pc (root h)))
-end. *)
 
 Fixpoint execute_tree_list (tlist : list SE_tree) : ConcState.conc_state :=
 match tlist with
@@ -395,18 +367,6 @@ forall s : SE_tree,
 is_element_of (circle_op_2 (find_leaf (last_elem (s :: nil))))
   (execute_tree_list (s :: nil)).
 
-Axiom helper : 
-forall (s s0 : SE_tree) (t : list SE_tree),
-is_element_of
-  (circle_op_2
-     (find_leaf (last_elem (s :: s0 :: t))))
-  (conc_ex (execute_tree_list (s0 :: t))
-     (get_input (get_pc (find_leaf s)))).
-
-Axiom size_ineq: 
-forall (s s0 : SE_tree) (t : list SE_tree),
-list_size (s :: s0 :: t) > 0 -> list_size ( s0 :: t) > 0.
-
 Axiom s_l_e_rewrite :
 forall (s s0 : SE_tree) (t : list SE_tree),
 second_last_elem (s :: s0 :: t)  = last_elem (s0 :: t).
@@ -414,11 +374,6 @@ second_last_elem (s :: s0 :: t)  = last_elem (s0 :: t).
 Axiom front_rewrite : 
 forall (s s0 : SE_tree) (t : list SE_tree), 
 front (s :: s0 :: t) = (s0 :: t).
-
-Axiom inclusion : 
-forall (s s0 : SE_tree) (t : list SE_tree), 
-s :: s0 :: t = tree_list ->
-in_list t s0 /\ in_list t s.
 
 Axiom sl_nil : 
 (is_sublist nil tree_list = False).
