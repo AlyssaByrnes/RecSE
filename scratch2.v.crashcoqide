@@ -1,0 +1,30 @@
+Fixpoint first_elem ( l : SE_tree_list) : SE_tree :=
+match l with
+|nil => leaf
+|x :: nil => x
+|x :: y => first_elem y
+end.
+
+Definition front (l : SE_tree_list) : SE_tree_list :=
+match l with
+|nil => nil
+|x :: y => y
+end.
+
+Definition last_elem ( l : SE_tree_list) : SE_tree :=
+match l with
+|nil => leaf
+|x :: y => x
+end.
+
+Definition second_last_elem ( l : SE_tree_list) : SE_tree :=
+match l with
+|nil => leaf
+|x :: y => last_elem y
+end.
+
+Fixpoint list_size ( l : SE_tree_list) : nat :=
+match l with
+|nil => 0
+|x :: nil => 1
+|x :: y => S (list_size y)

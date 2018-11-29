@@ -114,22 +114,6 @@ match l with
 |x :: y => (x = t) \/ (in_list y t)
 end.
 
-Fixpoint consecutive_in_order (a b : SE_tree) (l : list SE_tree) : Prop :=
-match l with
-| h :: t => (a = h /\ b = (last_elem t)) \/ consecutive_in_order a b t
-| nil => False
-end.
-
-Fixpoint is_sublist (l1 l2 : list SE_tree) : Prop :=
-match l1 with
-|nil => False
-|h :: t => (l2 = l1) \/ is_sublist t l2
-end.
-
-Axiom c_i_o_elim :
-forall (a b : SE_tree) (t l : list SE_tree),
-is_sublist (a :: b :: t) l ->
-consecutive_in_order a b l.
 
 
 
@@ -162,9 +146,6 @@ Variable tree_list : list SE_tree.
 Axiom no_leaf_requirement:
 forall (s : SE_tree),
 in_list tree_list s -> s <> leaf.
-
-Axiom non_empty : 
-tree_list <> nil.
 
 Axiom size_requirement: 
 list_size tree_list > 0.
@@ -234,14 +215,14 @@ is_subset
 Error_States.
 
 Axiom Prop3 : 
-forall (a b : SE_tree), 
-consecutive_in_order a b tree_list ->
-trees_connect b a.
+forall (t : SE_tree), 
+in_list tree_list t ->
+trees_connect (second_last_elem tree_list) t.
 
 Axiom Prop3':
-forall (a : SE_tree), 
-in_list tree_list a ->
-(circle_op_2 (find_leaf a)) <> empty_set.
+forall (t : SE_tree), 
+in_list tree_list t ->
+(circle_op_2 (find_leaf t)) <> empty_set.
 
 
 
@@ -415,74 +396,36 @@ Axiom front_rewrite :
 forall (s s0 : SE_tree) (t : list SE_tree), 
 front (s :: s0 :: t) = (s0 :: t).
 
-Axiom inclusion : 
-forall (s s0 : SE_tree) (t : list SE_tree), 
-s :: s0 :: t = tree_list ->
-in_list t s0 /\ in_list t s.
-
-Axiom sl_nil : 
-(is_sublist nil tree_list = False).
-
-Axiom sl_elim:
-forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist (s0 :: s :: t) tree_list
-->
-is_sublist (s :: t) tree_list.
-
-Axiom in_list_elim:
-forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist (s0 :: s :: t) tree_list
-->
-in_list tree_list s0.
-
-Axiom list_size_sublist:
-forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  (s :: t) tree_list
-->
-list_size (s :: t) > 0.
-
-Axiom not_leaf_sublist:
-forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  (s :: t) tree_list
-->
-s <> leaf.
-
-Axiom sublist_of_self:
-is_sublist tree_list tree_list.
 
 Theorem etl:
 forall t : list SE_tree,
-is_sublist t tree_list ->
+t = tree_list ->
 is_element_of 
   (circle_op_2(find_leaf (last_elem t))) 
   (execute_tree_list t).
-Proof. intros. induction t. 
-- pose sl_nil. contradiction.
+(*Proof. intros. induction t. 
+- inversion H.
 - destruct t. 
 * apply basecase.
 * rewrite etl_1_step.
 ** apply P1_and_circle_op_prop_ind_step. split.
 *** apply P3_and_IH. split.
-+ unfold last_elem.
-  pose Prop3 as P3. unfold trees_connect in P3.
-  apply P3. simpl. pose H as H1. 
-  apply c_i_o_elim in H1. apply H1.
++ apply Prop3. auto.
 + rewrite front_rewrite. rewrite s_l_e_rewrite. apply IHt.
-  apply sl_elim in H. apply H.
+++ pose H as H1. apply size_ineq in H1. apply H1.
+++ apply connection_imp in H0. apply H0.
 *** split. apply circle_op_property_2. 
-    pose Prop3' as P3'. simpl. apply P3'. 
-    apply in_list_elim in H. apply H.
-** split. apply list_size_sublist.
-   apply sl_elim in H. apply H.
-   split. apply list_size_sublist. apply H.
-   apply not_leaf_sublist in H. apply H. Qed.
+    destruct H0. unfold is_connected' in H1.
+    apply H1.
+** split. pose H as H1. apply size_ineq in H1. apply H1. apply H.
+Qed.*)
 
 
 Theorem sufficiency: 
 is_element_of Error_States (execute_tree_list tree_list).
 Proof. intros. 
 apply P2_and_etl_imp.
-split. apply etl. auto. apply sublist_of_self. 
+split. apply etl. 
 - split. apply Prop2'.
 apply Prop2. Qed.
 

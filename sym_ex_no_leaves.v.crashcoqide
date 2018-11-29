@@ -81,6 +81,13 @@ match t with
 |h :: tl => (tl = s) \/ (in_list h s)
 end.
 
+Fixpoint size (tlist : SE_tree_list) : nat :=
+match tlist with
+|nil => 0
+|h :: leaf => size h
+|h :: t => S (size h)
+end.
+
 Axiom tree_list_requirement:
 forall (t t' : SE_tree_list) (s : SE_tree),
 t = t'::s -> s <> leaf.
@@ -88,6 +95,10 @@ t = t'::s -> s <> leaf.
 Axiom tree_list_requirement':
 forall (t : SE_tree_list) (s : SE_tree),
 in_list t s -> s <> leaf.
+
+Axiom tree_list_requirement_helper:
+forall (t : SE_tree_list) (s : SE_tree),
+size (t :: s) > 0 -> s <> leaf.
 
 
 Fixpoint first_elem (tlist : SE_tree_list) : SE_tree :=
@@ -111,10 +122,25 @@ match tlist with
 |h :: t => last_elem h
 end.
 
+Definition front (t  : SE_tree_list)  : SE_tree_list :=
+match t with 
+|nil => nil
+|h :: t => h
+end.
+
+Axiom front_end :
+forall (t  : SE_tree_list),
+t = (front t :: last_elem t).
+
 Axiom s_l_e_helper:
 forall (t : SE_tree_list) (s : SE_tree),
 s <> leaf ->
 second_last_elem (t :: s) = last_elem t.
+
+Axiom s_l_e_helper':
+forall (t : SE_tree_list),
+size t > 1 ->
+second_last_elem t = last_elem (front t).
 
 Axiom s_l_e_helper_2:
 forall (t : SE_tree_list) (s : SE_tree),
@@ -126,12 +152,9 @@ forall (A B : SE_tree) (t: SE_tree_list),
 second_last_elem ((t :: A) :: (last_elem ((t :: A) :: B)))
 = last_elem (t :: A).
 
-Fixpoint size (tlist : SE_tree_list) : nat :=
-match tlist with
-|nil => 0
-|h :: leaf => size h
-|h :: t => S (size h)
-end.
+
+
+
 
 (*** SET OPERATION SHORT HANDS ***)
 Definition singleton (x : ConcState.conc_state) : Ensemble ConcState.conc_state :=
@@ -260,7 +283,13 @@ induction s.
 *simpl. auto.
 Qed.
 
-Axiom etl_size_1:
+Axiom etl_1_step':
+forall (t : SE_tree_list),
+(size t > 1)->
+execute_tree_list (t) = conc_ex (execute_tree_list (front t)) (get_input(get_pc(find_leaf (last_elem t)))).
+
+
+Axiom etl_eval_size_1:
 forall t : SE_tree_list,
 size t = 1 
 -> execute_tree_list t = conc_ex (init_conc_state) (get_input (get_pc (find_leaf (last_elem t)))). 
@@ -304,7 +333,7 @@ is_element_of
 -> is_element_of (circle_op_2(find_leaf (last_elem t))) (conc_ex init_conc_state i).
 Proof. intros. apply set_property_2 in H. apply H. Qed.
 
-Theorem P1_and_circle_op_prop_ind_step:
+(*Theorem P1_and_circle_op_prop_ind_step:
 forall (t : SE_tree_list) (i: ConcState.input) (s : SE_tree),
 ((is_element_of 
   (circle_op_1 (root (last_elem (t::s))) (find_leaf (last_elem (t::s)))) 
@@ -318,9 +347,29 @@ is_element_of
 ((circle_op_2(find_leaf (last_elem (t::s)))) <> empty_set))
 -> is_element_of (circle_op_2(find_leaf (last_elem (t::s)))) 
 (conc_ex (execute_tree_list t) i).
+Proof. intros. apply set_property_2 in H. apply H. Qed.*)
+
+
+Theorem P1_and_circle_op_prop_ind_step:
+forall (t : SE_tree_list) (i: ConcState.input) ,
+((is_element_of 
+  (circle_op_1 (root (last_elem (t))) 
+(find_leaf (last_elem (t)))) 
+  (execute_tree_list (front t)))
+/\
+(forall (x : ConcState.conc_state),
+is_element_of 
+  (circle_op_1 (root (last_elem (t))) 
+(find_leaf (last_elem (t)))) x
+-> is_element_of (circle_op_2(find_leaf (last_elem (t)))) (conc_ex x i))
+/\
+((circle_op_2(find_leaf (last_elem (t)))) <> empty_set))
+-> is_element_of (circle_op_2(find_leaf (last_elem (t)))) 
+(conc_ex (execute_tree_list (front t)) i).
 Proof. intros. apply set_property_2 in H. apply H. Qed.
 
-Theorem P3_and_IH:
+
+(*Theorem P3_and_IH:
 forall (t: SE_tree_list) (A : SE_tree),
 is_subset
 (circle_op_2 (find_leaf (second_last_elem (t::A))))
@@ -334,6 +383,23 @@ is_element_of
 is_element_of
 (circle_op_1 (root A) (find_leaf A))
 (execute_tree_list t).
+Proof. intros. apply set_property_3 in H. apply H. Qed.*)
+
+
+Theorem P3_and_IH:
+forall (t: SE_tree_list),
+is_subset
+(circle_op_2 (find_leaf (second_last_elem t)))
+(circle_op_1 (root (last_elem t)) (find_leaf (last_elem t)))
+/\
+is_element_of
+        (circle_op_2
+           (find_leaf (second_last_elem t)))
+        (execute_tree_list (front t))
+->
+is_element_of
+(circle_op_1 (root (last_elem t)) (find_leaf (last_elem t)))
+(execute_tree_list (front t)).
 Proof. intros. apply set_property_3 in H. apply H. Qed.
 
 Theorem P2_and_etl_imp:
@@ -378,23 +444,211 @@ is_element_of
 (execute_tree_list t).
 Proof. intros. apply set_property_1 in H. apply H. Qed.
 
-
-
-Axiom etl:
+Axiom etl_size_1:
 forall t : SE_tree_list,
-size t > 0 /\ is_connected t /\ is_connected' t ->
+size t = 1 /\ is_connected t /\ is_connected' t ->
 is_element_of 
   (circle_op_2(find_leaf (last_elem t))) 
   (execute_tree_list t).
 
-Theorem sufficiency: 
+Axiom etl_size_2:
 forall t : SE_tree_list,
+size t = 2 /\ is_connected t /\ is_connected' t ->
+is_element_of 
+  (circle_op_2(find_leaf (last_elem t))) 
+  (execute_tree_list t).
+
+Axiom size_req:
+forall (t: SE_tree_list),
 size t > 0 ->
+exists (s : SE_tree) (t' : SE_tree_list),
+ t = (t' :: s).
+
+Axiom is_in:
+forall (t t': SE_tree_list) (s : SE_tree),
+ t = (t' :: s) -> in_list t s.
+
+
+Axiom etl_c_o_1_size_1:
+forall (t: SE_tree_list) (s : SE_tree),
+size (t :: s) = 1 -> is_connected (t::s) /\ is_connected' (t::s) ->
+is_element_of
+  (circle_op_1 (root (last_elem (t::s))) (find_leaf (last_elem (t::s))))
+(execute_tree_list t).
+
+Axiom etl_c_o_1_size_2:
+forall (t: SE_tree_list) (s : SE_tree),
+size (t :: s) = 2 -> is_connected (t::s) /\ is_connected' (t::s) ->
+is_element_of
+  (circle_op_1 (root (last_elem (t::s))) (find_leaf (last_elem (t::s))))
+(execute_tree_list t).
+
+Axiom etl_c_o_1:
+forall (t: SE_tree_list) (n : nat) (s : SE_tree),
+size (t :: s) = n /\ n > 0 -> is_connected (t::s) /\ is_connected' (t::s) ->
+is_element_of
+  (circle_op_1 (root (last_elem (t::s))) (find_leaf (last_elem (t::s))))
+(execute_tree_list t).
+(*Proof. intros. induction n.
+- destruct H. inversion H1.
+- destruct n. 
+* apply etl_c_o_1_size_1. 
+  destruct H. apply H. apply H0.
+* destruct n.
+** apply etl_c_o_1_size_2. 
+   destruct H. apply H. apply H0.
+** apply P3_and_IH. split.*)
+
+Axiom last_elem_helper:
+forall (t : SE_tree_list) (s : SE_tree),
+ last_elem (t :: s) = s.
+
+Axiom successor_helper:
+forall (t : SE_tree_list) (s : SE_tree),
+size (t :: s) = S (size t).
+
+Axiom succ_elim:
+ forall x y : nat,
+S x = S y ->
+x = y.
+
+Axiom nat_req :
+forall x : nat,
+S x > 0.
+
+Axiom last_elem_helper_2:
+forall (t : SE_tree_list) (s : SE_tree),
+second_last_elem (t :: last_elem (t :: s))
+= last_elem t. 
+
+(*Axiom connected_helper : 
+forall (t : SE_tree_list) (s : SE_tree),
+is_connected (t::s) ->
+is_subset
+(circle_op_2 (find_leaf (last_elem t)))
+(circle_op_1 (root s) (find_leaf s)).
+
+
+Axiom connected'_helper : 
+forall (t : SE_tree_list) (s : SE_tree),
+is_connected' (t::s) 
+(*-> 
+(circle_op_2 (find_leaf (second_last_elem (t::s)))) <> empty_set*)
+-> last_elem (t :: s) <> leaf.*)
+
+
+Axiom connected_helper : 
+forall (t : SE_tree_list),
+is_connected t ->
+is_subset
+(circle_op_2 (find_leaf (last_elem (front t))))
+(circle_op_1 (root (last_elem t)) (find_leaf (last_elem t))).
+
+
+Axiom connected'_helper : 
+forall (t : SE_tree_list) (s : SE_tree),
+is_connected' (t::s) 
+(*-> 
+(circle_op_2 (find_leaf (second_last_elem (t::s)))) <> empty_set*)
+-> last_elem (t :: s) <> leaf.
+
+Axiom bc :
+forall (n : nat) (t : SE_tree_list),
+size (t :: leaf) <> S (S (S n)).
+
+
+
+Axiom etl_helper : 
+forall (t : SE_tree_list) (n : nat), 
+size t = S (S n) /\ S (S n) > 0 ->
+
+is_element_of (circle_op_2 (find_leaf (last_elem (front t))))
+        (execute_tree_list (front t))
+->is_element_of 
+  (circle_op_2(find_leaf (last_elem t))) 
+  (execute_tree_list t).
+ 
+
+Axiom succ_elim_2: 
+forall n : nat,
+S (S (S n)) > 1.
+
+Axiom size_elim: 
+forall (t : SE_tree_list) (s s0 : SE_tree) (n : nat),
+size ((t :: s0) :: s) = S (S (S n)) /\ S (S (S n)) > 0
+-> size (t :: s0) = S (S n) /\ S (S n) > 0.
+
+Axiom size_helper: 
+forall (t : SE_tree_list) (n : nat),
+size t = S (S (S n)) -> size t > 1.
+
+
+
+Theorem etl:
+forall (t : SE_tree_list) (n : nat),
+size t = n /\ n > 0 -> is_connected t /\ is_connected' t ->
+is_element_of 
+  (circle_op_2(find_leaf (last_elem t))) 
+  (execute_tree_list t).
+Proof. intros. 
+induction n. destruct H. inversion H1.
+destruct n. 
+* apply etl_size_1. 
+  split. apply H. 
+  split. apply H0. destruct H0. apply H1.
+* destruct n.
+** apply etl_size_2. split. destruct H. apply H. apply H0.
+** rewrite etl_1_step'. apply P1_and_circle_op_prop_ind_step.
+   split. apply P3_and_IH. split. 
+   rewrite s_l_e_helper'. apply connected_helper.
+  destruct H0. apply H0. destruct H. 
+  apply size_helper in H. apply H.
+  rewrite s_l_e_helper'. 
+  *** apply etl_helper in IHn.
+  apply IHn.
+  destruct H. apply size_helper in H. apply H.
+  apply IHn.
+  
+
+
+ destruct t. simpl in H. destruct H. inversion H.
+** apply etl_size_2. split. apply H. 
+   split. apply H0. destruct H0. apply H1.
+** destruct t. simpl in H. destruct H. inversion H. rewrite etl_1_step.
+*** apply P1_and_circle_op_prop_ind_step. split.
++ apply P3_and_IH. split. destruct H0. 
+  apply connected_helper in H0. 
+  apply connected'_helper in H1.
+++ rewrite s_l_e_helper. rewrite last_elem_helper. 
+  apply H0. apply H1.
+++ rewrite s_l_e_helper. destruct t.
++++ destruct H. apply bc in H. inversion H.
++++ pose H as H'. apply size_elim in H'. apply etl_helper in IHn. apply IHn. 
+    destruct H. rewrite <- H in H1. rewrite H. split.
+    destruct H0. apply H0. split. destruct H0. apply H2.
+    apply succ_elim_2.*)
+
+apply etl_c_o_1 in H. apply H. apply H0. 
++ split. rewrite last_elem_helper. apply circle_op_property_2.
+  rewrite last_elem_helper. apply circle_op_property_3.
+  destruct H. rewrite <- H in H1. 
+  apply tree_list_requirement_helper in H1. apply H1.
+*** split. destruct H. rewrite <- H in H1. 
+    apply tree_list_requirement_helper in H1. apply H1.
+    destruct H. rewrite successor_helper in H. apply succ_elim in H.
+    rewrite H. apply nat_req. Qed.
+
+
+
+
+Theorem sufficiency: 
+forall (t : SE_tree_list) (n : nat),
+size t = n /\ n > 0 ->
 is_element_of Error_States (execute_tree_list t).
 Proof. intros. 
 apply P2_and_etl_imp.
 split.
--apply etl. split. apply H. 
+-apply etl in H. apply H. 
 split. apply Prop3. apply Prop3'.
 -split. apply Prop2'.
 apply Prop2. Qed.
