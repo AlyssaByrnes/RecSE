@@ -15,6 +15,9 @@ Inductive conc_state : Type :=
 Definition concrete_execution := conc_state -> input -> conc_state.
 Axiom conc_ex : concrete_execution.
 
+Definition concrete_execution_many := list conc_state -> list input -> list conc_state.
+Axiom conc_ex_many : concrete_execution_many.
+
 End ConcState.
 Import ConcState.
 
@@ -37,11 +40,24 @@ Axiom get_phi : get_sym_state.
 Definition get_path_constraint := sym_state -> PC.
 Axiom get_pc : get_path_constraint.
 
-Definition conc := Phi -> PC -> Ensemble ConcState.conc_state.
+Definition s_e := sym_state -> sym_state.
+Axiom sym_ex : s_e.
+
+Definition s_e_many := list sym_state -> list sym_state.
+Axiom sym_ex_many : s_e_many.
+
+Definition conc :=  sym_state -> list ConcState.conc_state.
 Axiom concretize : conc.
 
-Definition get_inp := PC -> ConcState.input.
+(*
+Definition conc_many := list sym_state -> list ConcState.conc_state.
+Axiom concretize_many : conc_many.*)
+
+Definition get_inp := PC -> list ConcState.input.
 Axiom get_input : get_inp.
+(*
+Definition get_inp_many := list sym_state -> list ConcState.input.
+Axiom get_input_many : get_inp_many.*)
 
 
 (*** SYM EX TREE STRUCTURE ***)
@@ -55,6 +71,7 @@ match t with
 |leaf => nilstate
 |ConsNode l n r => n
 end.
+
 
 
 
@@ -160,16 +177,21 @@ Axiom find_leaf : fl.
 (* Takes as input symbolic state of root and pc of its leaf 
 and returns all and only the concrete states that will take us down 
 the path that leads to the leaf. *)
-Definition c_o_1 := SymbolicExec.sym_state -> SymbolicExec.sym_state -> Ensemble ConcState.conc_state.
+Definition c_o_1 := SymbolicExec.sym_state -> SymbolicExec.sym_state -> list ConcState.conc_state.
 Axiom circle_op_1 : c_o_1.
 
-Definition c_o_2 := SymbolicExec.sym_state -> Ensemble ConcState.conc_state.
+Definition c_o_2 := SymbolicExec.sym_state -> list ConcState.conc_state.
 Axiom circle_op_2 : c_o_2.
 
 Axiom circle_op_property : 
 forall (t : SE_tree),
-(concretize (get_phi (find_leaf t)) (get_pc (find_leaf t))) 
+conc_ex_many (concretize (find_leaf t)) (get_input (get_pc (find_leaf t)))
 = circle_op_2 (find_leaf t).
+
+Axiom Commutativity: 
+forall s : sym_state, 
+concretize (sym_ex s) = conc_ex_many (concretize s) (get_input (get_pc s)).
+
 
 Axiom circle_op_property_2: 
 forall (t : SE_tree) (x : conc_state),
