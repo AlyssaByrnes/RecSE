@@ -12,11 +12,11 @@ Inductive conc_state : Type :=
 |EmptyState
 |ConsState (i: input) (s: state).
 
-Definition concrete_execution := conc_state -> input -> conc_state.
+Definition concrete_execution := conc_state -> Ensemble input -> conc_state.
 Axiom conc_ex : concrete_execution.
 
-Definition concrete_execution_many := list conc_state -> list input -> list conc_state.
-Axiom conc_ex_many : concrete_execution_many.
+(*Definition concrete_execution_many := list conc_state -> list input -> list conc_state.
+Axiom conc_ex_many : concrete_execution_many.*)
 
 End ConcState.
 Import ConcState.
@@ -40,39 +40,54 @@ Axiom get_phi : get_sym_state.
 Definition get_path_constraint := sym_state -> PC.
 Axiom get_pc : get_path_constraint.
 
-Definition s_e := sym_state -> sym_state.
-Axiom sym_ex : s_e.
-
-Definition s_e_many := list sym_state -> list sym_state.
-Axiom sym_ex_many : s_e_many.
-
-Definition conc :=  sym_state -> list ConcState.conc_state.
-Axiom concretize : conc.
-
-(*
-Definition conc_many := list sym_state -> list ConcState.conc_state.
-Axiom concretize_many : conc_many.*)
-
-Definition get_inp := PC -> list ConcState.input.
-Axiom get_input : get_inp.
-(*
-Definition get_inp_many := list sym_state -> list ConcState.input.
-Axiom get_input_many : get_inp_many.*)
-
 
 (*** SYM EX TREE STRUCTURE ***)
 Inductive SE_tree : Type :=
-| leaf: SE_tree
+| nilleaf: SE_tree
 | ConsNode: SE_tree -> sym_state -> SE_tree -> SE_tree.
 
 
 Definition root (t : SE_tree) : sym_state :=
 match t with 
-|leaf => nilstate
+|nilleaf => nilstate
 |ConsNode l n r => n
 end.
 
 
+Fixpoint is_leaf (s' : sym_state) (s : SE_tree) : Prop :=
+match s with
+|ConsNode nilleaf n nilleaf => s' = n
+|ConsNode l n r => (is_leaf s' l) \/ (is_leaf s' r)
+|nilleaf => False
+end.
+
+(*** SYMBOLIC EXECUTION ***)
+Definition s_e := sym_state -> SE_tree.
+Axiom sym_ex : s_e.
+
+(*Definition s_e_many := list sym_state -> list sym_state.
+Axiom sym_ex_many : s_e_many.
+*)
+Definition r_inst_s :=  sym_state -> ConcState.conc_state.
+Axiom randomly_instantiate_conc_state : r_inst_s.
+
+Definition r_inst_i := sym_state -> Ensemble ConcState.input.
+Axiom randomly_instantiate_input : r_inst_i.
+
+Definition pc_e := PC -> ConcState.conc_state -> Ensemble ConcState.input -> Prop.
+Axiom pc_eval : pc_e.
+
+Definition inst := Phi -> ConcState.conc_state -> Ensemble ConcState.input -> ConcState.conc_state.
+Axiom instantiate : inst.
+
+Axiom commutativity : 
+forall (li : Ensemble ConcState.input) (cs : ConcState.conc_state) (s s' : sym_state),
+li = (randomly_instantiate_input s) /\
+cs = (randomly_instantiate_conc_state s) /\
+is_leaf s' (sym_ex s) /\
+(pc_eval (get_pc s') cs li) 
+->
+conc_ex cs li = instantiate (get_phi s') cs li.
 
 
 (*** TREE LIST STRUCTURE ***)
@@ -82,7 +97,7 @@ Notation "x :: l" := (cons x l) (at level 60, right associativity).
 
 Fixpoint first_elem ( l : list SE_tree) : SE_tree :=
 match l with
-|nil => leaf
+|nil => nilleaf
 |x :: nil => x
 |x :: y => first_elem y
 end.
@@ -95,13 +110,13 @@ end.
 
 Definition last_elem (l : list SE_tree) : SE_tree :=
 match l with
-|nil => leaf
+|nil => nilleaf
 |x :: y => x
 end.
 
 Definition second_last_elem (l : list SE_tree) : SE_tree :=
 match l with
-|nil => leaf
+|nil => nilleaf
 |x :: y => last_elem y
 end.
 
@@ -162,7 +177,7 @@ Variable tree_list : list SE_tree.
 
 Axiom no_leaf_requirement:
 forall (s : SE_tree),
-in_list tree_list s -> s <> leaf.
+in_list tree_list s -> s <> nilleaf.
 
 Axiom non_empty : 
 tree_list <> nil.
@@ -183,14 +198,10 @@ Axiom circle_op_1 : c_o_1.
 Definition c_o_2 := SymbolicExec.sym_state -> list ConcState.conc_state.
 Axiom circle_op_2 : c_o_2.
 
-Axiom circle_op_property : 
+Axiom c_o_2_def : 
 forall (t : SE_tree),
-conc_ex_many (concretize (find_leaf t)) (get_input (get_pc (find_leaf t)))
+conc_ex (concretize (find_leaf t)) (get_input (get_pc (find_leaf t)))
 = circle_op_2 (find_leaf t).
-
-Axiom Commutativity: 
-forall s : sym_state, 
-concretize (sym_ex s) = conc_ex_many (concretize s) (get_input (get_pc s)).
 
 
 Axiom circle_op_property_2: 
@@ -203,11 +214,7 @@ is_element_of
 (conc_ex x
 (get_input (get_pc (find_leaf t)))).
 
-Axiom circle_op_property_3:
-(* Used to prove Property 3' *)
-forall (s : SE_tree),
-s <> leaf ->
-circle_op_2 (find_leaf s) <> Empty_set ConcState.conc_state.
+
 
 (*** PROPERTIES 1-3 ***)
 Definition trees_connect (A B : SE_tree) : Prop :=
