@@ -12,7 +12,7 @@ Inductive conc_state : Type :=
 |EmptyState
 |ConsState (i: input) (s: state).
 
-Definition concrete_execution := conc_state -> Ensemble input -> conc_state.
+Definition concrete_execution := list conc_state -> list input -> list conc_state.
 Axiom conc_ex : concrete_execution.
 
 (*Definition concrete_execution_many := list conc_state -> list input -> list conc_state.
@@ -68,20 +68,20 @@ Axiom sym_ex : s_e.
 (*Definition s_e_many := list sym_state -> list sym_state.
 Axiom sym_ex_many : s_e_many.
 *)
-Definition r_inst_s :=  sym_state -> ConcState.conc_state.
+Definition r_inst_s :=  sym_state -> list ConcState.conc_state.
 Axiom randomly_instantiate_conc_state : r_inst_s.
 
-Definition r_inst_i := sym_state -> Ensemble ConcState.input.
+Definition r_inst_i := sym_state -> list ConcState.input.
 Axiom randomly_instantiate_input : r_inst_i.
 
-Definition pc_e := PC -> ConcState.conc_state -> Ensemble ConcState.input -> Prop.
+Definition pc_e := PC -> list ConcState.conc_state -> list ConcState.input -> Prop.
 Axiom pc_eval : pc_e.
 
-Definition inst := Phi -> ConcState.conc_state -> Ensemble ConcState.input -> ConcState.conc_state.
+Definition inst := Phi -> list ConcState.conc_state -> list ConcState.input -> list ConcState.conc_state.
 Axiom instantiate : inst.
 
 Axiom commutativity : 
-forall (li : Ensemble ConcState.input) (cs : ConcState.conc_state) (s s' : sym_state),
+forall (li : list ConcState.input) (cs : list ConcState.conc_state) (s s' : sym_state),
 li = (randomly_instantiate_input s) /\
 cs = (randomly_instantiate_conc_state s) /\
 is_leaf s' (sym_ex s) /\
