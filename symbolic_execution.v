@@ -154,25 +154,26 @@ consecutive_in_order a b l.
 
 
 (*** SET OPERATION SHORT HANDS ***)
-Definition is_subset (x y : Ensemble ConcState.conc_state) : Prop :=
-Included ConcState.conc_state x y.
+Definition is_subset (x y : Ensemble (list ConcState.conc_state)) : Prop :=
+Included (list ConcState.conc_state) x y.
 
-Definition is_element_of (y : Ensemble ConcState.conc_state) (x : ConcState.conc_state) : Prop :=
-In ConcState.conc_state y x.
+Definition is_element_of (y : Ensemble (list ConcState.conc_state)) (x : list ConcState.conc_state) : Prop :=
+In (list ConcState.conc_state) y x.
 
-Definition empty_set : Ensemble ConcState.conc_state := 
-Empty_set conc_state.
+Definition empty_set : Ensemble (list ConcState.conc_state) := 
+Empty_set (list ConcState.conc_state).
 
-Definition intersection (x y : Ensemble ConcState.conc_state) : Ensemble ConcState.conc_state :=
-Intersection ConcState.conc_state x y.
+Definition intersection (x y : Ensemble (list ConcState.conc_state)) : Ensemble (list ConcState.conc_state) :=
+Intersection (list ConcState.conc_state) x y.
+
 
 End SymbolicExec.
 Import SymbolicExec. 
 
 Module SERecurs.
 
-Variable init_conc_state: ConcState.conc_state.
-Variable Error_States : Ensemble ConcState.conc_state.
+Variable init_conc_state: (list ConcState.conc_state).
+Variable Error_States : Ensemble (list ConcState.conc_state).
 Variable tree_list : list SE_tree.
 
 Axiom no_leaf_requirement:
@@ -188,24 +189,28 @@ list_size tree_list > 0.
 Definition fl := SE_tree -> sym_state.
 Axiom find_leaf : fl.
 
+Definition gi := SymbolicExec.PC -> list ConcState.input.
+Axiom get_input : gi.
+
 (*** CIRCLE OPERATIONS ***)
 (* Takes as input symbolic state of root and pc of its leaf 
 and returns all and only the concrete states that will take us down 
 the path that leads to the leaf. *)
-Definition c_o_1 := SymbolicExec.sym_state -> SymbolicExec.sym_state -> list ConcState.conc_state.
+Definition c_o_1 := SymbolicExec.sym_state -> SymbolicExec.sym_state -> Ensemble (list ConcState.conc_state).
 Axiom circle_op_1 : c_o_1.
 
-Definition c_o_2 := SymbolicExec.sym_state -> list ConcState.conc_state.
+Definition c_o_2 := SymbolicExec.sym_state -> Ensemble (list ConcState.conc_state).
 Axiom circle_op_2 : c_o_2.
 
-Axiom c_o_2_def : 
-forall (t : SE_tree),
-conc_ex (concretize (find_leaf t)) (get_input (get_pc (find_leaf t)))
-= circle_op_2 (find_leaf t).
+(*Axiom c_o_2_def : 
+forall (t : SE_tree) (l : SE_state),
+is_leaf l t
+-> c_o_2 l = *)
+
 
 
 Axiom circle_op_property_2: 
-forall (t : SE_tree) (x : conc_state),
+forall (t : SE_tree) (x : list conc_state),
 is_element_of 
 (circle_op_1 (root t) (find_leaf t)) x 
 ->
@@ -218,7 +223,7 @@ is_element_of
 
 (*** PROPERTIES 1-3 ***)
 Definition trees_connect (A B : SE_tree) : Prop :=
-Included ConcState.conc_state 
+is_subset
 (circle_op_2 (find_leaf A))
 (circle_op_1 (root B) (find_leaf B)).
 
@@ -253,9 +258,9 @@ in_list tree_list a ->
 
 (*** SUFFICIENCY ***)
 
-Fixpoint execute_tree_list (tlist : list SE_tree) : ConcState.conc_state :=
+Fixpoint execute_tree_list (tlist : list SE_tree) : list ConcState.conc_state :=
 match tlist with
-|nil => EmptyState
+|nil => nil
 |h :: nil => conc_ex (init_conc_state) (get_input (get_pc (find_leaf h)))
 |h :: t => conc_ex (execute_tree_list t) (get_input(get_pc(find_leaf h)))
 end.
@@ -263,7 +268,7 @@ end.
 
 Theorem etl_1_step:
 forall (t : list SE_tree) (s : SE_tree),
-(list_size t > 0) /\ (list_size (s :: t) > 0) /\ s <> leaf ->
+(list_size t > 0) /\ (list_size (s :: t) > 0) /\ s <> nilleaf ->
 execute_tree_list (s :: t) = conc_ex (execute_tree_list t) (get_input(get_pc(find_leaf s))).
 Proof. intros.
 induction s.
@@ -276,17 +281,17 @@ Qed.
 
 (*** SET PROPERTIES ***)
 Axiom set_property_1:
-forall (A : ConcState.conc_state) (B C : Ensemble ConcState.conc_state),
+forall (A : list ConcState.conc_state) (B C : Ensemble (list ConcState.conc_state)),
 (is_element_of B A)
 /\ (is_subset B C)
 /\ (intersection B C <> empty_set)
 -> (is_element_of C A).
 
 Axiom set_property_2:
-forall (A : ConcState.conc_state) (B C : Ensemble ConcState.conc_state) (i : ConcState.input),
+forall (A : (list ConcState.conc_state)) (B C : Ensemble (list ConcState.conc_state)) (i : list ConcState.input),
 ((is_element_of B A)
 /\
-(forall (x : ConcState.conc_state),
+(forall (x : (list ConcState.conc_state)),
 is_element_of B x
 -> is_element_of C (conc_ex x i))
 /\
@@ -294,19 +299,19 @@ is_element_of B x
 -> is_element_of C (conc_ex A i).
 
 Axiom set_property_3:
-forall (A B : Ensemble ConcState.conc_state) (C : ConcState.conc_state),
+forall (A B : Ensemble (list ConcState.conc_state)) (C : (list ConcState.conc_state)),
 is_subset A B /\ is_element_of A C
 -> is_element_of B C.
 
 (*** APPLICATION OF SET PROPERTIES ***)
 
 Theorem P1_and_circle_op_prop:
-forall (t : list SE_tree) (i: ConcState.input),
+forall (t : list SE_tree) (i: list ConcState.input),
 ((is_element_of 
   (circle_op_1 (root (last_elem t)) (find_leaf (last_elem t))) 
   init_conc_state)
 /\
-(forall (x : ConcState.conc_state),
+(forall (x : list ConcState.conc_state),
 is_element_of 
   (circle_op_1 (root (last_elem t)) (find_leaf (last_elem t))) x
 -> is_element_of (circle_op_2(find_leaf (last_elem t))) (conc_ex x i))
@@ -316,13 +321,13 @@ is_element_of
 Proof. intros. apply set_property_2 in H. apply H. Qed.
 
 Theorem P1_and_circle_op_prop_ind_step:
-forall (t : list SE_tree) (i: ConcState.input) ,
+forall (t : list SE_tree) (i: list ConcState.input) ,
 ((is_element_of 
   (circle_op_1 (root (last_elem (t))) 
 (find_leaf (last_elem ( t )))) 
   (execute_tree_list (front t)))
 /\
-(forall (x : ConcState.conc_state),
+(forall (x : list ConcState.conc_state),
 is_element_of 
   (circle_op_1 (root (last_elem (t))) 
 (find_leaf (last_elem (t)))) x
@@ -429,7 +434,7 @@ Axiom not_leaf_sublist:
 forall (s : SE_tree) (t : list SE_tree), 
 is_sublist  (s :: t) tree_list
 ->
-s <> leaf.
+s <> nilleaf.
 
 Axiom sublist_of_self:
 is_sublist tree_list tree_list.
