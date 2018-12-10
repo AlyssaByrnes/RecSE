@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[runningheads]{llncs}
 
 %% Language and font encodings
 %\usepackage[english]{babel}
@@ -17,17 +17,24 @@
 
 \newtheorem{define}{Definition}
 \newtheorem{thm}{Theorem}
-\newtheorem{property}{Property}
-\newtheorem{lemma}{Lemma}
-\newtheorem{cor}{Corollary}
+%\newtheorem{property}{Property}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{cor}{Corollary}
 
 \newcommand{\cks}[1]{\textcolor{red}{cks: #1}}
 \newcommand{\ab}[1]{\textcolor{cyan}{ab: #1}}
 
+\begin{document}
+
 \title{A Recursive Strategy for Symbolic Execution Expressed in Coq}
 \author{A. Byrnes and C. Sturton}
 
-\begin{document}
+\authorrunning{F. Author et al.}
+
+\institute{University of North Carolina at Chapel Hill Department of Computer Science, \\  201 S Columbia St, Chapel Hill, NC 27599 \\
+\email{\{abyrnes1,csturton\}@cs.unc.edu}}
+
+
 \maketitle
 
 \begin{abstract}
@@ -45,9 +52,10 @@ search strategy and make explicit an unstated assumption of the strategy. We the
 \input{introduction}
 \input{priorwork}
 \input{background}
-\section{System Framework}
+\input{serep}
+\input{systemrep}
 \input{verificationapproach}
-\section{Conclusion}
+\input{conclusion}
 
 \input scraptext
 %% \input introduction
