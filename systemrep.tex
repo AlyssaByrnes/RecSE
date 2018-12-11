@@ -27,14 +27,14 @@ Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi
 For our proof we let $circle\_op\_1 =  s_r \circ \pi_l$ and $circle\_op\_2 =  s_l \circ \pi_l$.
 Both operations take the whole SE\_tree as input.
 
-We now can formally prove the following theorem, which we will use in our proof:
-\begin{theorem}
+We now can formally prove the following lemma, which we will use in our proof:
+\begin{lemma} \label{cop}
 forall SE\_trees $t$ and conc\_state lists $csl$,
 if $csl \in circle\_op\_1(t)$,
 then 
 $conc\_ex(csl, get\_input (get\_pc (l))) \in circle\_op\_2(t)$,
 where $l$ is a leaf of $t$.
-\end{theorem}
+\end{lemma}
 
 In order to prove this, we utilize the commutativity property expressed earlier.
 
