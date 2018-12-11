@@ -1,6 +1,7 @@
 \section{Background}
 \cks{SE w/formalization; statement of King properties; SE for HW; explanation of
   RecSE; statement of 3 RecSE properties}
+\subsection{Symbolic Execution}
 Symbolic execution is a means of exploring many paths through a program
 in order to find paths leading to an error state or bug. In symbolic execution
 input variables to a program are given symbolic values. As the program executes
@@ -40,7 +41,40 @@ vector of registers containing a combination of symbolic and concrete state $S
 := <s_0, s_1, \ldots, s_n>$. As execution continues, symbolic values propagate
 through the design.
 
-When execution begins the path constraint is initialized to $\mathtt{True}$. At
-each conditional branch the condition $c$
+When execution begins the path constraint is initialized to $\mathtt{\textsc{true}}$. At
+each conditional branch the condition $c$ is evaluated. If $\pi \rightarrow c$
+the $\mathtt{then}$ branch is taken and the path constraint is
+updated $\pi := \pi \wedge c$. If $\pi \rightarrow \not c$ the $\mathtt{else}$
+branch is taken and the path constraint is updated $\pi := \pi \wedge \not
+c$. If neither $\pi \rightarrow c$ nor $\pi \rightarrow \not c$ hold, then both
+branches are possible. Execution forks and both branches are explored in turn
+with the path condition updated appropriately for each branch.
+\cks{Need to introduce trees}
+
+King formalized the use of symbolic execution~\cite{??} and describes three
+properties provided by symbolic execution. We name and summarize the properties
+here.
+\begin{property}[Sound Paths]
+  \label{prop:kingsound}
+  The path constraint $\pi$ never becomes unsatisfiable. This means that at each
+  leaf node the path constraint $\pi$ assoicated with that leaf node has at
+  least one concrete valuation which would drive execution down the same path of
+  execution.
+\end{property}
+\begin{property}[Unique Paths]
+  \label{prop:kingunique}
+The path constraints $\pi_1$ and $\pi_2$ associated with any two paths of the
+tree are mutually unsatisfiable. In other words, there exists no concrete
+valuation that could drive execution down two distinct paths of the symbolic
+execution tree.
+\end{property}
+\begin{property}[Commutativity]
+  \cks{Todo}
+\end{property}
+
+\subsection{Symbolic Execution of Hardware Designs}
+
+
+
 
 
