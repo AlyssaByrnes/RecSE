@@ -65,14 +65,12 @@ end.
 Definition s_e := sym_state -> SE_tree.
 Axiom sym_ex : s_e.
 
-(*Definition s_e_many := list sym_state -> list sym_state.
-Axiom sym_ex_many : s_e_many.
-*)
-Definition r_inst_s :=  sym_state -> list ConcState.conc_state.
+
+(*Definition r_inst_s :=  sym_state -> list ConcState.conc_state.
 Axiom randomly_instantiate_conc_state : r_inst_s.
 
 Definition r_inst_i := sym_state -> list ConcState.input.
-Axiom randomly_instantiate_input : r_inst_i.
+Axiom randomly_instantiate_input : r_inst_i.*)
 
 Definition pc_e := PC -> list ConcState.conc_state -> list ConcState.input -> Prop.
 Axiom pc_eval : pc_e.
@@ -89,18 +87,6 @@ is_leaf s' (sym_ex s) /\
 ->
 conc_ex cs li = instantiate (get_phi s') cs li.
 
-Axiom commutativity2 : 
-forall (li : list ConcState.input) (cs : list ConcState.conc_state) 
-(t : SE_tree),
-(*li = (randomly_instantiate_input s) /\
-cs = (randomly_instantiate_conc_state s) /\*)
-exists (s' : sym_state),
-is_leaf s' t /\
-(pc_eval (get_pc s') cs li) 
-->
-conc_ex cs li = instantiate (get_phi s') cs li.
-
-
 
 Axiom commutativity':
 forall (li : list ConcState.input) 
@@ -111,31 +97,7 @@ pc_eval (get_pc x) lcs li
 )
 -> conc_ex lcs li = instantiate (get_phi x) lcs li.
 
-(*Axiom commutativity2 : 
-forall (csl : list ConcState.conc_state) (t : SE_tree),
- exists(s' : sym_state) (li : list ConcState.input),
-      is_leaf s' t /\
-      pc_eval (get_pc s') csl li
-<-> conc_ex csl li = instantiate (get_phi s') csl li.*)
 
-
-Axiom commutativity3 :
-forall (lcs : list ConcState.conc_state) (t : SE_tree),
-exists
-  (s' : sym_state) (li : list ConcState.input) ,
-  is_leaf s' t /\
-  pc_eval (get_pc s') lcs li /\
-  conc_ex lcs li =
-  instantiate (get_phi s') lcs li.
-
-Axiom commutativity4:
-forall (li : list ConcState.input) 
-(s' : sym_state) (t : SE_tree),
-exists lcs : list conc_state,
-  is_leaf s' t /\
-  pc_eval (get_pc s') lcs li /\
-  conc_ex lcs li =
-  instantiate (get_phi s') lcs li.
 
 
 (*** TREE LIST STRUCTURE ***)
@@ -248,51 +210,11 @@ Finds inputs given a pc that satisfy that pc
 (* Takes as input symbolic state of root and pc of its leaf 
 and returns all and only the concrete states that will take us down 
 the path that leads to the leaf. *)
-(*Definition c_o_1 := SE_tree -> Ensemble (list ConcState.conc_state).
-Axiom circle_op_1 : c_o_1.*)
+Definition c_o_1 := SE_tree -> Ensemble (list ConcState.conc_state).
+Axiom circle_op_1 : c_o_1.
 
-Inductive circle_op_1 (t : SE_tree)  : Ensemble (list ConcState.conc_state) :=
-c_o_1_intro: 
-forall (lcs : list ConcState.conc_state) (s' : sym_state) 
-(li: list ConcState.input),
-(is_leaf s' t) /\
-pc_eval (get_pc s') lcs li ->
-is_element_of (circle_op_1 t) lcs.
-
-(*Definition c_o_2 := SE_tree -> Ensemble (list ConcState.conc_state).
-Axiom circle_op_2 : c_o_2.*)
-
-(*Axiom c_o_2_def : 
-forall (t : SE_tree) (l : SE_state),
-is_leaf l t
--> c_o_2 l = *)
-
-Inductive circle_op_2 (t : SE_tree)  : Ensemble (list ConcState.conc_state) :=
-c_o_2_intro: 
-forall (lcs lcs' : list ConcState.conc_state) (s' : sym_state) 
-(li: list ConcState.input),
-(is_leaf s' t) /\
-pc_eval (get_pc s') lcs li /\
-(lcs' = instantiate (get_phi s') lcs li) ->
-is_element_of (circle_op_2 t) lcs'.
-
-(*
-Axiom c_o_1_def:
-forall (lcs : list ConcState.conc_state) (s' : sym_state) 
-(li: list ConcState.input) (t : SE_tree),
-is_element_of (circle_op_1 t) lcs
-<->
-(is_leaf s' t) /\
-pc_eval (get_pc s') lcs li.
-
-Axiom c_o_2_def:
-forall (lcs lcs' : list ConcState.conc_state) (s' : sym_state) 
-(li: list ConcState.input) (t : SE_tree),
-is_element_of (circle_op_2 t) lcs'
-<->
-(is_leaf s' t) /\
-pc_eval (get_pc s') lcs li /\
-(lcs' = instantiate (get_phi s') lcs li).*)
+Definition c_o_2 := SE_tree -> Ensemble (list ConcState.conc_state).
+Axiom circle_op_2 : c_o_2.
 
 
 Axiom c_o_1_def : 
@@ -310,58 +232,6 @@ exists (s' : sym_state) (li: list ConcState.input)
 (is_leaf s' t) /\
 pc_eval (get_pc s') lcs li /\
 (lcs' = instantiate (get_phi s') lcs li).
-
-Axiom connection : True.
-
-(*
-Axiom circle_op_property:
-forall (t : SE_tree) (lcs lcs': list ConcState.conc_state) (li: list ConcState.input)
-(s' : sym_state),
-is_element_of
-(circle_op_1 t) lcs
-/\ (pc_eval (get_pc s') lcs li)
-->
-is_element_of 
-(circle_op_2 t)
-(conc_ex lcs li).
-
-*)
-(*
-Theorem c_o_rw_all: 
-forall (t : SE_tree) 
-  (lcs : list conc_state) (li: list ConcState.input) (x : sym_state) ,
-pc_eval (get_pc x) lcs li /\
-    is_element_of (circle_op_1 t) lcs
-->
-is_leaf x t /\ pc_eval (get_pc x) lcs li.
-Proof. intros. destruct H. apply c_o_1_def in H0.
-
-
-
-Theorem c_o_rw': 
-forall (t : SE_tree) 
-  (lcs : list conc_state) (li: list ConcState.input) (x : sym_state) ,
-pc_eval (get_pc x) lcs li /\
-    is_element_of (circle_op_1 t) lcs
-->
-exists (s' : sym_state) ,
-is_leaf s' t /\
-(pc_eval (get_pc s') lcs li).
-Proof. intros. exists x. apply c_o_rw_all. apply H. Qed.
-*)
-
-(*Axiom c_o_rw: 
-forall (t : SE_tree) 
-  (lcs : list conc_state) (li: list ConcState.input) ,
-(exists s' : sym_state,
-      pc_eval (get_pc s') lcs li /\
-      is_element_of (circle_op_1 t) lcs)
-->
-exists (s' : sym_state) ,
-is_leaf s' t /\
-(pc_eval (get_pc s') lcs li).
-*)
-
 
 
 Theorem circle_op_property':
@@ -436,11 +306,11 @@ Axiom Prop1 :
 is_element_of 
 (circle_op_1 (first_elem tree_list)) init_conc_state.
 
-Axiom Prop2 : 
+(*Axiom Prop2 : 
 intersection 
 (circle_op_2 (last_elem tree_list))
 Error_States 
-<> empty_set.
+<> empty_set.*)
 
 Axiom Prop2':
 is_subset
@@ -452,10 +322,10 @@ forall (a b : SE_tree),
 consecutive_in_order a b tree_list ->
 trees_connect b a.
 
-Axiom Prop3':
+(*Axiom Prop3':
 forall (a : SE_tree), 
 in_list tree_list a ->
-(circle_op_2 a) <> empty_set.
+(circle_op_2 a) <> empty_set.*)
 
 
 
@@ -483,28 +353,31 @@ Qed.
 
 
 (*** SET PROPERTIES ***)
-Axiom set_property_1:
+Theorem set_property_1:
 forall (A : list ConcState.conc_state) (B C : Ensemble (list ConcState.conc_state)),
 (is_element_of B A)
 /\ (is_subset B C)
-/\ (intersection B C <> empty_set)
 -> (is_element_of C A).
+Proof. intros. unfold is_element_of.  destruct H. 
+unfold is_subset in H0. unfold Included in H0. 
+apply H0.
+unfold is_element_of in H. apply H. Qed.
 
-Axiom set_property_2:
+Theorem set_property_2:
 forall (A : (list ConcState.conc_state)) (B C : Ensemble (list ConcState.conc_state)) (i : list ConcState.input),
 ((is_element_of B A)
 /\
 (forall (x : (list ConcState.conc_state)),
 is_element_of B x
 -> is_element_of C (conc_ex x i))
-/\
-(C <> empty_set))
+)
 -> is_element_of C (conc_ex A i).
+Proof. intros. destruct H. 
+apply H0. apply H. Qed.
 
-Axiom set_property_3:
-forall (A B : Ensemble (list ConcState.conc_state)) (C : (list ConcState.conc_state)),
-is_subset A B /\ is_element_of A C
--> is_element_of B C.
+
+
+
 
 (*** APPLICATION OF SET PROPERTIES ***)
 
@@ -517,9 +390,7 @@ forall (t : list SE_tree) (i: list ConcState.input),
 (forall (x : list ConcState.conc_state),
 is_element_of 
   (circle_op_1 (last_elem t)) x
--> is_element_of (circle_op_2(last_elem t)) (conc_ex x i))
-/\
-((circle_op_2(last_elem t)) <> empty_set))
+-> is_element_of (circle_op_2(last_elem t)) (conc_ex x i)))
 -> is_element_of (circle_op_2(last_elem t)) (conc_ex init_conc_state i).
 Proof. intros. apply set_property_2 in H. apply H. Qed.
 
@@ -532,28 +403,26 @@ forall (t : list SE_tree) (i: list ConcState.input) ,
 (forall (x : list ConcState.conc_state),
 is_element_of 
   (circle_op_1 (last_elem t)) x
--> is_element_of (circle_op_2(last_elem t)) (conc_ex x i))
-/\
-((circle_op_2 (last_elem t)) <> empty_set))
+-> is_element_of (circle_op_2(last_elem t)) (conc_ex x i)))
 -> is_element_of (circle_op_2((last_elem (t)))) 
 (conc_ex (execute_tree_list (front t)) i).
 Proof. intros. apply set_property_2 in H. apply H. Qed. 
 
 Theorem P3_and_IH:
 forall (t: list SE_tree),
-is_subset
-(circle_op_2 (second_last_elem t))
-(circle_op_1 (last_elem t))
-/\
 is_element_of
         (circle_op_2
            ((second_last_elem t)))
         (execute_tree_list (front t))
+/\
+is_subset
+(circle_op_2 (second_last_elem t))
+(circle_op_1 (last_elem t))
 ->
 is_element_of
 (circle_op_1 (last_elem t))
 (execute_tree_list (front t)).
-Proof. intros. apply set_property_3 in H. apply H. Qed. 
+Proof. intros. apply set_property_1 in H. apply H. Qed. 
 
 Theorem P2_and_etl_imp:
 forall (t : list SE_tree),
@@ -564,19 +433,13 @@ forall (t : list SE_tree),
 (is_subset 
 (circle_op_2 ( (last_elem t)))
 Error_States)
-/\
-((intersection
-(circle_op_2 ((last_elem t)))
-Error_States)
-<> empty_set
-)
 ->
 is_element_of 
 Error_States
 (execute_tree_list t).
 Proof. intros. apply set_property_1 in H. apply H. Qed.
 
-Theorem P2_and_etl_imp_ind_step:
+(*Theorem P2_and_etl_imp_ind_step:
 forall (t : list SE_tree),
 (is_element_of 
 (circle_op_2 ((last_elem t)))
@@ -595,12 +458,34 @@ forall (t : list SE_tree),
 is_element_of
  (circle_op_1  (second_last_elem t))
 (execute_tree_list t).
-Proof. intros. apply set_property_1 in H. apply H. Qed.
+Proof. intros. apply set_property_1 in H. apply H. Qed.*)
 
-Axiom basecase:
+
+
+(*** HELPER THEOREMS ***)
+
+Axiom sublist_eq: 
+forall a: SE_tree,
+is_sublist (a :: nil) tree_list
+-> tree_list = (a :: nil).
+
+Axiom in_list_basecase:
+forall a : SE_tree,
+tree_list = (a :: nil)->
+in_list tree_list a.
+
+Axiom first_elem_last_elem:
 forall s : SE_tree,
+last_elem (s :: nil) = first_elem (s :: nil).
+
+Theorem basecase:
+forall s : SE_tree,
+tree_list = (s :: nil) ->
 is_element_of (circle_op_2 ((last_elem (s :: nil))))
   (execute_tree_list (s :: nil)).
+Proof. intros. apply P1_and_circle_op_prop. split.
+* rewrite first_elem_last_elem. rewrite <- H. apply Prop1.
+* apply circle_op_property_2. Qed.
 
 Axiom s_l_e_rewrite :
 forall (s s0 : SE_tree) (t : list SE_tree),
@@ -640,6 +525,9 @@ s <> nilleaf.
 Axiom sublist_of_self:
 is_sublist tree_list tree_list.
 
+
+(*** MAIN PROOF***)
+
 Theorem etl:
 forall t : list SE_tree,
 is_sublist t tree_list ->
@@ -649,19 +537,17 @@ is_element_of
 Proof. intros. induction t. 
 - pose sl_nil. contradiction.
 - destruct t. 
-* apply basecase.
+* apply basecase. apply sublist_eq in H. apply H.
 * rewrite etl_1_step.
 ** apply P1_and_circle_op_prop_ind_step. split.
 *** apply P3_and_IH. split.
++ rewrite front_rewrite. rewrite s_l_e_rewrite. apply IHt.
+  apply sl_elim in H. apply H.
 + unfold last_elem.
   pose Prop3 as P3. unfold trees_connect in P3.
   apply P3. simpl. pose H as H1. 
   apply c_i_o_elim in H1. apply H1.
-+ rewrite front_rewrite. rewrite s_l_e_rewrite. apply IHt.
-  apply sl_elim in H. apply H.
-*** split. apply circle_op_property_2. 
-    pose Prop3' as P3'. simpl. apply P3'. 
-    apply in_list_elim in H. apply H.
+*** apply circle_op_property_2. 
 ** split. apply list_size_sublist.
    apply sl_elim in H. apply H.
    split. apply list_size_sublist. apply H.
@@ -673,8 +559,7 @@ is_element_of Error_States (execute_tree_list tree_list).
 Proof. intros. 
 apply P2_and_etl_imp.
 split. apply etl. auto. apply sublist_of_self. 
-- split. apply Prop2'.
-apply Prop2. Qed.
+apply Prop2'. Qed.
 
 End SERecurs.
 
