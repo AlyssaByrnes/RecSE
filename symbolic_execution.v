@@ -156,13 +156,6 @@ match l1 with
 |h :: t => (l2 = l1) \/ is_sublist t l2
 end.
 
-Axiom c_i_o_elim :
-forall (a b : SE_tree) (t l : list SE_tree),
-is_sublist  l (a :: b :: t) ->
-consecutive_in_order a b l.
-
-
-
 
 (*** SET OPERATION SHORT HANDS ***)
 Definition is_subset (x y : Ensemble (list ConcState.conc_state)) : Prop :=
@@ -468,24 +461,31 @@ Proof. intros. apply set_property_1 in H. apply H. Qed.*)
 
 (*** HELPER THEOREMS ***)
 
+Axiom sublist_elim:
+forall (a : SE_tree) (t l : list SE_tree),
+is_sublist l (a::t) ->
+in_list l a.
 
-Axiom sublist_eq: 
-forall a: SE_tree,
-is_sublist tree_list (a :: nil)
--> tree_list = (a :: nil).
 
 Theorem first_elem_last_elem:
 forall s : SE_tree,
 last_elem (s :: nil) = first_elem (s :: nil).
 Proof. intros. simpl. auto. Qed. 
 
+Axiom sublist_first_elem :
+forall s : list SE_tree,
+is_sublist tree_list s
+-> first_elem s = first_elem tree_list.
+
 Theorem basecase:
 forall s : SE_tree,
-tree_list = (s :: nil) ->
+(is_sublist tree_list (s :: nil)) ->
 is_element_of (circle_op_2 ((last_elem (s :: nil))))
   (execute_tree_list (s :: nil)).
 Proof. intros. apply P1_and_circle_op_prop. split.
-* rewrite first_elem_last_elem. rewrite <- H. apply Prop1.
+* rewrite first_elem_last_elem. 
+apply sublist_first_elem in H. rewrite H.
+  apply Prop1.
 * apply circle_op_property_2. Qed.
 
 Theorem s_l_e_rewrite :
@@ -501,15 +501,11 @@ Proof. intros. simpl; auto. Qed.
 Axiom sl_nil : 
 (is_sublist tree_list nil -> False).
 
-
-
 Axiom sl_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
 is_sublist  tree_list (s0 :: s :: t)
 ->
 is_sublist  tree_list (s :: t).
-
-
 
 Axiom in_list_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
@@ -537,6 +533,12 @@ Proof. intros. induction tree_list.
 * simpl;auto.
 * simpl; auto.  Qed.
 
+Axiom c_i_o_elim :
+forall (a b : SE_tree) (t l : list SE_tree),
+is_sublist  l (a :: b :: t) ->
+consecutive_in_order a b l.
+
+
 
 (*** MAIN PROOF***)
 
@@ -549,7 +551,7 @@ is_element_of
 Proof. intros. induction t. 
 - pose sl_nil. apply sl_nil in H. contradiction.
 - destruct t. 
-* apply basecase. apply sublist_eq in H. apply H.
+* apply basecase. apply H.
 * rewrite etl_1_step.
 ** apply P1_and_circle_op_prop_ind_step. split.
 *** apply P3_and_IH. split.
