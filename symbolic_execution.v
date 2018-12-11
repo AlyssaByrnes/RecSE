@@ -149,18 +149,12 @@ match l with
 | nil => False
 end.
 
+(* Checks if l2 is a sublist of l1*)
 Fixpoint is_sublist (l1 l2 : list SE_tree) : Prop :=
 match l1 with
 |nil => False
 |h :: t => (l2 = l1) \/ is_sublist t l2
 end.
-
-Axiom c_i_o_elim :
-forall (a b : SE_tree) (t l : list SE_tree),
-is_sublist (a :: b :: t) l ->
-consecutive_in_order a b l.
-
-
 
 
 (*** SET OPERATION SHORT HANDS ***)
@@ -195,6 +189,9 @@ tree_list <> nil.
 
 Axiom size_requirement: 
 list_size tree_list > 0.
+
+Axiom nil_is_nil:
+nilleaf :: nil = nil.
 
 Definition fl := SE_tree -> sym_state.
 Axiom find_leaf : fl.
@@ -464,80 +461,137 @@ Proof. intros. apply set_property_1 in H. apply H. Qed.*)
 
 (*** HELPER THEOREMS ***)
 
-Axiom sublist_eq: 
-forall a: SE_tree,
-is_sublist (a :: nil) tree_list
--> tree_list = (a :: nil).
+Axiom sublist_elim_front:
+forall (a : SE_tree) (t l : list SE_tree),
+is_sublist l  t
+-> is_sublist (a::l) t .
 
-Axiom in_list_basecase:
-forall a : SE_tree,
-tree_list = (a :: nil)->
-in_list tree_list a.
 
-Axiom first_elem_last_elem:
+Axiom sublist_elim_front':
+forall (a : SE_tree) (t l : list SE_tree),
+is_sublist (a :: l)  t
+-> is_sublist l t \/ t = (a :: l).
+
+Axiom list_equiv:
+forall (a s : SE_tree) (t l : list SE_tree),
+s :: t = a :: l
+-> t = l.
+
+Axiom non_nil_imp:
+forall (a : SE_tree) (l : list SE_tree),
+a :: l <> nil -> l <> nil.
+
+Theorem sublist_of_self_general:
+forall l : list SE_tree,
+l <> nil ->
+is_sublist l l.
+Proof. intros. induction l.
+* contradiction.
+* simpl;auto. Qed.
+
+Theorem sublist_of_self:
+tree_list <> nil ->
+is_sublist tree_list tree_list.
+Proof. intros. induction tree_list.
+* simpl;auto.
+* simpl; auto.  Qed.
+
+Theorem first_elem_last_elem:
 forall s : SE_tree,
 last_elem (s :: nil) = first_elem (s :: nil).
+Proof. intros. simpl. auto. Qed. 
+
+Theorem sublist_elim_1_step:
+tree_list <> nil ->
+(forall (s : SE_tree) (t : list SE_tree), 
+is_sublist  tree_list ( s :: t)
+->
+is_sublist  tree_list  t).
+Proof. intros. induction tree_list.
+* contradiction.
+* apply sublist_elim_front' in H0. destruct H0.
+**  apply sublist_elim_front. apply non_nil_imp in H. 
+    apply IHl in H. apply H. apply H0.
+** apply list_equiv in H0. rewrite H0.
+    apply sublist_elim_front. apply sublist_of_self_general.
+    apply non_nil_imp in H. apply H. Qed.
+
+Axiom sublist_first_elem :
+forall s : list SE_tree,
+is_sublist tree_list s
+-> first_elem s = first_elem tree_list.
+
 
 Theorem basecase:
 forall s : SE_tree,
-tree_list = (s :: nil) ->
+(is_sublist tree_list (s :: nil)) ->
 is_element_of (circle_op_2 ((last_elem (s :: nil))))
   (execute_tree_list (s :: nil)).
 Proof. intros. apply P1_and_circle_op_prop. split.
-* rewrite first_elem_last_elem. rewrite <- H. apply Prop1.
+* rewrite first_elem_last_elem. 
+apply sublist_first_elem in H. rewrite H.
+  apply Prop1.
 * apply circle_op_property_2. Qed.
 
-Axiom s_l_e_rewrite :
+Theorem s_l_e_rewrite :
 forall (s s0 : SE_tree) (t : list SE_tree),
 second_last_elem (s :: s0 :: t)  = last_elem (s0 :: t).
+Proof. intros. simpl; auto. Qed.
 
-Axiom front_rewrite : 
+Theorem front_rewrite : 
 forall (s s0 : SE_tree) (t : list SE_tree), 
 front (s :: s0 :: t) = (s0 :: t).
+Proof. intros. simpl; auto. Qed.
 
 Axiom sl_nil : 
-(is_sublist nil tree_list = False).
+(is_sublist tree_list nil -> False).
 
 Axiom sl_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist (s0 :: s :: t) tree_list
+is_sublist  tree_list (s0 :: s :: t)
 ->
-is_sublist (s :: t) tree_list.
+is_sublist  tree_list (s :: t).
 
 Axiom in_list_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist (s0 :: s :: t) tree_list
+is_sublist tree_list (s0 :: s :: t)
 ->
 in_list tree_list s0.
 
 Axiom list_size_sublist:
 forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  (s :: t) tree_list
+is_sublist  tree_list (s :: t) 
 ->
 list_size (s :: t) > 0.
 
+
 Axiom not_leaf_sublist:
 forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  (s :: t) tree_list
+is_sublist tree_list (s :: t) 
 ->
 s <> nilleaf.
 
-Axiom sublist_of_self:
-is_sublist tree_list tree_list.
+
+
+Axiom c_i_o_elim :
+forall (a b : SE_tree) (t l : list SE_tree),
+is_sublist  l (a :: b :: t) ->
+consecutive_in_order a b l.
+
 
 
 (*** MAIN PROOF***)
 
 Theorem etl:
 forall t : list SE_tree,
-is_sublist t tree_list ->
+is_sublist tree_list t ->
 is_element_of 
   (circle_op_2((last_elem t))) 
   (execute_tree_list t).
 Proof. intros. induction t. 
-- pose sl_nil. contradiction.
+- apply sl_nil in H. contradiction.
 - destruct t. 
-* apply basecase. apply sublist_eq in H. apply H.
+* apply basecase. apply H.
 * rewrite etl_1_step.
 ** apply P1_and_circle_op_prop_ind_step. split.
 *** apply P3_and_IH. split.
@@ -558,7 +612,7 @@ Theorem sufficiency:
 is_element_of Error_States (execute_tree_list tree_list).
 Proof. intros. 
 apply P2_and_etl_imp.
-split. apply etl. auto. apply sublist_of_self. 
+split. apply etl. auto. apply sublist_of_self. apply non_empty.
 apply Prop2'. Qed.
 
 End SERecurs.
