@@ -461,21 +461,66 @@ Proof. intros. apply set_property_1 in H. apply H. Qed.*)
 
 (*** HELPER THEOREMS ***)
 
-Axiom sublist_elim:
+Axiom sublist_elim_front:
 forall (a : SE_tree) (t l : list SE_tree),
-is_sublist l (a::t) ->
-in_list l a.
+is_sublist l  t
+-> is_sublist (a::l) t .
 
+
+Axiom sublist_elim_front':
+forall (a : SE_tree) (t l : list SE_tree),
+is_sublist (a :: l)  t
+-> is_sublist l t \/ t = (a :: l).
+
+Axiom list_equiv:
+forall (a s : SE_tree) (t l : list SE_tree),
+s :: t = a :: l
+-> t = l.
+
+Axiom non_nil_imp:
+forall (a : SE_tree) (l : list SE_tree),
+a :: l <> nil -> l <> nil.
+
+Theorem sublist_of_self_general:
+forall l : list SE_tree,
+l <> nil ->
+is_sublist l l.
+Proof. intros. induction l.
+* contradiction.
+* simpl;auto. Qed.
+
+Theorem sublist_of_self:
+tree_list <> nil ->
+is_sublist tree_list tree_list.
+Proof. intros. induction tree_list.
+* simpl;auto.
+* simpl; auto.  Qed.
 
 Theorem first_elem_last_elem:
 forall s : SE_tree,
 last_elem (s :: nil) = first_elem (s :: nil).
 Proof. intros. simpl. auto. Qed. 
 
+Theorem sublist_elim_1_step:
+tree_list <> nil ->
+(forall (s : SE_tree) (t : list SE_tree), 
+is_sublist  tree_list ( s :: t)
+->
+is_sublist  tree_list  t).
+Proof. intros. induction tree_list.
+* contradiction.
+* apply sublist_elim_front' in H0. destruct H0.
+**  apply sublist_elim_front. apply non_nil_imp in H. 
+    apply IHl in H. apply H. apply H0.
+** apply list_equiv in H0. rewrite H0.
+    apply sublist_elim_front. apply sublist_of_self_general.
+    apply non_nil_imp in H. apply H. Qed.
+
 Axiom sublist_first_elem :
 forall s : list SE_tree,
 is_sublist tree_list s
 -> first_elem s = first_elem tree_list.
+
 
 Theorem basecase:
 forall s : SE_tree,
@@ -526,12 +571,7 @@ is_sublist tree_list (s :: t)
 ->
 s <> nilleaf.
 
-Theorem sublist_of_self:
-tree_list <> nil ->
-is_sublist tree_list tree_list.
-Proof. intros. induction tree_list.
-* simpl;auto.
-* simpl; auto.  Qed.
+
 
 Axiom c_i_o_elim :
 forall (a b : SE_tree) (t l : list SE_tree),
@@ -549,7 +589,7 @@ is_element_of
   (circle_op_2((last_elem t))) 
   (execute_tree_list t).
 Proof. intros. induction t. 
-- pose sl_nil. apply sl_nil in H. contradiction.
+- apply sl_nil in H. contradiction.
 - destruct t. 
 * apply basecase. apply H.
 * rewrite etl_1_step.
