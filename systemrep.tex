@@ -56,16 +56,12 @@ $circle\_op\_2 (a) \subseteq
 circle\_op\_1 (b) $.
 
 These properties end up not being sufficient for proving the tool works. 
-We express the following additional properties to address specific edge cases:
+We make Property 2 stronger by replacing it with the following property:
 
 \textbf{Axiom (Property $2'$):}
 $circle\_op\_2 (last\_elem (tree\_list))
 \subseteq Error\_States $.
 
-\textbf{Axiom (Property $3'$):}
-forall SE\_trees $a$, 
-if $a$ is in $tree\_list$, then
-$circle\_op\_2 (a) \neq empty\_set$.
 
 
 Our main sufficiency theorem that we prove is the following:
