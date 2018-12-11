@@ -1,1 +1,74 @@
 \section{Formal Representation of Symbolic Execution}
+In order to prove properties about symbolic execution, we created a formal, abstract representation of concrete execution and symbolic execution.
+Next, we formally expressed King's property of commutativity as an axiom in order to utilize it in our tool's representation.
+
+\subsection{Concrete Execution}
+To represent concrete execution, we defined two abstract types: 
+\begin{itemize}
+\item \textit{input} represents one input into the system.
+\item \textit{state}  represents one system state variable assignment.
+\end{itemize}
+
+To concretely execute, the method takes a list of elements of type ``input'', each element being an assignment for one input variable, and a list of elements of type ``conc\_state'', each element being an assignment for one state variable,
+and returns a list of updated  ``conc\_state'' assignments.
+
+%Inductive-type Variables
+%\begin{itemize}
+%\item list input - list of elements of type ``input'', each element being an assignment for one input variable.
+%\item list conc\_state - list of elements of type ``conc\_state'', each element being an assignment for one state variable.
+%\end{itemize}
+
+%Abstract Methods
+%\begin{itemize}
+%\item conc\_ex - takes a list of inputs of type ``conc\_state'' and a list of type ``input'' and outputs new list of ``conc\_state''.
+%\end{itemize}
+
+
+\subsection{Symbolic Execution}
+
+To represent symbolic execution, we defined two abstract types:
+\begin{itemize}
+\item \textit{phi} is an abstract state.
+\item \textit{pc} is a path constraint.
+\end{itemize}
+
+A symbolic state, or \textit{sym\_state} is a tuple of one item of type \textit{phi} and one item of type \textit{pc}.
+A symbolic execution tree, or \textit{SE\_tree} is a tree structure consisting of sym\_state elements. 
+When a sym\_state is symbolically executed, it will create an SE\_tree.
+
+Additionally, we defined the following abstract methods:
+\begin{itemize}
+\item \textit{pc\_eval} takes the pc of a sym\_state, a list of input assignments, and a list of conc\_state assignments, and returns $True$ if those assignments do not violate the path constraint.
+\item \textit{instantiate} takes the phi of a sym\_state, a list of input assignments and a list of conc\_state assignments, and instantiates them into a new list of conc\_states.
+\end{itemize}
+
+
+\subsection{Commutativity}
+In order to assume the correctness of symbolic execution, we need to assume the following commutativity property as expressed by King (citation):
+``The symbolic execution defined above for this simple
+integer language satisfies an interesting commutative
+property. The operation of instantiating the symbols
+{$\alpha_i$} with specific integers, say {$j_i$}, and the operation of
+executing the program are interchangeable. That is, if
+one conventionally executes a program with a specific
+$\alpha_i$'s by
+$j_i$'s first, followed by execution), the results will be the
+same as executing the program symbolically and then
+instantiating the symbolic results (assigning $j$'s to $\alpha$'s).
+The meaning of "instantiating the symbolic results" is
+first, for each terminal leaf in the execution tree, substitute
+$j$'s for $\alpha$'s in all program variable values and in
+pc. Then the "results" are the values for the terminal 
+node whose pc becomes true.'' (citation)
+
+
+Our interpretation of this property was the following axiom:
+\begin{axiom}
+for all input lists $li$, conc\_state lists $lcs$, sym\_states $s$,
+if there exists an SE\_tree $t$ such that
+s is a leaf of t and
+$pc\_eval (get_pc(s), lcs, li) = true$,
+then
+$conc\_ex(lcs, li) = instantiate (get\_phi (x), lcs, li)$.
+\end{axiom}
+
