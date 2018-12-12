@@ -1,0 +1,12 @@
+\section{Proof Strategy}
+For our proof, we show that, given a Coq model of both symbolic execution and the backwards symbolic execution tool and a set of properties, 
+the backwards symbolic execution tool will give us a list of symbolic execution trees with corresponding leaves that, when executed, will result in an error state.
+
+In other words, we define a list of symbolic execution trees, called \textit{tree\_list}, the we bind with a set of properties and a method to execute the relevant leaves, called \textit{execute\_tree\_list},
+and show that it leads to a set of error states, called \textit{error\_states}. This can be expressed as the following theorem
+
+\begin{theorem}
+\begin{theorem}
+$execute\_tree\_list (tree\_list) \in error\_states$.
+\end{theorem}
+\end{theorem}
