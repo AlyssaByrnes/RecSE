@@ -2,12 +2,17 @@
 \cks{SE w/formalization; statement of King properties; SE for HW; explanation of
   RecSE; statement of 3 RecSE properties}
 \subsection{Symbolic Execution}
-Symbolic execution is a means of exploring many paths through a program
-in order to find paths leading to an error state or bug. In symbolic execution
-input variables to a program are given symbolic values. As the program executes
-the symbolic values are used in place of the usual concrete literals and the
-resulting symbolic expressions may propagate throughout the program's
-state. Figure~\ref{fig:se} demonstrates the idea. For example, for the code in
+In symbolic execution the final parameters to a program's entry point are
+assigned symbolic values. The symbolic execution engine simulates each line of
+code, using the symbolic values in place of the usual concrete literals. As
+execution continues the resulting symbolic expressions propagate throughout the program's
+state. The symbolic execution engine
+maintains the current, partially symbolic state of the program and the current
+\emph{path condition}. The path condition is a conjunction of propositions over
+input and state variables that define the path through the program code taken to
+reach the current state. Figure~\ref{fig:se} demonstrates the idea. 
+
+For example, for the code in
 Figure~\ref{fig:sea}, if $\mathtt{reset}$ and $\mathtt{count}$ are initialized
 with the symbolic values $r_0$ and $c_0$, respectively, then after symbolically
 executing lines 1, 3, and 4 count may be set to the symbolic expression $c_0 +
