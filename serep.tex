@@ -1,8 +1,8 @@
-\section{Formal Representation of Symbolic Execution}
+\subsection{Formal Representation of Symbolic Execution}
 In order to prove properties about symbolic execution, we created a formal, abstract representation of concrete execution and symbolic execution.
 Next, we formally expressed King's property of commutativity as an axiom in order to utilize it in our tool's representation.
 
-\subsection{Concrete Execution}
+\subsubsection{Concrete Execution}
 To represent concrete execution, we defined two abstract types: 
 \begin{itemize}
 \item \textit{input} represents one input into the system.
@@ -24,7 +24,7 @@ and returns a list of updated  ``conc\_state'' assignments.
 %\end{itemize}
 
 
-\subsection{Symbolic Execution}
+\subsubsection{Symbolic Execution}
 
 To represent symbolic execution, we defined two abstract types:
 \begin{itemize}
@@ -43,7 +43,7 @@ Additionally, we defined the following abstract methods:
 \end{itemize}
 
 
-\subsection{Commutativity}
+\subsubsection{Commutativity}
 In order to assume the correctness of symbolic execution, we need to assume the following commutativity property as expressed by King (citation):
 ``The symbolic execution defined above for this simple
 integer language satisfies an interesting commutative

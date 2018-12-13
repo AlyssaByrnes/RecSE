@@ -1,4 +1,4 @@
-\section{Formal Representation of Our Tool}
+\subsection{Coq Representation of Our Tool}
 Our system contains the following three global variables:
 \begin{itemize}
 \item A list of SE\_trees called \textit{tree\_list} that represent the list of trees returned by our tool.
@@ -17,7 +17,7 @@ then there exists a sym\_state $s'$ such that
  $pc\_eval (get\_pc (s'), lcs, li) = True$.
 \end{axiom}
 
-\subsection{Circle Operations}
+\subsubsection{Circle Operations}
 The recursive symbolic execution tool utilizes two circle operations. 
 They define them in the following way: 
 
@@ -39,7 +39,7 @@ where $l$ is a leaf of $t$.
 In order to prove this, we utilize the commutativity property expressed earlier.
 
 
-\subsection{Tool Requirements}
+\subsubsection{Tool Requirements}
 We formally express the requirements stated of the tool by Zhang et al. (citation).
 The following requirements, when placed on our system, should be enough to prove that the tool works as expected:
 \textbf{Axiom (Property $1$):} 
