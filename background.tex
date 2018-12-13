@@ -80,6 +80,8 @@ execution tree.
 \subsection{Symbolic Execution of Hardware Designs}
 
 \subsection{Using Coq as a Verification Tool}
+\cks{Alyssa, can you add more information about how Coq works, what is
+  expressible in Coq, and what libraries we made use of?}
 Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems. 
 It implements the inductive language Gallina. It allows for formal definitions of systems, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
 
@@ -92,7 +94,18 @@ There are four main structures in Coq that we use in our proof:
 
 \end{itemize}
 
-For our system, we express the properties of symbolic execution as axioms because we are assuming they are true. Additionally, we express the recursive symbolic execution tool's properties as axioms because these are defined as requirements. Our definitions and fixpoints are the methods that are implemented in the system, such as execution of the list of trees provided by the recursive symbolic execution tool. Variables are system-specific variables, such as the initial state and the error states. The properties we want to prove about the tool are expressed as theorems.
+For our system, we express the properties of symbolic execution as axioms
+because we are assuming they are true. Additionally, we express the recursive
+symbolic execution tool's properties as axioms because these are defined as
+requirements. Our definitions and fixpoints are the methods that are implemented
+in the system, such as execution of the list of trees provided by the recursive
+symbolic execution tool. Variables are system-specific variables, such as the
+initial state and the error states. The properties we want to prove about the
+tool are expressed as theorems.
+\cks{Rather than give these details about the syntax of Coq here, use the
+  background section to provide the reader a sense of how Coq works with a focus
+  on the features we make use of.}
+
 
 
 
