@@ -79,6 +79,21 @@ execution tree.
 
 \subsection{Symbolic Execution of Hardware Designs}
 
+\subsection{Using Coq as a Verification Tool}
+Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems. 
+It implements the inductive language Gallina. It allows for formal definitions of systems, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
+
+There are four main structures in Coq that we use in our proof:
+\begin{itemize}
+\item \emph{Axiom} is used to express properties that do not need to be proven. These are meant to be accepted as ground truth in the system. 
+\item \emph{Definition} and \emph{Fixpoint} are used to define methods.
+\item \emph{Variable} defines local variables.
+\item \emph{Theorem} expresses a property that needs to be proven.
+
+\end{itemize}
+
+For our system, we express the properties of symbolic execution as axioms because we are assuming they are true. Additionally, we express the recursive symbolic execution tool's properties as axioms because these are defined as requirements. Our definitions and fixpoints are the methods that are implemented in the system, such as execution of the list of trees provided by the recursive symbolic execution tool. Variables are system-specific variables, such as the initial state and the error states. The properties we want to prove about the tool are expressed as theorems.
+
 
 
 
