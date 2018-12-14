@@ -45,9 +45,7 @@ Additionally, we defined the following abstract methods:
 
 \subsubsection{Commutativity}
 In order to assume the correctness of symbolic execution, we need to assume the following commutativity property as expressed by King (citation):
-``The symbolic execution defined above for this simple
-integer language satisfies an interesting commutative
-property. The operation of instantiating the symbols
+``The operation of instantiating the symbols
 {$\alpha_i$} with specific integers, say {$j_i$}, and the operation of
 executing the program are interchangeable. That is, if
 one conventionally executes a program with a specific
@@ -55,10 +53,10 @@ $\alpha_i$'s by
 $j_i$'s first, followed by execution), the results will be the
 same as executing the program symbolically and then
 instantiating the symbolic results (assigning $j$'s to $\alpha$'s).
-The meaning of "instantiating the symbolic results" is
+The meaning of ``instantiating the symbolic results" is
 first, for each terminal leaf in the execution tree, substitute
 $j$'s for $\alpha$'s in all program variable values and in
-pc. Then the "results" are the values for the terminal 
+pc. Then the ``results" are the values for the terminal 
 node whose pc becomes true.'' (citation)
 
 
