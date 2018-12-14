@@ -83,25 +83,29 @@ execution tree.
 \cks{Alyssa, can you add more information about how Coq works, what is
   expressible in Coq, and what libraries we made use of?}
 Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems. 
-It implements the inductive language Gallina. It allows for formal definitions of systems, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
+It implements the inductive language Gallina, which is based on the \textit{Calculus of Inductive Constructions}, a typed $\lambda$-calculus. It allows definitions of methods that can be evaluated, the expression of theorems and software specifications, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
 
-There are four main structures in Coq that we use in our proof:
-\begin{itemize}
-\item \emph{Axiom} is used to express properties that do not need to be proven. These are meant to be accepted as ground truth in the system. 
-\item \emph{Definition} and \emph{Fixpoint} are used to define methods.
-\item \emph{Variable} defines local variables.
-\item \emph{Theorem} expresses a property that needs to be proven.
 
-\end{itemize}
+%There are four main structures in Coq that we use in our proof:
+%\begin{itemize}
+%\item \emph{Axiom} is used to express properties that do not need to be proven. These are meant to be accepted as ground truth in the system. 
+%\item \emph{Definition} and \emph{Fixpoint} are used to define methods.
+%\item \emph{Variable} defines local variables.
+%\item \emph{Theorem} expresses a property that needs to be proven.
+%\end{itemize}
 
-For our system, we express the properties of symbolic execution as axioms
-because we are assuming they are true. Additionally, we express the recursive
-symbolic execution tool's properties as axioms because these are defined as
-requirements. Our definitions and fixpoints are the methods that are implemented
+ 
+
+Additionally, we make use of Coq's module system, representing different parts of our system as modules.  There is a module defining concrete execution, a module defining symbolic execution that includes the King properties as axioms, and a module defining the backwards symbolic execution tool that includes the tool requirements as axioms and the correctness property expressed as a theorem.
+
+Our definitions and fixpoints are the methods that are implemented
 in the system, such as execution of the list of trees provided by the recursive
-symbolic execution tool. Variables are system-specific variables, such as the
-initial state and the error states. The properties we want to prove about the
-tool are expressed as theorems.
+symbolic execution tool. Our variables are system-specific variables, such as the
+initial state and the error states, and they are contained in the backwards symbolic execution module as well.
+
+We utilize the built-in ``logic'' library for assistance in small proofs and the ``ensembles'' library for assistance reasoning about finite sets. Additionally, we use the built-in ``list'' structure to represent lists of symbolic execution trees.
+
+
 \cks{Rather than give these details about the syntax of Coq here, use the
   background section to provide the reader a sense of how Coq works with a focus
   on the features we make use of.}
