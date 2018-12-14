@@ -15,9 +15,9 @@ The main structure of our proof is an inductive one.
 For our base case, we show that if the list only contains one tree, execution of that tree's root node with input specified by a selected leaf will result in an error state.
 
 \begin{figure}
-\label{fig:basecase}
 \includegraphics[width=\textwidth]{set3.eps}
 \caption{Visual depiction of the base case of the proof.}
+\label{fig:basecase}
 \end{figure}
 
 In other words, as depicted in Figure \ref{fig:basecase}, we show that the initial state is an element of $concretize\_root(t)$ of the tree, $t$, and that concretely executing any element of $concretize\_root(t)$ will result n an element inside $concretize\_leaf(t).$
@@ -27,13 +27,13 @@ We then show that every element of $concretize\_leaf(t)$ is an error state, givi
 For our inductive step, as depicted in Figures  \ref{fig:tlist} and \ref{fig:indstep}, we show that execution of each root with inputs from each specified leaf in a tree list of size $n$ will result in an error state using similar reasoning.
 
 \begin{figure}
-\label{fig:tlist}
 \includegraphics[width=\textwidth]{tlist.eps}
 \caption{List of trees of length $n$.}
+\label{fig:tlist}
 \end{figure}
 
 \begin{figure}
-\label{fig:indstep}
 \includegraphics[width=\textwidth]{set4.eps}
 \caption{Visual depiction of the inductive step of the proof.}
+\label{fig:indstep}
 \end{figure}
