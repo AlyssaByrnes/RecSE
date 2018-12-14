@@ -1,16 +1,18 @@
 Require Import Ensembles. 
 (*Require Import Setoid.*)
 (*Require Import Datatypes.*)
+Require Import Logic.
 
 Module ConcState.
 
 
 Variable input : Type.
 Variable state: Type.
+Variable conc_state : Type.
 
-Inductive conc_state : Type :=
+(*Inductive conc_state : Type :=
 |EmptyState
-|ConsState (i: input) (s: state).
+|ConsState (i: input) (s: state).*)
 
 Definition concrete_execution := list conc_state -> list input -> list conc_state.
 Axiom conc_ex : concrete_execution.
@@ -78,19 +80,19 @@ Axiom pc_eval : pc_e.
 Definition inst := Phi -> list ConcState.conc_state -> list ConcState.input -> list ConcState.conc_state.
 Axiom instantiate : inst.
 
-Axiom commutativity : 
+(*Axiom commutativity : 
 forall (li : list ConcState.input) (cs : list ConcState.conc_state) (s s' : sym_state),
 (*li = (randomly_instantiate_input s) /\
 cs = (randomly_instantiate_conc_state s) /\*)
 is_leaf s' (sym_ex s) /\
 (pc_eval (get_pc s') cs li) 
 ->
-conc_ex cs li = instantiate (get_phi s') cs li.
+conc_ex cs li = instantiate (get_phi s') cs li.*)
 
 
 Axiom commutativity':
 forall (li : list ConcState.input) 
-(lcs : list conc_state) (x : sym_state),
+(lcs : list ConcState.conc_state) (x : sym_state),
 (exists t : SE_tree,
 is_leaf x t /\
 pc_eval (get_pc x) lcs li
@@ -149,11 +151,11 @@ match l with
 | nil => False
 end.
 
-(* Checks if l2 is a sublist of l1*)
-Fixpoint is_sublist (l1 l2 : list SE_tree) : Prop :=
+(* Checks if l2 is a prefix of l1*)
+Fixpoint is_prefix (l1 l2 : list SE_tree) : Prop :=
 match l1 with
 |nil => False
-|h :: t => (l2 = l1) \/ is_sublist t l2
+|h :: t => (l2 <> nil) /\ ((l2 = l1) \/ (is_prefix t l2))
 end.
 
 
@@ -192,6 +194,19 @@ list_size tree_list > 0.
 
 Axiom nil_is_nil:
 nilleaf :: nil = nil.
+
+Axiom nil_leaf_elim:
+forall l : list SE_tree,
+ l <> nil -> (nilleaf :: l) <> nil.
+
+Axiom leaf_elim:
+forall (l : list SE_tree) (s : SE_tree),
+ l <> nil -> (s :: l) <> nil.
+
+Axiom non_nil_elem_in_list:
+forall (l : list SE_tree) (s : SE_tree),
+ s <> nilleaf -> (s :: l) <> nil.
+
 
 Definition fl := SE_tree -> sym_state.
 Axiom find_leaf : fl.
@@ -233,7 +248,7 @@ pc_eval (get_pc s') lcs li /\
 
 Theorem circle_op_property':
 forall (t : SE_tree) 
- (li: list ConcState.input) (lcs : list conc_state) ,
+ (li: list ConcState.input) (lcs : list ConcState.conc_state) ,
 (exists s' : sym_state,
       pc_eval (get_pc s') lcs li /\
       is_element_of (circle_op_1 t) lcs /\
@@ -277,7 +292,7 @@ apply circle_op_property' in H. apply H. Qed.
 
 
 Theorem circle_op_property_2: 
-forall (t : SE_tree) (x : list conc_state),
+forall (t : SE_tree) (x : list ConcState.conc_state),
 is_element_of 
 (circle_op_1 t) x 
 ->
@@ -461,37 +476,66 @@ Proof. intros. apply set_property_1 in H. apply H. Qed.*)
 
 (*** HELPER THEOREMS ***)
 
-Axiom sublist_elim_front:
-forall (a : SE_tree) (t l : list SE_tree),
-is_sublist l  t
--> is_sublist (a::l) t .
+Theorem prefix_not_nil:
+forall (t l : list SE_tree),
+is_prefix l t -> t <> nil.
+Proof. intros. destruct t. 
+* destruct l. 
+  simpl in H. contradiction. 
+  simpl in H. destruct H. contradiction.
+* induction l.
+  simpl in H. contradiction.
+  simpl in H. destruct H. apply H. Qed.
 
 
-Axiom sublist_elim_front':
-forall (a : SE_tree) (t l : list SE_tree),
-is_sublist (a :: l)  t
--> is_sublist l t \/ t = (a :: l).
+Theorem prefix_def_bw:
+forall (t l : list SE_tree) (s : SE_tree),
+t <> nil /\ (t = s :: l \/ is_prefix l t) ->
+is_prefix (s::l) t.
+Proof. intros. simpl. apply H. Qed.
 
-Axiom list_equiv:
-forall (a s : SE_tree) (t l : list SE_tree),
-s :: t = a :: l
--> t = l.
 
-Axiom non_nil_imp:
-forall (a : SE_tree) (l : list SE_tree),
-a :: l <> nil -> l <> nil.
 
-Theorem sublist_of_self_general:
+Theorem prefix_not_nil2:
+forall (t l : list SE_tree),
+is_prefix l t -> l <> nil.
+Proof. intros. induction l. 
+simpl in H. contradiction.
+destruct a. destruct l. simpl in H.
+destruct H. inversion H0.
+rewrite H1 in H. apply H. 
+contradiction.
+* simpl in H. destruct H. inversion H0.
+** rewrite H1 in H. apply H.
+** apply prefix_def_bw in H1. apply IHl in H1.
+  apply nil_leaf_elim. apply H1.
+* simpl in H. destruct H.
+  inversion H0.
+** rewrite H1 in H. apply H.
+** apply IHl in H1. apply leaf_elim.
+    apply H1. Qed.
+
+Theorem no_prefix_of_nil:
+forall l : list SE_tree,
+is_prefix l nil -> False.
+Proof. intros. induction l. 
+simpl in H. auto. 
+simpl in H. destruct H.
+contradiction. Qed.
+
+
+
+Theorem prefix_of_self_general:
 forall l : list SE_tree,
 l <> nil ->
-is_sublist l l.
+is_prefix l l.
 Proof. intros. induction l.
 * contradiction.
 * simpl;auto. Qed.
 
-Theorem sublist_of_self:
+Theorem prefix_of_self:
 tree_list <> nil ->
-is_sublist tree_list tree_list.
+is_prefix tree_list tree_list.
 Proof. intros. induction tree_list.
 * simpl;auto.
 * simpl; auto.  Qed.
@@ -501,35 +545,62 @@ forall s : SE_tree,
 last_elem (s :: nil) = first_elem (s :: nil).
 Proof. intros. simpl. auto. Qed. 
 
-Theorem sublist_elim_1_step:
-tree_list <> nil ->
-(forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  tree_list ( s :: t)
-->
-is_sublist  tree_list  t).
-Proof. intros. induction tree_list.
-* contradiction.
-* apply sublist_elim_front' in H0. destruct H0.
-**  apply sublist_elim_front. apply non_nil_imp in H. 
-    apply IHl in H. apply H. apply H0.
-** apply list_equiv in H0. rewrite H0.
-    apply sublist_elim_front. apply sublist_of_self_general.
-    apply non_nil_imp in H. apply H. Qed.
+(*Axiom prefix_def:
+forall (s l : list SE_tree) ( t : SE_tree),
+(t :: s) = l /\ s <> nil
+-> is_prefix l s.
 
-Axiom sublist_first_elem :
+Axiom prefix_elim:
+forall (s l : list SE_tree) ( t : SE_tree),
+is_prefix l (t :: s) /\ s <> nil ->
+is_prefix l s.
+(*Proof. intros. induction l.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H0.
+**  apply prefix_def. *) *)
+
+Theorem first_elem_elim:
+forall (s : list SE_tree) ( t : SE_tree),
+s <> nil ->
+first_elem s = first_elem (t :: s).
+Proof. intros. destruct s.
+* contradiction.
+* simpl; auto. Qed.
+
+
+
+Theorem prefix_first_elem :
 forall s : list SE_tree,
-is_sublist tree_list s
+is_prefix tree_list s 
 -> first_elem s = first_elem tree_list.
+Proof. intros. destruct s.
+apply no_prefix_of_nil in H. contradiction.
+destruct s.
+* induction tree_list. simpl in H. contradiction. 
+  pose H as H1. simpl in H1. destruct H1. inversion H1.
+** rewrite H2. auto.
+** pose H2 as H3. apply IHl in H3. 
+  assert (first_elem l = first_elem (a :: l)).
+  apply first_elem_elim. apply prefix_not_nil2 in H2. 
+  apply H2. rewrite <- H4. apply H3. 
+* induction tree_list.
+** simpl in H. contradiction.
+** simpl in H. destruct H. inversion H0.
+*** rewrite H1. auto.
+*** pose H1 as H2. apply prefix_not_nil2 in H2.
+    apply IHl in H1. assert (first_elem l = first_elem (a :: l)).
+    apply first_elem_elim. apply H2.
+    rewrite <- H3. apply H1. Qed.
 
 
 Theorem basecase:
 forall s : SE_tree,
-(is_sublist tree_list (s :: nil)) ->
+(is_prefix tree_list (s :: nil)) ->
 is_element_of (circle_op_2 ((last_elem (s :: nil))))
   (execute_tree_list (s :: nil)).
 Proof. intros. apply P1_and_circle_op_prop. split.
-* rewrite first_elem_last_elem. 
-apply sublist_first_elem in H. rewrite H.
+*  rewrite first_elem_last_elem. 
+apply prefix_first_elem in H. rewrite H.
   apply Prop1.
 * apply circle_op_property_2. Qed.
 
@@ -543,40 +614,146 @@ forall (s s0 : SE_tree) (t : list SE_tree),
 front (s :: s0 :: t) = (s0 :: t).
 Proof. intros. simpl; auto. Qed.
 
-Axiom sl_nil : 
-(is_sublist tree_list nil -> False).
+Theorem sl_nil : 
+(is_prefix tree_list nil -> False).
+Proof. intros. apply no_prefix_of_nil in H.
+ apply H. Qed.
 
-Axiom sl_elim:
+Theorem sl_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist  tree_list (s0 :: s :: t)
+is_prefix  tree_list (s0 :: s :: t) /\ (s :: t) <> nil
 ->
-is_sublist  tree_list (s :: t).
+is_prefix  tree_list (s :: t).
+Proof. intros.  destruct H. induction tree_list.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H1.
+** rewrite <- H2. simpl. split. apply H0.
+right. split. apply H0. left. auto.
+** apply IHl in H2. simpl. split. apply H0.
+right. apply H2. Qed.
 
-Axiom in_list_elim:
+
+
+
+Theorem in_list_elim2:
+forall (s a : SE_tree) (l : list SE_tree), 
+ in_list l s -> in_list (a::l) s.
+Proof. intros. induction l.
+simpl in H. contradiction.
+simpl in H. inversion H.
+** simpl. right. left. apply H0.
+** simpl. right. right. apply H0. Qed.
+
+Theorem middle_in_list: 
+forall (s a : SE_tree) (t : list SE_tree),
+is_prefix tree_list (a :: s :: t) ->
+in_list tree_list s.
+Proof. intros. induction tree_list.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H0.
+** rewrite <- H1. simpl;auto.
+**  apply IHl in H1. apply in_list_elim2. apply H1. Qed.
+
+Theorem in_list_elim:
 forall (s s0 : SE_tree) (t : list SE_tree), 
-is_sublist tree_list (s0 :: s :: t)
+is_prefix tree_list (s0 :: s :: t)
 ->
 in_list tree_list s0.
+Proof. intros. induction tree_list.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H0.
+** rewrite <- H1. simpl;auto.
+** apply IHl in H1. apply in_list_elim2. apply H1. Qed.
 
-Axiom list_size_sublist:
+Theorem in_list_elim3:
 forall (s : SE_tree) (t : list SE_tree), 
-is_sublist  tree_list (s :: t) 
+is_prefix tree_list (s :: t)
 ->
-list_size (s :: t) > 0.
+in_list tree_list s.
+Proof. intros. induction tree_list.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H0.
+** rewrite <- H1. simpl;auto.
+** apply IHl in H1. apply in_list_elim2. apply H1. Qed.
 
-
-Axiom not_leaf_sublist:
+Theorem not_leaf_prefix:
 forall (s : SE_tree) (t : list SE_tree), 
-is_sublist tree_list (s :: t) 
+is_prefix tree_list (s :: t) 
 ->
 s <> nilleaf.
+Proof. intros. 
+apply in_list_elim3 in H.
+apply no_leaf_requirement in H. apply H. Qed.
+
+Theorem not_nil_prefix: 
+forall (s a : SE_tree) (t : list SE_tree),
+is_prefix tree_list (a :: s :: t) ->
+( s :: t) <> nil.
+Proof. intros. pose H as H1.
+apply middle_in_list in H1.
+apply no_leaf_requirement in H1.
+apply non_nil_elem_in_list. apply H1. Qed.
+
+(*Theorem list_size_nil_elim:
+forall (x : SE_tree) (t : list SE_tree),
+list_size (x :: nilleaf :: t) = list_size ( x :: t).
+Proof. intros. destruct x.
+* simpl;auto. simpl;auto.
+
+Theorem list_size_middle_elim:
+forall (x y : SE_tree) (t l : list SE_tree),
+list_size (x :: t) = list_size l + 1
+-> 
+list_size (x :: y :: t) = list_size (y :: l) + 1.
+Proof. intros. destruct y.
+* simpl. simpl in H. *)
 
 
 
-Axiom c_i_o_elim :
+(*Theorem list_size_ind: 
+forall (s : SE_tree) (t : list SE_tree),
+s <> nilleaf ->
+list_size ( s :: t) = (list_size t) + 1.
+Proof. intros. destruct s.
+* contradiction.
+* induction t. 
+** simpl;auto.
+** apply IHt. Qed.*)
+
+Theorem not_nil_size: 
+forall (s : SE_tree) (t : list SE_tree),
+list_size ( s :: t) > 0.
+Proof. intros. induction t.
+* simpl;auto.
+* simpl;auto. Qed.
+
+Theorem list_size_prefix:
+forall (s : SE_tree) (t : list SE_tree), 
+is_prefix  tree_list (s :: t) 
+->
+list_size (s :: t) > 0.
+Proof. intros. apply not_nil_size. Qed.
+
+Theorem c_i_o_elim1 :
+forall (a b c: SE_tree) (l : list SE_tree),
+consecutive_in_order a b l
+-> consecutive_in_order a b (c :: l).
+Proof. intros. destruct l. 
+* simpl in H. contradiction.
+* simpl in H. inversion H.
+** simpl. right. left. apply H0.
+** simpl. right. right. apply H0. Qed.
+
+
+Theorem c_i_o_elim :
 forall (a b : SE_tree) (t l : list SE_tree),
-is_sublist  l (a :: b :: t) ->
+is_prefix  l (a :: b :: t) ->
 consecutive_in_order a b l.
+Proof. intros. induction l.
+* simpl in H. contradiction.
+* simpl in H. destruct H. inversion H0.
+** rewrite <- H1. simpl;auto.
+** apply IHl in H1.  apply c_i_o_elim1. apply H1. Qed.
 
 
 
@@ -584,7 +761,7 @@ consecutive_in_order a b l.
 
 Theorem etl:
 forall t : list SE_tree,
-is_sublist tree_list t ->
+is_prefix tree_list t ->
 is_element_of 
   (circle_op_2((last_elem t))) 
   (execute_tree_list t).
@@ -596,23 +773,29 @@ Proof. intros. induction t.
 ** apply P1_and_circle_op_prop_ind_step. split.
 *** apply P3_and_IH. split.
 + rewrite front_rewrite. rewrite s_l_e_rewrite. apply IHt.
-  apply sl_elim in H. apply H.
+  pose H as H1. apply not_nil_prefix in H1.
+  assert (is_prefix tree_list (a :: s :: t) /\ (s :: t) <> nil).
+  split. apply H. apply H1.
+  apply sl_elim in H0. apply H0.
 + unfold last_elem.
   pose Prop3 as P3. unfold trees_connect in P3.
   apply P3. simpl. pose H as H1. 
   apply c_i_o_elim in H1. apply H1.
 *** apply circle_op_property_2. 
-** split. apply list_size_sublist.
-   apply sl_elim in H. apply H.
-   split. apply list_size_sublist. apply H.
-   apply not_leaf_sublist in H. apply H. Qed.
+** split. apply list_size_prefix.
+  pose H as H1. apply not_nil_prefix in H1.
+  assert (is_prefix tree_list (a :: s :: t) /\ (s :: t) <> nil).
+  split. apply H. apply H1.
+   apply sl_elim in H0. apply H0.
+   split. apply list_size_prefix. apply H.
+   apply not_leaf_prefix in H. apply H. Qed.
 
 
 Theorem sufficiency: 
 is_element_of Error_States (execute_tree_list tree_list).
 Proof. intros. 
 apply P2_and_etl_imp.
-split. apply etl. auto. apply sublist_of_self. apply non_empty.
+split. apply etl. auto. apply prefix_of_self. apply non_empty.
 apply Prop2'. Qed.
 
 End SERecurs.
