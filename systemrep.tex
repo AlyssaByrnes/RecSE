@@ -17,22 +17,22 @@ then there exists a sym\_state $s'$ such that
  $pc\_eval (get\_pc (s'), lcs, li) = True$.
 \end{axiom}
 
-\subsubsection{Circle Operations}
-The recursive symbolic execution tool utilizes two circle operations. 
+\subsubsection{Instantiation Operations}
+The recursive symbolic execution tool utilizes two instantiation operations. 
 They define them in the following way: 
 
 ``Let $\mathcal{E}$ represent the symbolic exploration of one clock cycle of a processor modeled by $M$. Let $n_r = (s_r,\pi_r)$ be the root node of tree $\mathcal{E}$ and let $n_l = (s_l,\pi_l)$ be a leaf node of the same tree. 
 Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi_l$ represents the set of concrete next-states, that are at the end-points of the path from $n_r$ to $n_l$.'' (citation)
 
-For our proof we let $circle\_op\_1 =  s_r \circ \pi_l$ and $circle\_op\_2 =  s_l \circ \pi_l$.
+For our proof we let $concretize\_root=  s_r \circ \pi_l$ and $concretize\_leaf =  s_l \circ \pi_l$.
 Both operations take the whole SE\_tree as input.
 
 We now can formally prove the following lemma, which we will use in our proof:
 \begin{lemma} \label{cop}
 forall SE\_trees $t$ and conc\_state lists $csl$,
-if $csl \in circle\_op\_1(t)$,
+if $csl \in concretize\_root(t)$,
 then 
-$conc\_ex(csl, get\_input (get\_pc (l))) \in circle\_op\_2(t)$,
+$conc\_ex(csl, get\_input (get\_pc (l))) \in concretize\_leaf(t)$,
 where $l$ is a leaf of $t$.
 \end{lemma}
 
@@ -43,23 +43,23 @@ In order to prove this, we utilize the commutativity property expressed earlier.
 We formally express the requirements stated of the tool by Zhang et al. (citation).
 The following requirements, when placed on our system, should be enough to prove that the tool works as expected:
 \textbf{Axiom (Property $1$):} 
-$init\_conc\_state \in circle\_op\_1 (first\_elem (tree\_list))$.
+$init\_conc\_state \in concretize\_root(first\_elem (tree\_list))$.
 
 \textbf{Axiom (Property $2$):}
-$ circle\_op\_2 (last\_elem (tree\_list)) \cap Error_States 
+$ concretize\_leaf (last\_elem (tree\_list)) \cap Error_States 
 \neq empty\_set $.
 
 \textbf{Axiom (Property $3$) :} 
 for all SE\_trees $a$ $b$, 
 if $a$ and $b$ are consecutive in $tree\_list$, then 
-$circle\_op\_2 (a) \subseteq
-circle\_op\_1 (b) $.
+$concretize\_leaf (a) \subseteq
+concretize\_root(b) $.
 
 These properties end up not being sufficient for proving the tool works. 
 We make Property 2 stronger by replacing it with the following property:
 
 \textbf{Axiom (Property $2'$):}
-$circle\_op\_2 (last\_elem (tree\_list))
+$concretize\_leaf (last\_elem (tree\_list))
 \subseteq Error\_States $.
 
 
