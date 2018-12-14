@@ -1,6 +1,4 @@
 Require Import Ensembles. 
-(*Require Import Setoid.*)
-(*Require Import Datatypes.*)
 Require Import Logic.
 
 Module ConcState.
@@ -63,6 +61,14 @@ match s with
 |nilleaf => False
 end.
 
+Definition is_l_leaf :=  sym_state -> SE_tree -> Prop.
+Axiom is_list_leaf : is_l_leaf.
+
+Axiom ll_def : 
+forall (s: sym_state) (t : SE_tree),
+is_list_leaf s t
+-> is_leaf s t.
+
 (*** SYMBOLIC EXECUTION ***)
 Definition s_e := sym_state -> SE_tree.
 Axiom sym_ex : s_e.
@@ -84,7 +90,7 @@ Axiom instantiate : inst.
 forall (li : list ConcState.input) (cs : list ConcState.conc_state) (s s' : sym_state),
 (*li = (randomly_instantiate_input s) /\
 cs = (randomly_instantiate_conc_state s) /\*)
-is_leaf s' (sym_ex s) /\
+is_list_leaf s' (sym_ex s) /\
 (pc_eval (get_pc s') cs li) 
 ->
 conc_ex cs li = instantiate (get_phi s') cs li.*)
@@ -233,7 +239,7 @@ Axiom c_o_1_def :
 forall (t : SE_tree) (lcs: list ConcState.conc_state) ,
 is_element_of (circle_op_1 t) lcs <->
 forall (s' : sym_state) (li: list ConcState.input),
-(is_leaf s' t) ->
+(is_list_leaf s' t) ->
 pc_eval (get_pc s') lcs li.
 
 Axiom c_o_2_def : 
@@ -241,7 +247,7 @@ forall (t : SE_tree) (lcs': list ConcState.conc_state),
 is_element_of (circle_op_2 t) lcs' <->
 exists (s' : sym_state) (li: list ConcState.input)
  (lcs: list ConcState.conc_state),
-(is_leaf s' t) /\
+(is_list_leaf s' t) /\
 pc_eval (get_pc s') lcs li /\
 (lcs' = instantiate (get_phi s') lcs li).
 
@@ -252,14 +258,14 @@ forall (t : SE_tree)
 (exists s' : sym_state,
       pc_eval (get_pc s') lcs li /\
       is_element_of (circle_op_1 t) lcs /\
-      is_leaf s' t)
+      is_list_leaf s' t)
 ->is_element_of 
 (circle_op_2 t)
 (conc_ex lcs li).
 Proof. intros. destruct H. apply c_o_2_def.
 exists x. exists li. exists lcs.
 destruct H. destruct H0. split. apply H1. split. apply H.
-apply commutativity'. exists t. split. apply H1. apply H. Qed.
+apply commutativity'. exists t. split. apply ll_def in H1. apply H1. apply H. Qed.
 
 
 
@@ -271,7 +277,7 @@ is_element_of (circle_op_1 t) lcs /\(li = get_input (get_pc (find_leaf t)))
 (s' : sym_state),
  (pc_eval (get_pc s') lcs li)
 /\ is_element_of (circle_op_1 t) lcs
-/\ is_leaf s' t.
+/\ is_list_leaf s' t.
 
 
 
