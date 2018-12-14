@@ -12,9 +12,9 @@ Additionally, we define the abstract method, \textit{get\_input} which returns a
 This method is bound by the requirement,
 \begin{axiom}
 forall SE\_trees $t$, input lists $li$, and conc\_state lists $lcs$,  
-if $li = get\_input (get\_pc (l)) $, where $l$ is a leaf of $t$,
+if $li = get\_input (t) $ and $lcs \in$ concretize\_root($t$)
 then there exists a sym\_state $s'$ such that
- $pc\_eval (get\_pc (s'), lcs, li) = True$.
+ $pc\_eval (get\_pc (s'), lcs, li) = True$ and $s'$ is the specified leaf of $t$.
 \end{axiom}
 
 \subsubsection{Instantiation Operations}
