@@ -42,30 +42,34 @@ In order to prove this, we utilize the commutativity property expressed earlier.
 \subsubsection{Tool Requirements}
 We formally express the requirements stated of the tool by Zhang et al. (citation).
 The following requirements, when placed on our system, should be enough to prove that the tool works as expected:
-\textbf{Axiom (Property $1$):} 
+\begin{axiom}[Property $1$]
 $init\_conc\_state \in concretize\_root(first\_elem (tree\_list))$.
+\end{axiom}
 
-\textbf{Axiom (Property $2$):}
+\begin{axiom}[Property $2$]
 $ concretize\_leaf (last\_elem (tree\_list)) \cap Error_States 
 \neq empty\_set $.
+\end{axiom}
 
-\textbf{Axiom (Property $3$) :} 
+\begin{axiom}[Property $3$]
 for all SE\_trees $a$ $b$, 
 if $a$ and $b$ are consecutive in $tree\_list$, then 
 $concretize\_leaf (a) \subseteq
 concretize\_root(b) $.
+\end{axiom}
 
 These properties end up not being sufficient for proving the tool works. 
 We make Property 2 stronger by replacing it with the following property:
 
-\textbf{Axiom (Property $2'$):}
+\begin{axiom}[Property $2'$]
 $concretize\_leaf (last\_elem (tree\_list))
-\subseteq Error\_States $.
+\subseteq error\_states $.
+\end{axiom}
 
 
 
 Our main sufficiency theorem that we prove is the following:
 \begin{theorem}
-$execute\_tree\_list (tree\_list) \in Error\_States$.
+execute\_tree\_list ($tree\_list$) $\in$ error\_states.
 \end{theorem}
  In other words, given our three property requirements, executing our tree\_list will get us to an error state.
