@@ -2,11 +2,34 @@
 \cks{SE w/formalization; statement of King properties; SE for HW; explanation of
   RecSE; statement of 3 RecSE properties}
 \subsection{Symbolic Execution}
-In symbolic execution the final parameters to a program's entry point are
-assigned symbolic values. The symbolic execution engine simulates each line of
+In symbolic execution formal final parameters to a program's entry point are
+assigned symbolic values. A symbolic execution engine simulates each line of
 code, using the symbolic values in place of the usual concrete literals. As
 execution continues the resulting symbolic expressions propagate throughout the program's
-state. The symbolic execution engine
+state.
+
+When execution reaches a conditional branch, the symbolic execution
+engine determines whether the current, partially symbolic state could satisfy
+either the branch condition or its negation. If only one branch is possible,
+execution continues down that branch. If both branches are possible for the
+current symbolic state, execution forks and each branch is explored in turn.
+
+The execution engine keeps track of the \emph{path condition} \pc for each path
+taken through the code. When execution begins the path condition is initialized
+to \texttrue. At each conditional branch the condition $c$ is evaluated. If $\pc
+\rightarrow c$ the $\mathtt{then}$ branch is taken and the path constraint is
+updated $\pc := \pc \wedge c$. If $\pc \rightarrow \neg c$ the $\mathtt{else}$
+branch is taken and the path constraint is updated $\pc := \pc \wedge \neg
+c$. If neither $\pc \rightarrow c$ nor $\pc \rightarrow \neg c$ hold, then both
+branches are possible. Execution forks and both branches are explored in turn
+with the path condition updated appropriately for each branch.
+
+All the paths explored through the program form a logical tree \tree. The root represents the
+program's entry point and each node of the
+tree represents a line of code in the program. A path in the tree from root to leaf
+represents a path of execution through the program.
+
+The symbolic execution engine
 maintains the current, partially symbolic state of the program and the current
 \emph{path condition}. The path condition is a conjunction of propositions over
 input and state variables that define the path through the program code taken to
@@ -46,15 +69,6 @@ vector of registers containing a combination of symbolic and concrete state $S
 := <s_0, s_1, \ldots, s_n>$. As execution continues, symbolic values propagate
 through the design.
 
-When execution begins the path constraint is initialized to $\mathtt{\textsc{true}}$. At
-each conditional branch the condition $c$ is evaluated. If $\pi \rightarrow c$
-the $\mathtt{then}$ branch is taken and the path constraint is
-updated $\pi := \pi \wedge c$. If $\pi \rightarrow \not c$ the $\mathtt{else}$
-branch is taken and the path constraint is updated $\pi := \pi \wedge \not
-c$. If neither $\pi \rightarrow c$ nor $\pi \rightarrow \not c$ hold, then both
-branches are possible. Execution forks and both branches are explored in turn
-with the path condition updated appropriately for each branch.
-\cks{Need to introduce trees}
 
 King formalized the use of symbolic execution~\cite{??} and describes three
 properties provided by symbolic execution. We name and summarize the properties
