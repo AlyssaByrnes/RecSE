@@ -9,12 +9,12 @@ execution continues the resulting symbolic expressions propagate throughout the 
 state.
 
 In addition the symbolic state, the symbolic execution engine keeps track
-of the \emph{path condition} (\pc) for the current path of execution. When execution begins the path condition is initialized
-to \texttrue. At each conditional branch the condition $c$ is evaluated. If $\pc
+of the \emph{path condition} (\pathcondition) for the current path of execution. When execution begins the path condition is initialized
+to \texttrue. At each conditional branch the condition $c$ is evaluated. If $\pathcondition
 \rightarrow c$ is valid, the $\mathtt{then}$ branch is taken and the path constraint is
-updated, $\pc := \pc \wedge c$. If $\pc \rightarrow \neg c$ is valid, the $\mathtt{else}$
-branch is taken and the path constraint is updated, $\pc := \pc \wedge \neg
-c$. If neither $\pc \rightarrow c$ nor $\pc \rightarrow \neg c$ hold, then both
+updated, $\pathcondition := \pathcondition \wedge c$. If $\pathcondition \rightarrow \neg c$ is valid, the $\mathtt{else}$
+branch is taken and the path constraint is updated, $\pathcondition := \pathcondition \wedge \neg
+c$. If neither $\pathcondition \rightarrow c$ nor $\pathcondition \rightarrow \neg c$ hold, then both
 branches are possible. Execution forks and both branches are explored in turn
 with the path condition updated appropriately for each branch.
 
@@ -77,10 +77,18 @@ We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
 \item $\pathconditions$
 \item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
   and symbolic assignments.
-\item $\trees$ The binary tree of nodes.
+\item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
 \end{itemize}
 
-
+\cks{More of the formalization that we discussed}
+\begin{itemize}
+\item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
+\item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
+  symexpressions. The set of all path conditions is a subset of the set of all
+  symexpressions.
+\item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
+  and $\pathcondition \in \pathconditions$
+\end{itemize}
 
 
 %% We model the program to be symbolically executed
@@ -95,14 +103,14 @@ properties provided by symbolic execution. We name and summarize the properties
 here.
 \begin{property}[Sound Paths]
   \label{prop:kingsound}
-  The path condition $\pc$ never becomes unsatisfiable. This means that for each
-  leaf node the path condition $\pc$ associated with that leaf node has at
+  The path condition $\pathcondition$ never becomes unsatisfiable. This means that for each
+  leaf node the path condition $\pathcondition$ associated with that leaf node has at
   least one concrete valuation which would drive execution down the same path of
   execution.
 \end{property}
 \begin{property}[Unique Paths]
   \label{prop:kingunique}
-The path condition $\pc_1$ and $\pc_2$ associated with any two paths of the
+The path condition $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
 tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
 execution tree.
