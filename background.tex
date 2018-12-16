@@ -63,6 +63,24 @@ We model a hardware module as a tuple $\hardwaredesign = (\concstates,
   \ldots, (\inputvariable_m,\concvalue)\}$ is the set of input parameters and their valuation.
 \end{itemize}
 
+\cks{I think HW module and SEE should have analogous entries in the tuple. The
+  set of \variable s should appear in both. The input alphabets (literals,
+  symbols) should be different.}
+We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
+(\symstates, \rootsymstate, \symexecution, \pathconditions, \symalphabet,
+\trees)$, where
+\begin{itemize}
+\item $\symstates: \{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
+\item $\rootsymstate \in \symstates$
+\item \cks{this needs fixing} $\symexecution: \{\symstates,\pathcondition\}
+  \times \{\syminputs\} \rightarrow \trees$
+\item $\pathconditions$
+\item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
+  and symbolic assignments.
+\item $\trees$ The binary tree of nodes.
+\end{itemize}
+
+
 
 
 %% We model the program to be symbolically executed
