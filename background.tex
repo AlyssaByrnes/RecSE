@@ -87,8 +87,19 @@ We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
   symexpressions. The set of all path conditions is a subset of the set of all
   symexpressions.
 \item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
-  and $\pathcondition \in \pathconditions$
+  and $\pathcondition \in \pathconditions$.
+\item $\syminputs: <(\inputvariable_0, \symexpression), (\inputvariable_1,
+  \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
 \end{itemize}
+
+A symbolic expression \symexpression is an expression involving at least one
+symbol in \symalphabet. The expression may contain zero or more concrete
+literals, arithmetic operators, and logical operators. \cks{Since we want to
+  keep this abstract and not specify all the operators, and since it is actually
+  abstract in the proof, I think we should skip the formal grammar of
+  expressions. Maybe instead just include an example or two.} Examples of
+symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where $\alpha,
+\beta \in \symalphabet$.
 
 
 %% We model the program to be symbolically executed
