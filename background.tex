@@ -2,39 +2,30 @@
 \cks{SE w/formalization; statement of King properties; SE for HW; explanation of
   RecSE; statement of 3 RecSE properties}
 \subsection{Symbolic Execution}
-In symbolic execution formal final parameters to a program's entry point are
-assigned symbolic values. A symbolic execution engine simulates each line of
-code, using the symbolic values in place of the usual concrete literals. As
+In symbolic execution formal parameters to a program's entry point are
+assigned symbolic values. The program is then simulated by a symbolic execution
+engine that uses the symbolic values in place of concrete literals. As
 execution continues the resulting symbolic expressions propagate throughout the program's
 state.
 
-When execution reaches a conditional branch, the symbolic execution
-engine determines whether the current, partially symbolic state could satisfy
-either the branch condition or its negation. If only one branch is possible,
-execution continues down that branch. If both branches are possible for the
-current symbolic state, execution forks and each branch is explored in turn.
-
-The execution engine keeps track of the \emph{path condition} \pc for each path
-taken through the code. When execution begins the path condition is initialized
+In addition the symbolic state, the symbolic execution engine keeps track
+of the \emph{path condition} (\pc) for the current path of execution. When execution begins the path condition is initialized
 to \texttrue. At each conditional branch the condition $c$ is evaluated. If $\pc
-\rightarrow c$ the $\mathtt{then}$ branch is taken and the path constraint is
-updated $\pc := \pc \wedge c$. If $\pc \rightarrow \neg c$ the $\mathtt{else}$
-branch is taken and the path constraint is updated $\pc := \pc \wedge \neg
+\rightarrow c$ is valid, the $\mathtt{then}$ branch is taken and the path constraint is
+updated, $\pc := \pc \wedge c$. If $\pc \rightarrow \neg c$ is valid, the $\mathtt{else}$
+branch is taken and the path constraint is updated, $\pc := \pc \wedge \neg
 c$. If neither $\pc \rightarrow c$ nor $\pc \rightarrow \neg c$ hold, then both
 branches are possible. Execution forks and both branches are explored in turn
 with the path condition updated appropriately for each branch.
 
 All the paths explored through the program form a logical tree \tree. The root represents the
 program's entry point and each node of the
-tree represents a line of code in the program. A path in the tree from root to leaf
+tree represents a line of code in the program. Associated with each node is the
+(partially) symbolic state of the program and the path condition at that point
+of execution. A path in the tree from root to leaf
 represents a path of execution through the program.
 
-The symbolic execution engine
-maintains the current, partially symbolic state of the program and the current
-\emph{path condition}. The path condition is a conjunction of propositions over
-input and state variables that define the path through the program code taken to
-reach the current state. Figure~\ref{fig:se} demonstrates the idea. 
-
+Figure~\ref{fig:se} demonstrates the idea. 
 For example, for the code in
 Figure~\ref{fig:sea}, if $\mathtt{reset}$ and $\mathtt{count}$ are initialized
 with the symbolic values $r_0$ and $c_0$, respectively, then after symbolically
@@ -51,6 +42,49 @@ off-the-shelf SMT solver to find a satisfying solution, say $r_0 := 0$ and $c_0
 := 3$. Substituting these values for $\mathtt{reset}$ and $\mathtt{count}$,
 respectively and executing the code concretely could cause execution to follow
 the same path as was followed symbolically.
+
+\subsection{Register Transfer Level Hardware Designs}
+\cks{Quick explanation of challenges of HW designs and how Zhang et al. convert
+  HW to SW for the symbolic execution.}
+
+\subsection{Definitions and Notation}
+We model the program to be symbolically executed
+S = {(reg_0, symexpr_0), (reg_1, symexpr_1), ..., (reg_n, symexpr_n)} (edited)
+symInp = {(inp_0, symexpr_0), (inp_1, symexpr_1), ..., (inp_k, symexpr_k)} (edited)
+Inp = {(inp_0, inpval_0), (inp_1, inpval_1), ..., (inp_k, inpval_k)} (edited)
+C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
+
+\subsection{Properties of Symbolic Execution}
+King formalized the use of symbolic execution~\cite{king1976symbolic} and describes three
+properties provided by symbolic execution. We name and summarize the properties
+here.
+\begin{property}[Sound Paths]
+  \label{prop:kingsound}
+  The path condition $\pc$ never becomes unsatisfiable. This means that for each
+  leaf node the path condition $\pc$ associated with that leaf node has at
+  least one concrete valuation which would drive execution down the same path of
+  execution.
+\end{property}
+\begin{property}[Unique Paths]
+  \label{prop:kingunique}
+The path condition $\pc_1$ and $\pc_2$ associated with any two paths of the
+tree are mutually unsatisfiable. In other words, there exists no concrete
+valuation that could drive execution down two distinct paths of the symbolic
+execution tree.
+\end{property}
+\begin{property}[Commutativity]
+
+\end{property}
+
+\subsection{Recursive Search Strategy for Symbolic Execution}
+
+
+The symbolic execution engine
+maintains the current, partially symbolic state of the program and the current
+\emph{path condition}. The path condition is a conjunction of propositions over
+input and state variables that define the path through the program code taken to
+reach the current state.
+
 
 \cks{Brain dump a bunch of mostly terrible text to get started.}
 We model the processor as a vector $R$ of state registers $R = <r_0, r_1,
@@ -70,26 +104,6 @@ vector of registers containing a combination of symbolic and concrete state $S
 through the design.
 
 
-King formalized the use of symbolic execution~\cite{??} and describes three
-properties provided by symbolic execution. We name and summarize the properties
-here.
-\begin{property}[Sound Paths]
-  \label{prop:kingsound}
-  The path constraint $\pi$ never becomes unsatisfiable. This means that at each
-  leaf node the path constraint $\pi$ assoicated with that leaf node has at
-  least one concrete valuation which would drive execution down the same path of
-  execution.
-\end{property}
-\begin{property}[Unique Paths]
-  \label{prop:kingunique}
-The path constraints $\pi_1$ and $\pi_2$ associated with any two paths of the
-tree are mutually unsatisfiable. In other words, there exists no concrete
-valuation that could drive execution down two distinct paths of the symbolic
-execution tree.
-\end{property}
-\begin{property}[Commutativity]
-  \cks{Todo}
-\end{property}
 
 \subsection{Symbolic Execution of Hardware Designs}
 
