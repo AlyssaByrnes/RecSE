@@ -48,6 +48,23 @@ the same path as was followed symbolically.
   HW to SW for the symbolic execution.}
 
 \subsection{Definitions and Notation}
+\cks{I'll organize this section and add the appropriate English later.}
+
+\cks{I think it makes sense to have this mirror our model of the symbolic
+  execution engine, where we make explicit the reset state, the variables, and
+  alphabet, but for now I'm leaving it as we discussed}
+We model a hardware module as a tuple $\hardwaredesign = (\concstates,
+\concexecution, \concinputs)$, where
+\begin{itemize}
+\item $\concstates: \{(\variable_0,\concvalue), (\variable_1,\concvalue), \ldots, (\variable_n,\concvalue)\}$ is the finite set of state variables and their valuation,
+\item $\concexecution: \{\concstates\} \times \{\concinputs\} \rightarrow 
+  \{\concstates\}$ is the transition function of the module, and
+\item $\concinputs: \{(\inputvariable_0,\concvalue), (\inputvariable_1,\concvalue),
+  \ldots, (\inputvariable_m,\concvalue)\}$ is the set of input parameters and their valuation.
+\end{itemize}
+
+
+
 %% We model the program to be symbolically executed
 %% S = {(reg_0, symexpr_0), (reg_1, symexpr_1), ..., (reg_n, symexpr_n)} (edited)
 %% symInp = {(inp_0, symexpr_0), (inp_1, symexpr_1), ..., (inp_k, symexpr_k)} (edited)
