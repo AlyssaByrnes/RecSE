@@ -118,14 +118,32 @@ here.
   leaf node the path condition $\pathcondition$ associated with that leaf node has at
   least one concrete valuation which would drive execution down the same path of
   execution.
+  $
+  \forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n =
+\mathtt{intree}(\symexecution(\symstate,\syminput)),
+\mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+  $
+  
 \end{property}
+
+
 \begin{property}[Unique Paths]
   \label{prop:kingunique}
 The path condition $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
 tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
 execution tree.
+
+$
+\forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n1 n2 =
+\mathtt{intree}(\symexecution(\symstate,\syminput))  \wedge
+n1 \neq n2
+ \wedge
+(\mathtt{ischildof}(n1, n2) \vee  \mathtt{ischildof}(n2, n1))= \textfalse
+\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+$
 \end{property}
+
 \begin{property}[Commutativity]
   We define some functions.
   \begin{itemize}
