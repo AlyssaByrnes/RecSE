@@ -92,7 +92,7 @@ We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
   \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
 \end{itemize}
 
-A symbolic expression \symexpression is an expression involving at least one
+A symbolic expression \symexpression{} is an expression involving at least one
 symbol in \symalphabet. The expression may contain zero or more concrete
 literals, arithmetic operators, and logical operators. \cks{Since we want to
   keep this abstract and not specify all the operators, and since it is actually
@@ -127,7 +127,21 @@ valuation that could drive execution down two distinct paths of the symbolic
 execution tree.
 \end{property}
 \begin{property}[Commutativity]
-
+  We define some functions.
+  \begin{itemize}
+  \item instantiate: $\{\symalphabet\} \rightarrow \{\concvalue\}$
+  \item plugin: $\{\symexpression\} \times \{\concvalue\} \rightarrow
+    \{\concexpression\}$
+  \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
+  \end{itemize}
+  
+\begin{align*}
+\forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
+\mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
+\mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \texttrue \\
+&\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
+&\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
+\end{align*}
 \end{property}
 
 \subsection{Recursive Search Strategy for Symbolic Execution}
