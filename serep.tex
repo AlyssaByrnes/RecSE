@@ -30,30 +30,30 @@ To concretely execute, the \emph{conc\_ex} method takes a concrete state and an 
 
 \subsubsection{Symbolic Execution}
 
-To represent symbolic execution, we defined two abstract types:
-\begin{itemize}
-\item \emph{phi} is an abstract state.
-\item \emph{pc} is a path constraint.
-\end{itemize}
+%To represent symbolic execution, we defined two abstract types:
+%\begin{itemize}
+%\item \emph{phi} is an abstract state.
+%\item \emph{pc} is a path constraint.
+%\end{itemize}
 
-A symbolic state, or \emph{sym\_state} is a tuple of one item of type \emph{phi} and one item of type \emph{pc}.
-A symbolic execution tree, or \emph{SE\_tree} is a tree structure consisting of \emph{sym\_state} elements. 
+%A symbolic state, or \emph{sym\_state} is a tuple of one item of type \emph{phi} and one item of type \emph{pc}.
+%A symbolic execution tree, or \emph{SE\_tree} is a tree structure consisting of \emph{sym\_state} elements. 
 
 
-Additionally, we defined the following abstract methods:
-\begin{define} [Symbolic Execution]
-$sym\_ex: sym\_state \rightarrow SE\_tree $.
-\end{define}
+%Additionally, we defined the following abstract methods:
+%\begin{define} [Symbolic Execution]
+%$sym\_ex: sym\_state \rightarrow SE\_tree $.
+%\end{define}
 
-\begin{define} [PC Evaluation]
-$pc\_eval: \{sym\_state\} \times \{input\} \times \{state\_assignments\} \rightarrow \{True, False\} $.
-\end{define}
-\emph{pc\_eval} takes the pc of a sym\_state, an input and conc\_state assignments, and returns $True$ if those assignments do not violate the path constraint.
+%\begin{define} [PC Evaluation]
+%$pc\_eval: \{sym\_state\} \times \{input\} \times \{state\_assignments\} \rightarrow \{True, False\} $.
+%\end{define}
+%\emph{pc\_eval} takes the pc of a sym\_state, an input and conc\_state assignments, and returns $True$ if those assignments do not violate the path constraint.
 
-\begin{define} [Symbolic State Instantiation]
-$sym\_instantiate: \{phi(sym\_state)\} \times \{input\} \times \{state\_assignments\} \rightarrow conc\_states $.
-\end{define}
- \emph{instantiate} takes the phi of a sym\_state, n input and conc\_state assignments, and instantiates them into a new list of conc\_states.
+%\begin{define} [Symbolic State Instantiation]
+%$sym\_instantiate: \{phi(sym\_state)\} \times \{input\} \times \{state\_assignments\} \rightarrow conc\_states $.
+%\end{define}
+ %\emph{instantiate} takes the phi of a sym\_state, n input and conc\_state assignments, and instantiates them into a new list of conc\_states.
  
 
 

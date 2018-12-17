@@ -129,6 +129,7 @@ Axiom get_pc : get_path_constraint.*)
 Inductive node_tuple : Type :=
 |consNode (ls : list sym_state_tuple) (pc : symbolic_expression).
 
+
 Definition get_sym_state ( n : node_tuple) : list sym_state_tuple:=
 match n with
 |consNode s pc => s
@@ -176,7 +177,7 @@ Inductive SE_tree : Type :=
                 )
 end) eq_refl.*)
 
-Definition r :=  SE_tree -> list sym_state_tuple.
+Definition r :=  SE_tree -> node_tuple.
 Axiom root : r.
 
 Definition s_e := list sym_state_tuple -> list sym_input_tuple -> SE_tree.
@@ -184,7 +185,7 @@ Axiom sym_ex : s_e.
 
 Axiom root_def : 
 forall (s : list sym_state_tuple) (sym_inp : list sym_input_tuple),
-root (sym_ex s sym_inp) = s.
+get_sym_state (root (sym_ex s sym_inp)) =  s.
 
 
 Fixpoint is_leaf (s' : node_tuple) (s : SE_tree) : Prop :=
@@ -432,7 +433,7 @@ forall (s: node_tuple) (t : SE_tree),
 is_list_leaf s t <->
 (find_leaf t = s).
 
-Definition gi := list SymbolicExec.sym_input_tuple -> list ConcState.conc_input_tuple.
+Definition gi := SymbolicExec.symbolic_expression -> list ConcState.conc_input_tuple.
 Axiom get_input : gi.
 
 (*Definition gi := SymbolicExec.PC -> ConcState.input.
@@ -444,12 +445,12 @@ Axiom get_variable : gsa.*)
 Axiom get_input_def :
 (*Finds inputs given a pc that satisfy that pc
 *)
-forall (i : list sym_input_tuple)(a : SymbolicExec.symbolic_alphabet), 
-(exists (s : list sym_state_tuple) (l : node_tuple),
+forall (l : node_tuple) (a : SymbolicExec.symbolic_alphabet) ( i : list sym_input_tuple) , 
+((exists (s : list sym_state_tuple) ,
 (is_leaf l (sym_ex s i)) /\
-(pc_eval (instantiate (get_pc l) a))) ->
+(pc_eval (instantiate (get_pc l) a)))) ->
 (list_input_instantiate i a)
-= (get_input i).
+= (get_input (get_pc l)).
 
 (*** CIRCLE OPERATIONS ***)
 (* Takes as input symbolic state of root and pc of its leaf 
@@ -463,22 +464,25 @@ Axiom circle_op_2 : c_o_2.
 
 
 Axiom c_o_1_def : 
-forall (t : SE_tree) (cs : list ConcState.conc_state_tuple),
+forall (t : SE_tree) (cs : list ConcState.conc_state_tuple)
+,
 is_element_of (circle_op_1 t) cs <->
 (*exists (s : sym_state), (s = root t) /\*)
 exists (s : list sym_state_tuple) (s' : node_tuple)
- (a : SymbolicExec.symbolic_alphabet),
-(s = root t) /\
+ (a : SymbolicExec.symbolic_alphabet)
+,
+(s = (get_sym_state (root t))) /\
 (is_list_leaf s' t) /\
 pc_eval (instantiate (get_pc s') a) /\
 cs = list_state_instantiate s a.
 
 Axiom c_o_2_def : 
-forall (t : SE_tree) (cs: list ConcState.conc_state_tuple),
+forall (t : SE_tree) (cs: list ConcState.conc_state_tuple)
+,
 is_element_of (circle_op_2 t) cs <->
-exists (s : list sym_state_tuple) (s' : node_tuple) 
-(a : SymbolicExec.symbolic_alphabet),
-(s = root t) /\
+exists (s : list sym_state_tuple) (s' : node_tuple) (a : SymbolicExec.symbolic_alphabet)
+,
+(s = (get_sym_state (root t))) /\
 (is_list_leaf s' t) /\
 pc_eval (instantiate (get_pc s') a) /\
 (cs = list_state_instantiate (get_sym_state s') a).
@@ -574,14 +578,13 @@ forall xis_list_leaf x t*)
 
 Theorem circle_op_property_2: 
 forall (s : list sym_state_tuple) (sym_inp : list sym_input_tuple) 
-(x : list ConcState.conc_state_tuple) 
-(a : SymbolicExec.symbolic_alphabet),
+(x : list ConcState.conc_state_tuple) ,
 is_element_of 
 (circle_op_1 (sym_ex s sym_inp)) x 
 ->
 is_element_of
   (circle_op_2 (sym_ex s sym_inp))
-  (conc_ex x (get_input (sym_inp))).
+  (conc_ex x (get_input (get_pc (find_leaf (sym_ex s sym_inp))))).
 Proof. intros.  apply c_o_2_def.
 apply c_o_1_def in H. 
 destruct H. exists x0.
@@ -591,18 +594,42 @@ destruct H. split. apply H.
 destruct H0. split. apply H0.
 destruct H1. split. apply H1.
 assert (list_input_instantiate sym_inp x2 =
-   get_input sym_inp).
+   (get_input
+     (get_pc
+        (find_leaf (sym_ex s sym_inp))))).
 apply get_input_def.
-exists s. exists x1.
-split. apply ll_def in H0.
-apply H0. apply H1.
-rewrite H2. rewrite <- H3.
+exists s. 
+split. pose H0 as H3.
+apply ll_def2 in H3. rewrite H3.
+apply ll_def in H0.
+apply H0.
+pose H0 as H3.
+apply ll_def2 in H3. rewrite H3.
+ apply H1.
+rewrite H2. 
+rewrite <- H3.
 apply commutativity'.
 apply ll_def in H0. split.
-rewrite root_def in H. rewrite H. apply H0.
+ rewrite root_def in H. rewrite H. apply H0.
 apply H1. Qed.
 
+Axiom SE_tree_def : 
+forall t : SE_tree, 
+exists (s : list sym_state_tuple) (i : list sym_input_tuple),
+t = sym_ex s i.
 
+Theorem circle_op_property : 
+forall (t : SE_tree),
+forall (x : list conc_state_tuple),
+is_element_of (circle_op_1 t) x ->
+is_element_of (circle_op_2 t)
+  (conc_ex x
+     (get_input (get_pc (find_leaf t)))).
+Proof. intros.
+assert (exists (s : list sym_state_tuple) (i : list sym_input_tuple),
+t = sym_ex s i). apply SE_tree_def. destruct H0. destruct H0.
+rewrite H0.
+apply circle_op_property_2. rewrite <- H0. apply H. Qed.
 
 
 
@@ -649,7 +676,7 @@ Fixpoint execute_tree_list (tlist : list SE_tree) : list ConcState.conc_state_tu
 match tlist with
 |nil => init_conc_state
 |h :: nil => conc_ex (init_conc_state) (get_input (get_pc (find_leaf h)))
-|h :: t => conc_ex (execute_tree_list t) (get_input(get_pc(find_leaf h)))
+|h :: t => conc_ex (execute_tree_list t) (get_input (get_pc(find_leaf h)))
 end.
 
 
@@ -904,7 +931,8 @@ Proof. intros. apply P1_and_circle_op_prop. split.
 *  rewrite first_elem_last_elem. 
 apply prefix_first_elem in H. rewrite H.
   apply Prop1. 
-* unfold last_elem. apply circle_op_property_2. Qed.
+* unfold last_elem. 
+apply circle_op_property. Qed.
 
 Theorem s_l_e_rewrite :
 forall (s s0 : SE_tree) (t : list SE_tree),
@@ -1083,7 +1111,7 @@ Proof. intros. induction t.
   pose Prop3 as P3. unfold trees_connect in P3.
   apply P3. simpl. pose H as H1. 
   apply c_i_o_elim in H1. apply H1.
-*** apply circle_op_property_2. 
+*** apply circle_op_property. 
 ** split. apply list_size_prefix.
   pose H as H1. apply not_nil_prefix in H1.
   assert (is_prefix tree_list (a :: s :: t) /\ (s :: t) <> nil).
