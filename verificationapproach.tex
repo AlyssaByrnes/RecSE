@@ -4,7 +4,7 @@ We give a basic outline of our proof of our sufficiency theorem.
 
 We want to show that $execute\_tree\_list (tree\_list) \in error\_states$.
 
-We prove this by first proving the Theorem \ref{thm:etl}.
+We prove this by first proving Theorem \ref{thm:etl}.
 
 \begin{proof}[Theorem \ref{thm:etl}]
 This is a proof by induction on the size of $tree\_list$.
@@ -15,10 +15,10 @@ For our base case we show that if $tree\_list$ is of length $1$, then execute\_t
 To prove this we use the following set property (which we verify in Coq):
 
 \begin{theorem}
-\label{thm:set2}
 $\forall$ inputs $i$,
 If $A \in B$ and 
 $\forall x \in B$, conc\_ex($x, i$) $\in C$, then  conc\_ex($A, i$) $\in$ $C$.
+\label{thm:set2}
 \end{theorem}
 
 If $tree\_list$ is of length $1$, we know we are executing from the initial concrete state of the system. Therefore, we consider the following properties:

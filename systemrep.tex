@@ -2,19 +2,20 @@
 Our system contains the following three global variables:
 \begin{itemize}
 \item A list of SE\_trees called \textit{tree\_list} that represent the list of trees returned by our tool.
-\item A list of conc\_states to represent the initial system state, or \textit{init\_conc\_state}.
-\item A set of conc\_state lists to represent all of the system error states, or \textit{Error\_States}.
+\item A list of conc\_states to represent the initial system state, called \textit{init\_conc\_state}.
+\item A set of conc\_states to represent all of the system error states, called \textit{error\_states}.
 \end{itemize}
 
 We then define the method \textit{execute\_tree\_list}, that takes a list of SE\_trees and executes them according to the inputs given by the leaves.
 
-Additionally, we define the abstract method, \textit{get\_input} which returns a list of inputs that do not violate a given sym\_state's pc.
+Additionally, we define the abstract method, $ get\_input : \{symbolic\_input\} \{symbolic\_alphabet\} \rightarrow \{conc\_state\}$ which returns a concrete input that does not violate a given sym\_state's path constraint.
 This method is bound by the requirement,
 \begin{axiom}
-forall SE\_trees $t$, input lists $li$, and conc\_state lists $lcs$,  
-if $li = get\_input (t) $ and $lcs \in$ concretize\_root($t$)
-then there exists a sym\_state $s'$ such that
- $pc\_eval (get\_pc (s'), lcs, li) = True$ and $s'$ is the specified leaf of $t$.
+$ \forall$ symbolic inputs $i'$, symbolic alphabets $a'$, 
+if $\exists$ a sym\_state $s$ and a tree node $l$ such that
+$ l$ is a leaf of the tree output by sym\_ex($s, i$) and 
+pc\_eval (instantiate ($l.pc, a$)) = $True$, then
+instantiate($i, a$) = get\_input($i$).
 \end{axiom}
 
 \subsubsection{Instantiation Operations}
@@ -25,15 +26,40 @@ They define them in the following way:
 Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi_l$ represents the set of concrete next-states, that are at the end-points of the path from $n_r$ to $n_l$.'' (citation)
 
 For our proof we let $concretize\_root=  s_r \circ \pi_l$ and $concretize\_leaf =  s_l \circ \pi_l$.
-Both operations take the whole SE\_tree as input.
+
+Both are defined in the following way: 
+$$concretize\_root : \{ SE\_Tree \} \rightarrow \{conc\_states\}$$
+
+$$concretize\_leaf : \{ SE\_Tree \} \rightarrow \{conc\_states\}$$
+
+They are bound by the following requirements:
+
+\begin{axiom}
+$\forall$ SE_trees $t$,  conc\_states $cs$,
+$cs \in$ circle\_op\_1($t$) $\leftrightarrow$ 
+\exists a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
+$s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
+pc\_eval (instantiate ($s'.pc$, $a$)) = $True$, and 
+$cs =$ instantiate($s, a$).
+\end{axiom}
+
+\begin{axiom}
+$\forall$ SE_trees $t$,  conc\_states $cs$,
+$cs \in$ circle\_op\_2($t$) $\leftrightarrow$ 
+\exists a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
+$s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
+pc\_eval (instantiate ($s'.pc$, $a$)) = $True$, and 
+$cs =$ instantiate($s', a$).
+\end{axiom}
+
 
 We now can formally prove the following lemma, which we will use in our proof:
 \begin{lemma} \label{cop}
-forall SE\_trees $t$ and conc\_state lists $csl$,
-if $csl \in concretize\_root(t)$,
+forall sym\_states $s$, symbolic inputs $i'$, conc\_states $c$, and symbolic alphabets $a$,
+if $cs \in concretize\_root(t)$,
 then 
-$conc\_ex(csl, get\_input (get\_pc (l))) \in concretize\_leaf(t)$,
-where $l$ is a leaf of $t$.
+$conc\_ex(cs, get\_input ($i'$)) \in concretize\_leaf(t)$,
+where $l$ is a leaf of $t$ and $t = $ sym\_ex($s, i'$).
 \end{lemma}
 
 In order to prove this, we utilize the commutativity property expressed earlier.
@@ -68,8 +94,4 @@ $concretize\_leaf (last\_elem (tree\_list))
 
 
 
-Our main sufficiency theorem that we prove is the following:
-\begin{theorem}
-execute\_tree\_list ($tree\_list$) $\in$ error\_states.
-\end{theorem}
- In other words, given our three property requirements, executing our tree\_list will get us to an error state.
+Our main sufficiency theorem that we prove is Theorem \ref{sufficiency}. In other words, given our three property requirements, executing our tree\_list will get us to an error state.
