@@ -40,7 +40,7 @@ We want to show that if our inductive hypothesis holds, then $execute\_tree\_lis
 In order to prove this, we must prove the following lemma:
 \begin{lemma} 
 \label{lem:etl}
-$execute\_tree\_list (tree\_list') \in concretize\_leaf (t)$.
+$execute\_tree\_list (tree\_list') \in concretize\_root (last\_elem (tree\_list))$.
 \end{lemma}
 \begin{proof}[Lemma \ref{lem:etl}]
 We prove this using the following set property (which we verify in Coq):
