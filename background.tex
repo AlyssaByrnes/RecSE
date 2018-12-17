@@ -112,6 +112,8 @@ symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where $\al
 King formalized the use of symbolic execution~\cite{king1976symbolic} and describes three
 properties provided by symbolic execution. We name and summarize the properties
 here.
+\setcounter{property}{0}
+\renewcommand{\theproperty}{K.\arabic{property}}
 \begin{property}[Sound Paths]
   \label{prop:kingsound}
   The path condition $\pathcondition$ never becomes unsatisfiable. This means that for each
@@ -152,7 +154,8 @@ $
     \{\concexpression\}$
   \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
   \end{itemize}
-  
+
+  \cks{Referring to the properties looks like this now: Property~\ref{prop:kingsound}}
 \begin{align*}
 \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
 \mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
