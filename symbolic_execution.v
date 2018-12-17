@@ -115,6 +115,8 @@ match s with
 |consSInp ia se => ia
 end.
 
+Definition and := symbolic_expression -> symbolic_expression -> symbolic_expression.
+Axiom logical_and : and.
 
 (*** SYM STATE STRUCTURE ***)
 
@@ -142,24 +144,6 @@ end.
 
 
 (*** SYM EX TREE STRUCTURE ***)
-(*Inductive SE_tree : Type :=
-| nilleaf: SE_tree
-| ConsNode: SE_tree -> sym_state -> SE_tree -> SE_tree.
-
-
-Definition root (t : SE_tree) : sym_state :=
-match t with 
-|nilleaf => nilstate
-|ConsNode l n r => n
-end.
-
-
-Fixpoint is_leaf (s' : sym_state) (s : SE_tree) : Prop :=
-match s with
-|ConsNode nilleaf n nilleaf => s' = n
-|ConsNode l n r => (is_leaf s' l) \/ (is_leaf s' r)
-|nilleaf => False
-end.*)
 
 Inductive SE_tree : Type :=
 | nilleaf: SE_tree
@@ -195,6 +179,19 @@ match s with
 |nilleaf => False
 end.
 
+Fixpoint in_tree (n : node_tuple) (t : SE_tree) : Prop :=
+match t with
+|nilleaf => False
+|ConsNode l x r => x = n \/ (in_tree n l) \/ (in_tree n r)
+end.
+
+Fixpoint is_child_of (n1 n2 : node_tuple) (t : SE_tree) :=
+match t with 
+|nilleaf => False
+|ConsNode l x r => (n1 = x /\ (in_tree n2 l \/ in_tree n2 r)) 
+                    \/ is_child_of n1 n2 l
+                    \/ is_child_of n1 n2 r
+end.
 
 (*** SYMBOLIC EXECUTION ***)
 (*Definition s_e := sym_state -> SE_tree.
@@ -273,27 +270,24 @@ match li with
 end.
 
 
+Axiom sound_paths :
+forall (a : symbolic_alphabet) (s : list sym_state_tuple)
+(i : list sym_input_tuple) (n : node_tuple),
+in_tree n (sym_ex s i)  ->
+(pc_eval (instantiate (get_pc n) a)).
 
+Axiom unique_paths : 
+forall (a : symbolic_alphabet) (s : list sym_state_tuple)
+(i : list sym_input_tuple) (n1 n2 : node_tuple)
+( t : SE_tree),
+t = sym_ex s i
+/\ n1 <> n2
+/\ in_tree n1 t
+/\ in_tree n2 t
+/\ (is_child_of n1 n2 t = False)
+/\(is_child_of n2 n1 t = False)
+->(pc_eval (instantiate (logical_and (get_pc n1) (get_pc n2)) a)) = False.
 
-
-(*Axiom commutativity : 
-forall (li : input) (cs : ConcState.conc_state) (s s' : sym_state),
-(*li = (randomly_instantiate_input s) /\
-cs = (randomly_instantiate_conc_state s) /\*)
-is_list_leaf s' (sym_ex s) /\
-(pc_eval (get_pc s') cs li) 
-->
-conc_ex cs li = instantiate (get_phi s') cs li.*)
-
-
-(*Axiom commutativity':
-forall (li : ConcState.input) 
-(lcs : ConcState.variable)  (x x' : sym_state),
-(exists t : SE_tree,
-t = sym_ex x /\
-is_leaf x' t /\
-pc_eval (get_pc x') lcs li)
--> conc_ex (conc_instantiate (get_phi x) lcs li) = sym_instantiate (get_phi x') lcs li.*)
 
 Axiom commutativity':
 forall 
