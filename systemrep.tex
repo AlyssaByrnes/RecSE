@@ -68,29 +68,38 @@ In order to prove this, we utilize the commutativity property expressed earlier.
 \subsubsection{Tool Requirements}
 We formally express the requirements stated of the tool by Zhang et al. (citation).
 The following requirements, when placed on our system, should be enough to prove that the tool works as expected:
-\begin{axiom}[Property $1$]
-$init\_conc\_state \in concretize\_root(first\_elem (tree\_list))$.
-\end{axiom}
 
-\begin{axiom}[Property $2$]
+\setcounter{property}{0}
+\renewcommand{\theproperty}{Z.\arabic{property}}
+\begin{property}[Start in initial state]
+  \label{prop:startinit}
+$init\_conc\_state \in concretize\_root(first\_elem (tree\_list))$.
+\end{property}
+
+\begin{property}[End in error state]
+  \label{prop:enderror}
 $ concretize\_leaf (last\_elem (tree\_list)) \cap Error_States 
 \neq empty\_set $.
-\end{axiom}
+\end{property}
 
-\begin{axiom}[Property $3$]
+\begin{property}[Stitch trees together]
+  \label{prop:stitch}
 for all SE\_trees $a$ $b$, 
 if $a$ and $b$ are consecutive in $tree\_list$, then 
 $concretize\_leaf (a) \subseteq
 concretize\_root(b) $.
-\end{axiom}
+\end{property}
 
 These properties end up not being sufficient for proving the tool works. 
 We make Property 2 stronger by replacing it with the following property:
 
-\begin{axiom}[Property $2'$]
+\setcounter{property}{1}
+\renewcommand{\theproperty}{Z.\arabic{property}'}
+\begin{property}[Property~\ref{prop:enderror} correction]
+  \label{prop:correctedz2}
 $concretize\_leaf (last\_elem (tree\_list))
 \subseteq error\_states $.
-\end{axiom}
+\end{property}
 
 
 
