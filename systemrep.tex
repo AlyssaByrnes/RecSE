@@ -11,8 +11,8 @@ We then define the method \textit{execute\_tree\_list}, that takes a list of SE\
 Additionally, we define the abstract method, $ get\_input : \{symbolic\_input\} \{symbolic\_alphabet\} \rightarrow \{conc\_state\}$ which returns a concrete input that does not violate a given sym\_state's path constraint.
 This method is bound by the requirement,
 \begin{axiom}
-$ \forall$ symbolic inputs $i'$, symbolic alphabets $a'$, 
-if $\exists$ a sym\_state $s$ and a tree node $l$ such that
+$ \forall$ symbolic inputs $i'$, symbolic alphabets $a'$, and tree nodes $l$, 
+if $\exists$ a sym\_state $s$  such that
 $ l$ is a leaf of the tree output by sym\_ex($s, i$) and 
 pc\_eval (instantiate ($l.pc, a$)) = $True$, then
 instantiate($i, a$) = get\_input($i$).
