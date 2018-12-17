@@ -3,10 +3,10 @@
 
 Researchers have recently begun exploring the use of software-style symbolic execution for the
 verification of hardware designs~\cite{mukherjee2015hardware,liu2009star}. Symbolic execution has a proven track record in the software community as a
-bug-finding tool~\cite{?} and as an aid in formal
-verification~\cite{?}. However, bringing these benefits to bear on hardware
+bug-finding tool~\cite{} and as an aid in formal
+verification~\cite{}. However, bringing these benefits to bear on hardware
 designs has been a challenge---the complexity of the search space of relatively
-simple designs more closely resembles that of large, continuously interactive
+simple hardware designs more closely resembles that of large, continuously interactive
 software systems than that of the stand-alone software programs that are the classic
 targets of symbolic execution. In response to this challenge a recent paper proposed a recursive
 search strategy for symbolic execution~\cite{zhang2018recursive}. Zhang et
@@ -24,27 +24,56 @@ Our goal is to validate the search strategy itself rather than any one implement
 of it. Therefore we decouple our model of symbolic execution from the particular
 programming language to be symbolically executed. We formalize an abstract model of symbolic
 execution in Gallina, the specification language of the Coq proof
-assistant~\cite{?}; the structure of the model is built
+assistant~\cite{coqreference}; the structure of the model is built
 around the three fundamental properties of symbolic execution as first laid out
-by King in 1976~\cite{}. This has the advantage of providing soundness
+by King in 1976~\cite{king1976symbolic}. This has the advantage of providing soundness
 guarantees for the recursive search strategy when implemented by any symbolic
 execution engine which abides by the three King properties.
 
-\cks{In here give high level overview of the proof approach: SE represented as
-  trees; proof by induction over list of trees.}
+The symbolic exploration of a program produces a rooted, binary tree. The root
+node represents the entry point of the program, and each path from root to a
+leaf node represents one possible path of the execution through the program.
+Although the mechanics are similar, the symbolic exploration of a hardware
+design differs from this model conceptually: The tree produced by the symbolic exploration of a
+hardware design represents the state transitions possible in a single clock
+cycle from a given state (the root node). A sequence of state transitions, for
+example from the hardware's initial, reset state to an error state is
+represented by a sequence of trees. The set of all possible $n$ transitions from
+a given state requires a tree (of depth $n$) of trees.
 
-We find that the search strategy as originally proposed is not sound---that is, the
+The strategy proposed by Zhang and Sturton tackles this search complexity with a
+recursive search. First the $n^{\mathrm{th}}$ tree in the desired sequence of
+trees is found, then the $n-1^{\mathrm{st}}$ tree, and so on, until the first
+tree in the sequence, whose root node starts at the reset state, is
+found.\footnote{The problem is undecidable in the general case, and Zhang et
+  al. introduce a set of heuristics to make it work in
+  practice~\cite{zhang2018end}.} The strategy lays out three properties that, if
+satisfied at each iteration of the search, are sufficient to ensure the final
+sequence of paths through trees represents a possible, multi-cycle sequence of
+state transitions from the hardware's initial state to the desired (error)
+state.
+
+The bulk of our proof is a proof by induction over the sequence of trees to show
+that the trees are correctly stitched together. In the base case we show that
+symbolic
+execution, as defined by King, implies the correct \emph{concretization} of a path through a
+single symbolic execution tree as defined by Zhang and Sturton. In the inductive
+step we show that a path through a sequence of trees stitched together according
+to the Zhang and Sturton requirements will yield a correct concretization of a
+path through the sequence of trees. Finally, we prove that the sequence begins in a reset state and ends in the
+desired error state.
+
+We find that the recursive search strategy as originally proposed is not sound---that is, the
 search may find a symbolic path for which no concrete path from the processor's initial state
 to the given error state exists. We tighten one of the three
-requirements of the strategy and make explicit an unstated assumption of the
-original paper. We then prove the modified strategy is sound.
+requirements of the strategy and then prove the modified strategy is sound.
 
 We present two contributions of this work:
 \begin{itemize}
   \item An abstract model of symbolic execution expressed in the Coq
-    framework. Those wishing to verify a particular symbolic execution engine
-    can use our abstract model as a starting point, iteratively refining it to
-    build a provably correct implementation. We make our model available online.
+    framework. This model can form the starting point for 
+    building a provably correct implementation of a symbolic execution engine for a
+    particular language. We make our model available online.
 \item We verify the soundness of the recursive search strategy for symbolic
   execution. We find and fix a flaw in the original formulation of the
   strategy. Although the recursive search strategy was originally developed for
