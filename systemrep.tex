@@ -35,18 +35,18 @@ $$concretize\_leaf : \{ SE\_Tree \} \rightarrow \{conc\_states\}$$
 They are bound by the following requirements:
 
 \begin{axiom}
-$\forall$ SE_trees $t$,  conc\_states $cs$,
+$\forall$ SE\_trees $t$,  conc\_states $cs$,
 $cs \in$ circle\_op\_1($t$) $\leftrightarrow$ 
-\exists a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
+$\exists$ a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
 $s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
 pc\_eval (instantiate ($s'.pc$, $a$)) = $True$, and 
 $cs =$ instantiate($s, a$).
 \end{axiom}
 
 \begin{axiom}
-$\forall$ SE_trees $t$,  conc\_states $cs$,
+$\forall$ SE\_trees $t$,  conc\_states $cs$,
 $cs \in$ circle\_op\_2($t$) $\leftrightarrow$ 
-\exists a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
+$\exists$ a sym\_state $s$, a tree node $s'$, and a symbolic alphabet $a'$ such that
 $s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
 pc\_eval (instantiate ($s'.pc$, $a$)) = $True$, and 
 $cs =$ instantiate($s', a$).
