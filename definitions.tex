@@ -1,0 +1,119 @@
+\section{Definitions and Notation}
+
+\cks{I'll organize this section and add the appropriate English later.}
+
+\cks{I think it makes sense to have this mirror our model of the symbolic
+  execution engine, where we make explicit the reset state, the variables, and
+  alphabet, but for now I'm leaving it as we discussed}
+We model a hardware module as a tuple $\hardwaredesign = (\concstates,
+\concexecution, \concinputs)$, where
+\begin{itemize}
+\item $\concstates: \{(\variable_0,\concvalue), (\variable_1,\concvalue), \ldots, (\variable_n,\concvalue)\}$ is the finite set of state variables and their valuation,
+\item $\concexecution: \{\concstates\} \times \{\concinputs\} \rightarrow 
+  \{\concstates\}$ is the transition function of the module, and
+\item $\concinputs: \{(\inputvariable_0,\concvalue), (\inputvariable_1,\concvalue),
+  \ldots, (\inputvariable_m,\concvalue)\}$ is the set of input parameters and their valuation.
+\end{itemize}
+
+\cks{I think HW module and SEE should have analogous entries in the tuple. The
+  set of \variable s should appear in both. The input alphabets (literals,
+  symbols) should be different.}
+We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
+(\symstates, \rootsymstate, \symexecution, \pathconditions, \symalphabet,
+\trees)$, where
+\begin{itemize}
+\item $\symstates: \{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
+\item $\rootsymstate \in \symstates$
+\item \cks{this needs fixing} $\symexecution: \{\symstates,\pathcondition\}
+  \times \{\syminputs\} \rightarrow \trees$
+\item $\pathconditions$
+\item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
+  and symbolic assignments.
+\item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
+\end{itemize}
+
+\cks{More of the formalization that we discussed}
+\begin{itemize}
+\item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
+\item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
+  symexpressions. The set of all path conditions is a subset of the set of all
+  symexpressions.
+\item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
+  and $\pathcondition \in \pathconditions$.
+\item $\syminputs: <(\inputvariable_0, \symexpression), (\inputvariable_1,
+  \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
+\end{itemize}
+
+A symbolic expression \symexpression{} is an expression involving at least one
+symbol in \symalphabet. The expression may contain zero or more concrete
+literals, arithmetic operators, and logical operators. \cks{Since we want to
+  keep this abstract and not specify all the operators, and since it is actually
+  abstract in the proof, I think we should skip the formal grammar of
+  expressions. Maybe instead just include an example or two.} Examples of
+symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where $\alpha,
+\beta \in \symalphabet$.
+
+
+%% We model the program to be symbolically executed
+%% S = {(reg_0, symexpr_0), (reg_1, symexpr_1), ..., (reg_n, symexpr_n)} (edited)
+%% symInp = {(inp_0, symexpr_0), (inp_1, symexpr_1), ..., (inp_k, symexpr_k)} (edited)
+%% Inp = {(inp_0, inpval_0), (inp_1, inpval_1), ..., (inp_k, inpval_k)} (edited)
+%% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
+
+\subsection{Properties of Symbolic Execution}
+King formalized the use of symbolic execution~\cite{king1976symbolic} and describes three
+properties provided by symbolic execution. We name and summarize the properties
+here.
+\setcounter{property}{0}
+\renewcommand{\theproperty}{K.\arabic{property}}
+\begin{property}[Sound Paths]
+  \label{prop:kingsound}
+  The path condition $\pathcondition$ never becomes unsatisfiable. This means that for each
+  leaf node the path condition $\pathcondition$ associated with that leaf node has at
+  least one concrete valuation which would drive execution down the same path of
+  execution.
+  $
+  \forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n =
+\mathtt{intree}(\symexecution(\symstate,\syminput)),
+\mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+  $
+  
+\end{property}
+
+
+\begin{property}[Unique Paths]
+  \label{prop:kingunique}
+The path condition $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
+tree are mutually unsatisfiable. In other words, there exists no concrete
+valuation that could drive execution down two distinct paths of the symbolic
+execution tree.
+
+$
+\forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n1 n2 =
+\mathtt{intree}(\symexecution(\symstate,\syminput))  \wedge
+n1 \neq n2
+ \wedge
+(\mathtt{ischildof}(n1, n2) \vee  \mathtt{ischildof}(n2, n1))= \textfalse
+\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+$
+\end{property}
+
+\begin{property}[Commutativity]
+  We define some functions.
+  \begin{itemize}
+  \item instantiate: $\{\symalphabet\} \rightarrow \{\concvalue\}$
+  \item plugin: $\{\symexpression\} \times \{\concvalue\} \rightarrow
+    \{\concexpression\}$
+  \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
+  \end{itemize}
+
+  \cks{Referring to the properties looks like this now: Property~\ref{prop:kingsound}}
+\begin{align*}
+\forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
+\mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
+\mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \texttrue \\
+&\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
+&\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
+\end{align*}
+\end{property}
+
