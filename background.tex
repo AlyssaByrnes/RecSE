@@ -95,39 +95,38 @@ counter this complexity that Zhang et al. developed their recursive search strat
 
 
 
-\subsection{Recursive Search Strategy for Symbolic Execution}
+%% \subsection{Recursive Search Strategy for Symbolic Execution}
+
+%% The symbolic execution engine
+%% maintains the current, partially symbolic state of the program and the current
+%% \emph{path condition}. The path condition is a conjunction of propositions over
+%% input and state variables that define the path through the program code taken to
+%% reach the current state.
 
 
-The symbolic execution engine
-maintains the current, partially symbolic state of the program and the current
-\emph{path condition}. The path condition is a conjunction of propositions over
-input and state variables that define the path through the program code taken to
-reach the current state.
+%% We model the processor as a vector $R$ of state registers $R = <r_0, r_1,
+%% \ldots, r_n>$. At each step of execution (clock cycle) the valuation of each
+%% register may change. New state is determined by the Boolean and bitvector
+%% arithmetic combination of current state plus input values. $\forall m, r'_m =
+%% \delta(R,I)$.
 
+%% In concrete execution registers hold concrete values $(v_0, v_1, \ldots, v_n)$
+%% at each clock cycle. In symbolic execution the concrete values are replaced with
+%% symbolic values $(\phi_0, \phi_1, \ldots, \phi_n)$ and so are input values.
+%% As execution continues, symbolic values propagate through the design.
 
-We model the processor as a vector $R$ of state registers $R = <r_0, r_1,
-\ldots, r_n>$. At each step of execution (clock cycle) the valuation of each
-register may change. New state is determined by the Boolean and bitvector
-arithmetic combination of current state plus input values. $\forall m, r'_m =
-\delta(R,I)$.
+%% The symbolic state is modeled as a tuple $\psi := (S,\pi)$ where $S$ is the
+%% vector of registers containing a combination of symbolic and concrete state $S
+%% := <s_0, s_1, \ldots, s_n>$. As execution continues, symbolic values propagate
+%% through the design.
 
-In concrete execution registers hold concrete values $(v_0, v_1, \ldots, v_n)$
-at each clock cycle. In symbolic execution the concrete values are replaced with
-symbolic values $(\phi_0, \phi_1, \ldots, \phi_n)$ and so are input values.
-As execution continues, symbolic values propagate through the design.
+%% The recursive symbolic execution strategy utilizes two instantiation operations. 
+%% They define them in the following way: 
 
-The symbolic state is modeled as a tuple $\psi := (S,\pi)$ where $S$ is the
-vector of registers containing a combination of symbolic and concrete state $S
-:= <s_0, s_1, \ldots, s_n>$. As execution continues, symbolic values propagate
-through the design.
+%% ``Let $\mathcal{E}$ represent the symbolic exploration of one clock cycle of a processor modeled by $M$. Let $n_r = (s_r,\pi_r)$ be the root node of tree $\mathcal{E}$ and let $n_l = (s_l,\pi_l)$ be a leaf node of the same tree. 
+%% Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi_l$ represents the set of concrete next-states, that are at the end-points of the path from $n_r$ to $n_l$.'' \cite{zhang2018recursive}
 
-The recursive symbolic execution strategy utilizes two instantiation operations. 
-They define them in the following way: 
-
-``Let $\mathcal{E}$ represent the symbolic exploration of one clock cycle of a processor modeled by $M$. Let $n_r = (s_r,\pi_r)$ be the root node of tree $\mathcal{E}$ and let $n_l = (s_l,\pi_l)$ be a leaf node of the same tree. 
-Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi_l$ represents the set of concrete next-states, that are at the end-points of the path from $n_r$ to $n_l$.'' \cite{zhang2018recursive}
-
-For our proof we let $\mathtt{concretize\_root}=  s_r \circ \pi_l$ and $\mathtt{concretize\_leaf} =  s_l \circ \pi_l$.
+%% For our proof we let $\mathtt{concretize\_root}=  s_r \circ \pi_l$ and $\mathtt{concretize\_leaf} =  s_l \circ \pi_l$.
 
 
 
