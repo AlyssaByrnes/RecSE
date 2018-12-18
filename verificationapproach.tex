@@ -57,18 +57,22 @@ We know:
 $\mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list')) \subseteq \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. (Property $3$)
  \end{itemize}
  
- So, using Theorem \ref{thm:set1}, we conclude that $\mathtt{execute\_tree\_list} (tree\_list') \in \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. \qed
+ So, using Theorem \ref{thm:set1}, we conclude that $\mathtt{execute\_tree\_list} (tree\_list') \\ 
+ \in 
+ \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. \qed
 \end{proof}
 
 Now, to prove our inductive step, we know:
 \begin{itemize}
 \item $\mathtt{execute\_tree\_list} (tree\_list') \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list'))$. (Lemma \ref{lem:etl})
-\item if $x \in \mathtt{concretize\_root}(\mathtt{last\_element}(tree\_list))$, then  $\concexecution(x, get\_input (l.\pathcondition)) \in \mathtt{concretize\_leaf}(\mathtt{last\_element}(tree\_list))$,
+\item if $x \in \mathtt{concretize\_root}(\mathtt{last\_element}(tree\_list))$, then \\
+  $\concexecution(x, get\_input (l.\pathcondition)) \in \mathtt{concretize\_leaf}(\mathtt{last\_element}(tree\_list))$,
 where $l$ is a leaf of $\mathtt{last\_element}(tree\_list)$. (Lemma \ref{cop})
 \item $\mathtt{concretize\_leaf}(t) \neq \{\} $. (Property $3'$)
 \end{itemize}
 
-So, using Theorem \ref{thm:set2}, we can conclude that $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$. \qed
+So, using Theorem \ref{thm:set2}, we can conclude that \\
+$\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$. \qed
 \end{proof}
 
 Now, we prove our correctness property.
@@ -83,13 +87,15 @@ so, using Theorem \ref{thm:set1}, we conclude
 $\mathtt{execute\_tree\_list} (tree\_list) \in error\_states$. \qed
 \end{proof}
 
-The reason we need Property $2'$ is because Property $2$ is not sufficient. This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$ and $\mathtt{concretize\_leaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
+The reason we need Property $2'$ is because Property $2$ is not sufficient. 
+This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$ and \\
+$\mathtt{concretize\_leaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
 $\mathtt{execute\_tree\_list} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
 
 \begin{figure}
-\label{fig:Prop2}
 \includegraphics[width=\textwidth]{prop2.eps}
 \caption{Example of Property $2$ not being sufficient to show $\mathtt{execute\_tree\_list} (tree\_list) \in error\_states$.}
+\label{fig:Prop2}
 \end{figure}
 
 
