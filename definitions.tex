@@ -51,14 +51,17 @@ A symbolic state assigns a symbolic expression, \symexpression, to every registe
 \symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
 \symexpression{} contains at least one symbol and may contain zero or more concrete
 literals, arithmetic operators, and logical operators. Examples of
-symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where
-$\alpha$ and 
-$\beta$ are symbols used by the symbolic execution engine.
+symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
+$\alpha$ is a symbol used by the symbolic execution engine.
+
+A path condition, \pathcondition, is a conjunction of propositions involving
+symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+possible path condition. The alphabet of symbols used to define a symbolic
+state is the alphabet of symbols that can appear in a path condition.
 
 We define \symexecution() for a particular hardware module as an abstract method
 that takes as input an initial symbolic
-state $\symstate$, an initial path condition $\pathcondition = \texttrue$, a
-set of symbolic input values $\Sigma$, and 
+state $\symstate$ and an initial path condition $\pathcondition = \texttrue$, and 
 returns a tree of explored paths. In the recursive strategy, \symexecution{} is
 always called with an initial
 symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
@@ -99,15 +102,16 @@ symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m =
 %% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
 
 \subsection{Properties of Symbolic Execution}
-King formalized the use of symbolic execution~\cite{king1976symbolic} and describes three
+King formalized the use of symbolic execution~\cite{king1976symbolic} and
+described three fundamental
 properties provided by symbolic execution. We name and summarize the properties
-here.
+and for each, give our formal expression of the property.
 \setcounter{property}{0}
 \renewcommand{\theproperty}{K.\arabic{property}}
 \begin{property}[Sound Paths]
   \label{prop:kingsound}
   The path condition $\pathcondition$ never becomes unsatisfiable. This means that for each
-  leaf node the path condition $\pathcondition$ associated with that leaf node has at
+  leaf node of a symbolic execution tree $\tree$ the path condition $\pathcondition$ associated with that leaf node has at
   least one concrete valuation which would drive execution down the same path of
   execution.
   
