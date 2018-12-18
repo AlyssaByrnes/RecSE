@@ -68,12 +68,10 @@ code fragment.
   \end{figure}
   
 \subsection{Register Transfer Level Hardware Designs}
-\cks{Quick explanation of challenges of HW designs and how Zhang et al. convert
-  HW to SW for the symbolic execution.}
 
 
 \subsection{Recursive Search Strategy for Symbolic Execution}
-\cks{English description of strategy and three properties}
+
 
 The symbolic execution engine
 maintains the current, partially symbolic state of the program and the current
@@ -82,7 +80,6 @@ input and state variables that define the path through the program code taken to
 reach the current state.
 
 
-\cks{Brain dump a bunch of mostly terrible text to get started.}
 We model the processor as a vector $R$ of state registers $R = <r_0, r_1,
 \ldots, r_n>$. At each step of execution (clock cycle) the valuation of each
 register may change. New state is determined by the Boolean and bitvector
