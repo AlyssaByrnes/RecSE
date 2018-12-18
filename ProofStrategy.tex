@@ -1,26 +1,32 @@
 \section{Proof Strategy}
 The claim made by Zhang and Sturton is that a sequence of symbolic execution
-trees that abides by their three requirements will yield a sequence of concrete
-input values, which will take the hardware module from the reset state to an
+trees that abides by the three requirements will yield a set of sequences of concrete
+input values, each of which will take the hardware module from the reset state to an
 error state.
 
 We prove that if a sequence of trees produced by our abstract Coq model of symbolic
 execution, which is based on the three King properties (Properties
 \ref{prop:kingsound}, \ref{prop:kingunique}, \ref{prop:kingcommutativity}), abides by
-Properties~\ref{prop:startinit}, \ref{prop:correctedz2}, \ref{prop:stitch}, then
-it does yield a sequence of concrete inputs that take the abstract model of
+Properties~\ref{prop:startinit}, \ref{prop:correctedz2}, and \ref{prop:stitch}, then
+it does yield a set of sequences of concrete inputs that take the abstract Coq model of
 concrete execution from the reset state to an error state.
 
 %% We show that given a Coq model of both symbolic execution and the backwards symbolic execution tool and a set of properties, 
 %% the backwards symbolic execution tool will give us a list of symbolic execution trees with corresponding leaves that, when executed, will result in an error state.
 
-In other words, we define a list of symbolic execution trees, called \textit{tree\_list}, the we bind with a set of properties and a method to execute the relevant leaves, called \textit{execute\_tree\_list},
-and show that it leads to a set of error states, called \textit{error\_states}. This can be expressed as the following theorem
+%% In other words, we define a list of symbolic execution trees, called \textit{tree\_list}, the we bind with a set of properties and a method to execute the relevant leaves, called \textit{execute\_tree\_list},
+%% and show that it leads to a set of error states, called \textit{error\_states}. This can be expressed as the following theorem
 
 
 \begin{theorem}[Correctness of Recursive Strategy]
-\label{thm:sufficiency}
-$execute\_tree\_list (tree\_list) \in error\_states$.
+\label{thm:sufficiency} Consider a sequence of $n$ trees $\mathit{tree\_list} =
+t_0, t_1, \ldots, t_{n-1}$, where each tree satisfies King
+Properties~\ref{prop:kingsound}-\ref{prop:kingcommutativity}. If
+$\mathit{tree\_list}$ satisfies the requirements \ref{prop:startinit},
+\ref{prop:correctedz2}, \ref{prop:stitch}, then \cks{Finish this sentence. I
+  think we need to formally define execute tree list prior to this and then we
+  can use it here, or else formally define correctness and then use that term here.}
+%%$execute\_tree\_list (tree\_list) \in error\_states$.
 \end{theorem}
  
  In order to prove this, we first prove the following theorem:
