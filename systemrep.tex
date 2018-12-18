@@ -1,7 +1,7 @@
 \subsection{Coq Representation of Recursive Strategy}
 Our system contains the following three global variables:
 \begin{itemize}
-\item A list of symbolic execution trees $\in \trees$ called \textit{tree\_list} that represent the list of trees returned by the recursive strategy.
+\item A list of symbolic execution trees $\in \trees$ (where $\trees$ is the set of all trees $\tree$) called \textit{tree\_list} that represent the list of trees returned by the recursive strategy.
 \item A concrete state $\in \concstates$ to represent the initial system state, called \textit{init\_concrete state}.
 \item A set of concrete states $\in \concstates$ to represent all of the system error states, called \textit{error\_states}.
 \end{itemize}
