@@ -1,10 +1,8 @@
 \section{Definitions and Notation}
 
-\cks{I'll organize this section and add the appropriate English later.}
 
-\cks{I think it makes sense to have this mirror our model of the symbolic
-  execution engine, where we make explicit the reset state, the variables, and
-  alphabet, but for now I'm leaving it as we discussed}
+
+
 We model a hardware module as a tuple $\hardwaredesign = (\concstates,
 \concexecution, \concinputs)$, where
 \begin{itemize}
@@ -15,16 +13,14 @@ We model a hardware module as a tuple $\hardwaredesign = (\concstates,
   \ldots, (\inputvariable_m,\concvalue)\}$ is the set of input parameters and their valuation.
 \end{itemize}
 
-\cks{I think HW module and SEE should have analogous entries in the tuple. The
-  set of \variable s should appear in both. The input alphabets (literals,
-  symbols) should be different.}
+
 We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
 (\symstates, \rootsymstate, \symexecution, \pathconditions, \symalphabet,
 \trees)$, where
 \begin{itemize}
 \item $\symstates: \{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
 \item $\rootsymstate \in \symstates$
-\item \cks{this needs fixing} $\symexecution: \{\symstates,\pathcondition\}
+\item $\symexecution: \{\symstates,\pathcondition\}
   \times \{\syminputs\} \rightarrow \trees$
 \item $\pathconditions$
 \item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
@@ -32,7 +28,7 @@ We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
 \item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
 \end{itemize}
 
-\cks{More of the formalization that we discussed}
+
 \begin{itemize}
 \item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
 \item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
@@ -102,7 +98,6 @@ n_1 \neq n_2 \\
 \end{property}
 
 \begin{property}[Commutativity]
-\ab{We still need this in English.}\
 
   We define some functions.
   \begin{itemize}
@@ -112,7 +107,7 @@ n_1 \neq n_2 \\
   \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
   \end{itemize}
 
-\ab{We need to mention how all of these functions combine to be ``instantiate''}
+
 
 
 \begin{align*}
