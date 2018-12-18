@@ -12,11 +12,11 @@ Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput
 This method is bound by the requirement,
 
 \begin{definition}[\emph{get\_input}]
-$ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $a = \mathtt{maptoalph}(\mathrm{alphabet})$
+$ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $m = \mathtt{map(\cdot)}$
 if $\exists$ a symbolic state $s \in \symstates$  such that
 $n$ is a leaf of the tree output by $\symexecution(s, i)$ and 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (n.\pathcondition, a)) = \texttrue$, then
-$\mathtt{instantiate}(i, a) = \mathtt{get\_input}(i)$.
+$\mathtt{pc\_eval} (\mathtt{instantiate} (n.\pathcondition, m)) = \texttrue$, then
+$\mathtt{instantiate}(i, m) = \mathtt{get\_input}(i)$.
 \end{definition}
 
 \subsubsection{Instantiation Operations}
@@ -31,25 +31,25 @@ They are bound by the following requirements:
 \begin{definition}[\emph{concretize\_root}]
 $\forall$ symbolic execution trees $t$,  concrete states $cs$,
 $cs \in$ circle\_op\_1($t$) $\leftrightarrow$ 
-$\exists$ a symbolic state $s$, a tree node $s'$, and $a = \mathtt{maptoalph}(\mathrm{alphabet})$ such that
+$\exists$ a symbolic state $s$, a tree node $s'$, and $m = \mathtt{map(\cdot)}$ such that
 $s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, a)) = \texttrue$, and 
-$cs = \mathtt{instantiate}(s, a)$.
+$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, m)) = \texttrue$, and 
+$cs = \mathtt{instantiate}(s, m)$.
 \end{definition}
 
 \begin{definition}[\emph{concretize\_leaf}]
 $\forall$ symbolic execution trees $t$,  concrete states $cs$,
 $cs \in$ circle\_op\_2($t$) $\leftrightarrow$ 
-$\exists$ a symbolic state $s$, a tree node $s'$, and $a = \mathtt{maptoalph}(\mathrm{alphabet})$ such that
+$\exists$ a symbolic state $s$, a tree node $s'$, and $m = \mathtt{map(\cdot)}$ such that
 $s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, a)) = \texttrue$, and 
-$cs = \mathtt{instantiate}(s', a)$.
+$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, m)) = \texttrue$, and 
+$cs = \mathtt{instantiate}(s', m)$.
 \end{definition}
 
 
 We now can formally prove the following lemma, which we will use in our proof:
 \begin{lemma} \label{cop}
-forall symbolic states $s$, symbolic inputs $i'$, concrete states $c$, and $a = \mathtt{maptoalph}(\mathrm{alphabet})$,
+forall symbolic states $s$, symbolic inputs $i'$, concrete states $c$, and $m = \mathtt{map(\cdot)}$,
 if $cs \in \mathtt{concretize\_root}(t)$,
 then 
 $conc\_ex(cs, \mathtt{get\_input} ($i'$)) \in \mathtt{concretize\_leaf}(t)$,

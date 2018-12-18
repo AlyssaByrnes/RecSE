@@ -56,15 +56,19 @@ $\alpha$ is a symbol used by the symbolic execution engine.
 
 A path condition, \pathcondition, is a conjunction of propositions involving
 symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
-possible path condition. The alphabet of symbols used to define a symbolic
-state is the alphabet of symbols that can appear in a path condition.
+possible path condition.
 
 We define \symexecution() for a particular hardware module as an abstract method
 that takes as input an initial symbolic
-state $\symstate$ and an initial path condition $\pathcondition = \texttrue$, and 
+state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
+set of symbolic inputs, and 
 returns a tree of explored paths. In the recursive strategy, \symexecution{} is
 always called with an initial
 symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
+
+The alphabet of symbols that can appear in a path condition is the union of the
+alphabet of symbols used to define a symbolic state and the alphabet of symbols
+used as input values by \symexecution{}.
 
 
 %% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
@@ -104,25 +108,40 @@ symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m =
 \subsection{Properties of Symbolic Execution}
 King formalized the use of symbolic execution~\cite{king1976symbolic} and
 described three fundamental
-properties provided by symbolic execution. We name and summarize the properties
+properties provided by a symbolic execution engine. We name and summarize the properties
 and for each, give our formal expression of the property.
 \setcounter{property}{0}
 \renewcommand{\theproperty}{K.\arabic{property}}
 \begin{property}[Sound Paths]
   \label{prop:kingsound}
-  The path condition $\pathcondition$ never becomes unsatisfiable. This means that for each
-  leaf node of a symbolic execution tree $\tree$ the path condition $\pathcondition$ associated with that leaf node has at
-  least one concrete valuation which would drive execution down the same path of
-  execution.
+  The path condition $\pathcondition$ never becomes unsatisfiable. For each
+  leaf node $l$ of a symbolic execution tree, there exists, for the path condition
+  associated with $l$, at
+  least one satisfying concrete valuation to the symbols of the path
+  condition; that is, one mapping of symbols to concrete values that
+  would make the path condition evaluate to \texttrue. If this mapping of satisfying concrete values were
+  applied to the initial symbolic state and symbolic inputs, the resulting
+  concrete execution would follow the same path through the program as was taken
+  by the symbolic execution engine to arrive at the leaf node $l$. In other
+  words, all paths taken by the symbolic execution engine correspond to feasible
+  paths through the program.
   
-  We express this the following way: 
+  We express this in the following way: 
   
+%%   \begin{align*}
+%%   \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
+%% \mathtt{intree}(\symexecution(\symstate,\syminput)), \\
+%%  & \mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+%%   \end{align*}
+
   \begin{align*}
-  \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
-\mathtt{intree}(\symexecution(\symstate,\syminput)), \\
- & \mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+    \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~& n \in \tree = \symexecution(\symstate,\pathcondition_0), \\
+    & \mathtt{simplify}(\mathtt{applymap}(n.\pathcondition,m)) = \texttrue.
   \end{align*}
-  
+  Where $\mathtt{map(\cdot)}$ is the set of all functions that map from the set
+  of symbols to the set of concrete values, \symstates{} is the set of all
+  possible symbolic states, and $n$ is a node in the tree $t$ produced by a call
+  to \symexecution.
 \end{property}
 
 
@@ -136,36 +155,61 @@ execution tree.
 We express this the following way: 
 
 \begin{align*}
-\forall a = \mathtt{maptoalph}(\mathrm{alphabet}), &  n_1 n_2 =
-\mathtt{intree}(\symexecution(\symstate,\syminput)) \\
-& \wedge
-n_1 \neq n_2 \\
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~&n_1,~ n_2 \in \tree =
+\symexecution(\symstate,\pathcondition_0), \\
+& n_1 \neq n_2 \\
 &  \wedge
 (\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
-&\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+&\rightarrow \mathtt{simplify}(\mathtt{applymap}(n_1.\pathcondition \wedge n_2.\pathcondition,m)) = \textfalse.
 \end{align*}
+
+%% \begin{align*}
+%% \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), &  n_1 n_2 =
+%% \mathtt{intree}(\symexecution(\symstate,\syminput)) \\
+%% & \wedge
+%% n_1 \neq n_2 \\
+%% &  \wedge
+%% (\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
+%% &\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+%% \end{align*}
 \end{property}
 
 \begin{property}[Commutativity]
+  \label{prop:kingcommutativity}
+  The actions of symbolically executing a program and instantiating symbols with
+  concrete values ($\mathtt{applymap(\cdot)}$ in our model) are commutative. If a
+  mapping is first chosen and then the program is executed concretely, the end
+  state will be the same as if the program is executed symbolically and then,
+  for a particular leaf, a mapping is chosen such that the path constraint of
+  that leaf is satisfied.
 
-  We define some functions.
-  \begin{itemize}
-  \item maptoalph: $\{\symalphabet\} \rightarrow \{\concvalue\}$
-  \item plugin: $\{\symexpression\} \times \{\concvalue\} \rightarrow
-    \{\concexpression\}$
-  \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
-  \end{itemize}
+  %% We define some functions.
+  %% \begin{itemize}
+  %% \item maptoalph: $\{\symalphabet\} \rightarrow \{\concvalue\}$
+  %% \item plugin: $\{\symexpression\} \times \{\concvalue\} \rightarrow
+  %%   \{\concexpression\}$
+  %% \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
+  %% \end{itemize}
 
 
 
 
 \begin{align*}
-\forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
-\mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
-\mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \texttrue \\
-&\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
-&\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~& l \in \tree = \symexecution(\symstate,\pathcondition_0) \wedge
+\mathtt{simplify}(\mathtt{applymap}(l.\pathcondition,m)) = \texttrue \\
+&\rightarrow \mathtt{simplify}(\mathtt{applymap}(l.\symstate,m)) = \\
+&\qquad\concexecution(\mathtt{simplify}(\mathtt{applymap}(\symstate,m)),\mathtt{simplify}(\mathtt{applymap}(\syminput,m))).
 \end{align*}
+Where $l$ is a leaf node of the tree returned by \symexecution.
+
+%% \begin{align*}
+%% \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
+%% \mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
+%% \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \texttrue \\
+%% &\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
+%% &\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
+%% \end{align*}
+
 \end{property}
 
 
