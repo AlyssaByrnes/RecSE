@@ -17,11 +17,13 @@
 %\usepackage{subfig}
 \usepackage{subcaption}
 
-\newtheorem{define}{Definition}
+%\newtheorem{define}{Definition}
 \newtheorem{thm}{Theorem}
 \newtheorem{axiom}{Axiom}
 %\newtheorem{lemma}{Lemma}
 %\newtheorem{cor}{Corollary}
+
+\spnewtheorem{mydefinition}[definition]{Definition}{\bfseries}{\rmfamily}
 
 \newcommand{\cks}[1]{\textcolor{red}{cks: #1}}
 \newcommand{\ab}[1]{\textcolor{cyan}{ab: #1}}
@@ -33,10 +35,13 @@
 
 \newcommand{\hardwaredesign}{\ensuremath{P}}
 \newcommand{\concstates}{\ensuremath{C}}
+\newcommand{\concstate}{\ensuremath{c}}
 \newcommand{\concexecution}{\ensuremath{\mathrm{concEx}}}
 \newcommand{\concinputs}{\ensuremath{I}}
+\newcommand{\concinput}{\ensuremath{i}}
 \newcommand{\inputvariable}{\ensuremath{i}}
 \newcommand{\variable}{\ensuremath{v}}
+\newcommand{\variables}{\ensuremath{V}}
 \newcommand{\concvalue}{\ensuremath{x}}
 \newcommand{\concexpression}{\ensuremath{e}}
 %Symbolic
