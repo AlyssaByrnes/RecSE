@@ -264,9 +264,10 @@ node.
 &\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
 &r = \mathtt{getroot}(t), n = t.l,
 \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)).
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)),
     \end{align*}
 \end{mydefinition}
+where \trees{} is the set of all possible symbolic execution trees.
 
 The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
 the path condition of the leaf node evaluate to \texttrue{} will, when applied to
@@ -284,9 +285,10 @@ by $\mathtt{concretize\_root}$.
 &\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
 &n = t.l,
 \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)).
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)),
     \end{align*}
 \end{mydefinition}
+where \trees{} is the set of all possible symbolic execution trees.
 
 The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
 the path condition of the leaf node evaluate to \texttrue{} will, when applied to
