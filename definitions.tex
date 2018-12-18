@@ -46,10 +46,7 @@ We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
 
 A symbolic expression \symexpression{} is an expression involving at least one
 symbol in \symalphabet. The expression may contain zero or more concrete
-literals, arithmetic operators, and logical operators. \cks{Since we want to
-  keep this abstract and not specify all the operators, and since it is actually
-  abstract in the proof, I think we should skip the formal grammar of
-  expressions. Maybe instead just include an example or two.} Examples of
+literals, arithmetic operators, and logical operators. Examples of
 symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where $\alpha,
 \beta \in \symalphabet$.
 
@@ -72,11 +69,14 @@ here.
   leaf node the path condition $\pathcondition$ associated with that leaf node has at
   least one concrete valuation which would drive execution down the same path of
   execution.
-  $
-  \forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n =
-\mathtt{intree}(\symexecution(\symstate,\syminput)),
-\mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
-  $
+  
+  We express this the following way: 
+  
+  \begin{align*}
+  \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
+\mathtt{intree}(\symexecution(\symstate,\syminput)), \\
+ & \mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+  \end{align*}
   
 \end{property}
 
@@ -88,14 +88,17 @@ tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
 execution tree.
 
-$
-\forall a = \mathtt{maptoalph}(\mathrm{alphabet}),  n1 n2 =
-\mathtt{intree}(\symexecution(\symstate,\syminput))  \wedge
-n1 \neq n2
- \wedge
-(\mathtt{ischildof}(n1, n2) \vee  \mathtt{ischildof}(n2, n1))= \textfalse
-\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
-$
+We express this the following way: 
+
+\begin{align*}
+\forall a = \mathtt{maptoalph}(\mathrm{alphabet}), &  n_1 n_2 =
+\mathtt{intree}(\symexecution(\symstate,\syminput)) \\
+& \wedge
+n_1 \neq n_2 \\
+&  \wedge
+(\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
+&\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+\end{align*}
 \end{property}
 
 \begin{property}[Commutativity]
@@ -107,7 +110,7 @@ $
   \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
   \end{itemize}
 
-  \cks{Referring to the properties looks like this now: Property~\ref{prop:kingsound}}
+
 \begin{align*}
 \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
 \mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
