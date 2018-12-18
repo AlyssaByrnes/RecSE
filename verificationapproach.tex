@@ -9,7 +9,7 @@ We prove this by first proving Theorem \ref{thm:etl}.
 \begin{proof}[Theorem \ref{thm:etl}]
 This is a proof by induction on the size of $tree\_list$.
 
-For our base case we show that if $tree\_list$ is of length $1$, then $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (t)$.
+For our base case we show that if $tree\_list$ is of length $1$, then $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element} (tree\_list))$.
 
 
 To prove this we use the following set property (which we verify in Coq):
@@ -27,7 +27,7 @@ If $tree\_list$ is of length $1$, we know we are executing from the initial conc
   \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. (Property $1$)
  \item $ \forall$ inputs $i$, 
  $\forall x \in
-  \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$,  
+  \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$,  \\
  $ \concexecution(x, i) \in \mathtt{concretize\_leaf}(\mathtt{last\_element}(tree\_list))$.
 \end{itemize}
 
