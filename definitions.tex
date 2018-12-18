@@ -1,0 +1,355 @@
+\section{Definitions and Notation}
+\subsection{Concrete Execution}
+
+
+
+We model a hardware module as a tuple $\hardwaredesign = (\concstates,
+\concstate_0, \concinputs,\concexecution)$, where
+\begin{itemize}
+\item $\concstates$ is the finite set of states of the module,
+\item $\concstate_0 \in \concstates$ is the initial state of the module,
+\item $\concinputs = \{0,1\}^n$ is the finite set of input values---the domain---of the module, and
+\item $\concexecution: \concstates \times \concinputs \rightarrow \concstates$ is the transition function of the module.
+\end{itemize}
+
+%% : \{(\variable_0,\concvalue), (\variable_1,\concvalue), \ldots, (\variable_n,\concvalue)\}$ is the finite set of state variables and their valuation,
+%% : $\{(\inputvariable_0,\concvalue), (\inputvariable_1,\concvalue),$
+%%   \ldots, $(\inputvariable_m,\concvalue)\}$ is the set of input parameters and
+%%   their valuation.
+
+A state $\concstate \in \concstates$ of the module is a concrete valuation to all
+registers in the design: $r_0 = i, r_1 = j, \ldots, r_m = k$, where $r_0, r_1,
+r_m$ represent the stateful registers and $i, j, k
+\in \{0,1\}^*$. 
+The initial state of the module, $\concstate_0$, sometimes called the reset state, is the
+valuation taken by the stateful registers of the design after the power-on
+cycle.
+The domain of the module is the set of binary strings of length $n$, which
+represents the concatenation of multiple input parameters to the module.
+The transition function takes the module from one state to the next state. It
+represents the execution of a single clock-cycle in hardware. The transition function is
+left-total: for every $\concstate \in \concstates$ and every $\concinput \in
+\concinputs$ \concexecution{} is defined. We do not model the output of the
+module explicitly; it is the identity function taken over a subset of the
+registers in the design.
+
+\subsection{Symbolic Execution}
+The result of symbolic execution is a rooted, binary tree $\tree = (N, E, l)$, where
+$N$ is the set of nodes of the tree, $E$ is the set of directed edges connecting
+two nodes, and $l \in N$ is a particular leaf node of interest in the tree. This
+leaf node represents a desired next-state of the module being symbolically
+explored, and in the recursive strategy, it is this leaf node that is joined to
+the root node of a subsequent tree in the search.
+
+Each node $n \in N$ of the tree is a tuple $n = (\symstate, \pathcondition)$, where
+\begin{itemize}
+\item $\symstate$ is a (partially) symbolic state of the module and
+\item $\pathcondition$ is the current path condition.
+\end{itemize}
+
+A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
+\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
+\symexpression{} contains at least one symbol and may contain zero or more concrete
+literals, arithmetic operators, and logical operators. Examples of
+symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
+$\alpha$ is a symbol used by the symbolic execution engine.
+
+A path condition, \pathcondition, is a conjunction of propositions involving
+symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+possible path condition.
+
+We define \symexecution() for a particular hardware module as an abstract method
+that takes as input an initial symbolic
+state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
+set of symbolic inputs, and 
+returns a tree of explored paths. In the recursive strategy, \symexecution{} is
+always called with an initial
+symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
+
+The alphabet of symbols that can appear in a path condition is the union of the
+alphabet of symbols used to define a symbolic state and the alphabet of symbols
+used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
+
+
+%% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
+%% (\symstates, \rootsymstate, \symalphabet, \pathconditions, \symexecution,  
+%% \trees)$, where
+%% \begin{itemize}
+%% \item $\symstates$ is the set of (partially) symbolic states : $\{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
+%% \item $\rootsymstate \in \symstates$
+%% \item $\symexecution: \{\symstates,\pathcondition\}
+%%   \times \{\syminputs\} \rightarrow \trees$
+%% \item $\pathconditions$
+%% \item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
+%%   and symbolic assignments.
+%% \item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
+%% \end{itemize}
+
+
+%% \begin{itemize}
+%% \item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
+%% \item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
+%%   symexpressions. The set of all path conditions is a subset of the set of all
+%%   symexpressions.
+%% \item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
+%%   and $\pathcondition \in \pathconditions$.
+%% \item $\syminputs: <(\inputvariable_0, \symexpression), (\inputvariable_1,
+%%   \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
+%% \end{itemize}
+
+
+
+%% We model the program to be symbolically executed
+%% S = {(reg_0, symexpr_0), (reg_1, symexpr_1), ..., (reg_n, symexpr_n)} (edited)
+%% symInp = {(inp_0, symexpr_0), (inp_1, symexpr_1), ..., (inp_k, symexpr_k)} (edited)
+%% Inp = {(inp_0, inpval_0), (inp_1, inpval_1), ..., (inp_k, inpval_k)} (edited)
+%% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
+
+\subsection{Properties of Symbolic Execution}
+King formalized the use of symbolic execution~\cite{king1976symbolic} and
+described three fundamental
+properties provided by a symbolic execution engine. We name and summarize the properties
+and for each, give our formal expression of the property.
+\setcounter{property}{0}
+\renewcommand{\theproperty}{K.\arabic{property}}
+\begin{property}[Sound Paths]
+  \label{prop:kingsound}
+  The path condition $\pathcondition$ never becomes unsatisfiable. For each
+  leaf node $l$ of a symbolic execution tree, there exists, for the path condition
+  associated with $l$, at
+  least one satisfying concrete valuation to the symbols of the path
+  condition; that is, one mapping of symbols to concrete values that
+  would make the path condition evaluate to \texttrue. If this mapping of satisfying concrete values were
+  applied to the initial symbolic state and symbolic inputs, the resulting
+  concrete execution would follow the same path through the program as was taken
+  by the symbolic execution engine to arrive at the leaf node $l$. In other
+  words, all paths taken by the symbolic execution engine correspond to feasible
+  paths through the program.
+  
+  We express this in the following way: 
+  
+%%   \begin{align*}
+%%   \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
+%% \mathtt{intree}(\symexecution(\symstate,\syminput)), \\
+%%  & \mathtt{simplify}(\mathtt{plugin}(n.\pathcondition,a) = \texttrue.
+%%   \end{align*}
+
+  \begin{align*}
+    \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
+    & \mathtt{simplify}(\mathtt{applymap}(n.\pathcondition,m)) = \texttrue.
+  \end{align*}
+  Where $\mathtt{map(\cdot)}$ is the set of all functions that map from the set
+  of symbols $\Sigma$ to the set of concrete values, \symstates{} is the set of all
+  possible symbolic states, $\Sigma_i$ is the set of symbolic input values, and $n$ is a node in the tree $t$ produced by a call
+  to \symexecution.
+\end{property}
+
+
+\begin{property}[Unique Paths]
+  \label{prop:kingunique}
+The path condition $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
+tree are mutually unsatisfiable. In other words, there exists no concrete
+valuation that could drive execution down two distinct paths of the symbolic
+execution tree.
+
+We express this the following way: 
+
+\begin{align*}
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
+\Sigma_i,~& n_1,~ n_2 \in \tree =
+\symexecution(\symstate,\pathcondition_0,\alpha), \\
+& n_1 \neq n_2 \\
+&  \wedge
+(\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
+&\rightarrow \mathtt{simplify}(\mathtt{applymap}(n_1.\pathcondition \wedge n_2.\pathcondition,m)) = \textfalse.
+\end{align*}
+
+%% \begin{align*}
+%% \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), &  n_1 n_2 =
+%% \mathtt{intree}(\symexecution(\symstate,\syminput)) \\
+%% & \wedge
+%% n_1 \neq n_2 \\
+%% &  \wedge
+%% (\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
+%% &\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \textfalse
+%% \end{align*}
+\end{property}
+
+\begin{property}[Commutativity]
+  \label{prop:kingcommutativity}
+  The actions of symbolically executing a program and instantiating symbols with
+  concrete values ($\mathtt{applymap(\cdot)}$ in our model) are commutative. If a
+  mapping is first chosen and then the program is executed concretely, the end
+  state will be the same as if the program is executed symbolically and then,
+  for a particular leaf, a mapping is chosen such that the path constraint of
+  that leaf is satisfied.
+
+  %% We define some functions.
+  %% \begin{itemize}
+  %% \item maptoalph: $\{\symalphabet\} \rightarrow \{\concvalue\}$
+  %% \item plugin: $\{\symexpression\} \times \{\concvalue\} \rightarrow
+  %%   \{\concexpression\}$
+  %% \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
+  %% \end{itemize}
+
+
+
+
+\begin{align*}
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha) \wedge
+\mathtt{simplify}(\mathtt{applymap}(l.\pathcondition,m)) = \texttrue \\
+&\rightarrow \mathtt{simplify}(\mathtt{applymap}(l.\symstate,m)) = \\
+&\qquad\concexecution(\mathtt{simplify}(\mathtt{applymap}(\symstate,m)),\mathtt{simplify}(\mathtt{applymap}(\syminput,m))).
+\end{align*}
+Where $l$ is a leaf node of the tree returned by \symexecution.
+
+%% \begin{align*}
+%% \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
+%% \mathtt{isleaf}(\symexecution(\symstate,\syminput)) \wedge
+%% \mathtt{simplify}(\mathtt{plugin}(l.\pathcondition,a) = \texttrue \\
+%% &\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
+%% &\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
+%% \end{align*}
+
+\end{property}
+
+
+
+\subsection{Recursive Strategy Requirements}
+We express the three original requirements of the recursive strategy as
+laid out by Zhang et al.~\cite{zhang2018recursive}. 
+%The following requirements, when placed on our system, should be enough to prove that the strategy works as expected:
+We start by formally defining two instantiation operations that are only informally described
+by Zhang et al. but that are used by the strategy requirements.
+
+\subsubsection{Instantiation Operations} 
+
+The root node of a symbolic execution tree $t$ contains a symbolic state
+  ($\mathtt{getroot}(t).\symstate$), which can be viewed as a representation of
+  a set of possible concrete states. If \symstate{} is fully symbolic, meaning
+  that all registers in the design are assigned symbolic expressions ($r_0 =
+  \sigma_0, r_1 = \sigma_1, \ldots$), then it represents the set of all
+  possible concrete states $\concstates$. From the set of all possible concrete
+  states, all possible next states are reachable, and these are represented by
+  the leaves of the symbolic execution tree. The symbolic state of each leaf node of the tree
+  represents a subset of $\concstates$.
+
+  The effect of the
+operations ($\mathtt{concretize\_root}$ and $\mathtt{concretize\_leaf}$) is to take a node (root or leaf) of a symbolic execution tree and
+find the set of concrete states represented by the symbolic state of that
+node. 
+%% Our two instantiation operations are defined in the following way: 
+%% $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
+
+%% $$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
+
+%% They are bound by the following requirements:
+
+\begin{mydefinition}[\emph{concretize\_root}]
+  \label{def:concroot}
+  
+  For any given leaf node of the
+  tree, the set of concrete states represented by that node is reachable, with a
+  given input, from a subset of the concrete states represented by the root
+  node. This instantiation operation finds that subset of concrete states
+  for the particular leaf node of interest of a tree. The operation takes as
+  input a tree (remember that a tree is
+  the tuple $t = (N, E, l)$, where $l$ is a particular leaf node of interest of
+  the tree) and returns
+  a set of concrete states. We define it formally here.
+
+  \begin{align*}
+\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+\mathtt{concretize\_root}(t) \leftrightarrow \\
+&\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+&r = \mathtt{getroot}(t), n = t.l,
+\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)).
+    \end{align*}
+\end{mydefinition}
+
+The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
+the path condition of the leaf node evaluate to \texttrue{} will, when applied to
+the symbolic state of the root node, produce a concrete state in the set returned
+by $\mathtt{concretize\_root}$.
+
+\begin{mydefinition}[\emph{concretize\_leaf}]
+  \label{def:concleaf}
+
+  This instantiation operation finds the set of concrete states represented by
+  the particular leaf node of interest of a tree.
+  \begin{align*}
+\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+\mathtt{concretize\_leaf}(t) \leftrightarrow \\
+&\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+&n = t.l,
+\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)).
+    \end{align*}
+\end{mydefinition}
+
+The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
+the path condition of the leaf node evaluate to \texttrue{} will, when applied to
+the symbolic state of that same leaf node, produce a concrete state in the set returned
+by $\mathtt{concretize\_leaf}$.
+
+\subsubsection{Three Original Requirements} The goal of the symbolic execution
+of a hardware design is to find a sequence of $n$ inputs that will take the hardware
+module from an initial reset state to an error state in $n$ clock cycles. The
+gist of the recursive search strategy is to search backward from the error
+state as follows. First use symbolic execution to find a state $s_i$ that has the error
+state as one of its possible next-state transitions. Then use symbolic execution
+to find a state $s_{i-1}$ that has $s_i$ has one of its possible next-state
+transitions. This search continues until one of the found $s_i$'s is a reset
+state. Each application of symbolic execution produces a tree with a particular
+leaf node of interest---the desired next-state $s_i$. This sequence of trees ($\mathit{tree\_list}$)
+must satisfy these three requirements as laid out by Zhang et al.
+\setcounter{property}{0}
+\renewcommand{\theproperty}{Z.\arabic{property}}
+\begin{property}[Start in initial state]
+  \label{prop:startinit} The leaf node of interest in the first tree in the
+  sequence must be reachable from the initial, reset state.
+  \begin{align*}
+    \concstate_0 \in \mathtt{concretize\_root}(\mathit{tree\_list}[0]).
+  \end{align*}
+\end{property}
+
+\begin{property}[End in error state]
+  \label{prop:enderror} The leaf node of interest in the last tree in the
+  sequence must include, in the set of concrete states it represents, one of the
+  desired error states. 
+  \begin{align*}
+    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \cap \mathit{ER} \neq
+    \emptyset,
+  \end{align*}
+\end{property}
+where $\mathit{ER}$ represents the set of desired error states.
+
+\begin{property}[Stitch trees together]
+  \label{prop:stitch}
+  Consecutive trees in the sequence must form a continuous path of
+  execution. That is, the leaf node of one tree must represent a subset of the
+  states represented by the root node of the subsequent tree in the sequence.
+  \begin{align*}
+    &\forall i, 0 \le i < n,\\
+    &\quad\mathtt{concretize\_leaf}(\mathit{tree\_list}[i]) \subseteq
+\mathtt{concretize\_root}\mathit{tree\_list}[i+1].
+\end{align*}
+
+\end{property}
+
+We find these properties are not sufficient to prove correctness of the
+strategy. We strengthen Property~\ref{prop:enderror} by replacing it with the following.
+
+\setcounter{property}{1}
+\renewcommand{\theproperty}{Z.\arabic{property}'} 
+\begin{property}[Property~\ref{prop:enderror} correction]
+  The leaf node of interest in the last tree in the
+  sequence must represent a subset of the desired error states. The leaf node
+  can not represent any concrete state that is not an error state.
+  \label{prop:correctedz2}
+  \begin{align*}
+    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \subseteq \mathit{ER}.
+  \end{align*}
+
+ \end{property}
