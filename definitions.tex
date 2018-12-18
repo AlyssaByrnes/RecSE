@@ -68,7 +68,7 @@ symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m =
 
 The alphabet of symbols that can appear in a path condition is the union of the
 alphabet of symbols used to define a symbolic state and the alphabet of symbols
-used as input values by \symexecution{}.
+used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
 
 
 %% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
@@ -135,12 +135,12 @@ and for each, give our formal expression of the property.
 %%   \end{align*}
 
   \begin{align*}
-    \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~& n \in \tree = \symexecution(\symstate,\pathcondition_0), \\
+    \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
     & \mathtt{simplify}(\mathtt{applymap}(n.\pathcondition,m)) = \texttrue.
   \end{align*}
   Where $\mathtt{map(\cdot)}$ is the set of all functions that map from the set
-  of symbols to the set of concrete values, \symstates{} is the set of all
-  possible symbolic states, and $n$ is a node in the tree $t$ produced by a call
+  of symbols $\Sigma$ to the set of concrete values, \symstates{} is the set of all
+  possible symbolic states, $\Sigma_i$ is the set of symbolic input values, and $n$ is a node in the tree $t$ produced by a call
   to \symexecution.
 \end{property}
 
@@ -155,8 +155,9 @@ execution tree.
 We express this the following way: 
 
 \begin{align*}
-\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~&n_1,~ n_2 \in \tree =
-\symexecution(\symstate,\pathcondition_0), \\
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
+\Sigma_i,~& n_1,~ n_2 \in \tree =
+\symexecution(\symstate,\pathcondition_0,\alpha), \\
 & n_1 \neq n_2 \\
 &  \wedge
 (\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
@@ -195,7 +196,7 @@ We express this the following way:
 
 
 \begin{align*}
-\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~& l \in \tree = \symexecution(\symstate,\pathcondition_0) \wedge
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha) \wedge
 \mathtt{simplify}(\mathtt{applymap}(l.\pathcondition,m)) = \texttrue \\
 &\rightarrow \mathtt{simplify}(\mathtt{applymap}(l.\symstate,m)) = \\
 &\qquad\concexecution(\mathtt{simplify}(\mathtt{applymap}(\symstate,m)),\mathtt{simplify}(\mathtt{applymap}(\syminput,m))).
