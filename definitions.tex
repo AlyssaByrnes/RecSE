@@ -302,36 +302,54 @@ state as one of its possible next-state transitions. Then use symbolic execution
 to find a state $s_{i-1}$ that has $s_i$ has one of its possible next-state
 transitions. This search continues until one of the found $s_i$'s is a reset
 state. Each application of symbolic execution produces a tree with a particular
-leaf node of interest -- the desired next-state $s_i$. This sequence of trees
+leaf node of interest -- the desired next-state $s_i$. This sequence of trees ($\mathit{tree\_list}$)
 must satisfy these three requirements as laid out by Zhang et al.
 \setcounter{property}{0}
 \renewcommand{\theproperty}{Z.\arabic{property}}
 \begin{property}[Start in initial state]
-  \label{prop:startinit}
-$init\_concrete state \in \mathtt{concretize\_root}(first\_elem (tree\_list))$.
+  \label{prop:startinit} The leaf node of interest in the first tree in the
+  sequence must be reachable from the initial, reset state.
+  \begin{align*}
+    \concstate_0 \in \mathtt{concretize\_root}(\mathit{tree\_list}[0]).
+  \end{align*}
 \end{property}
 
 \begin{property}[End in error state]
-  \label{prop:enderror}
-$ \mathtt{concretize\_leaf} (last\_elem (tree\_list)) \cap error\_states 
-\neq empty\_set $.
+  \label{prop:enderror} The leaf node of interest in the last tree in the
+  sequence must include, in the set of concrete states it represents, one of the
+  desired error states. 
+  \begin{align*}
+    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \cap \mathit{ER} \neq
+    \emptyset,
+  \end{align*}
 \end{property}
+where $\mathit{ER}$ represents the set of desired error states.
 
 \begin{property}[Stitch trees together]
   \label{prop:stitch}
-for all symbolic execution trees $a$ $b$, 
-if $a$ and $b$ are consecutive in $tree\_list$, then 
-$\mathtt{concretize\_leaf} (a) \subseteq
-\mathtt{concretize\_root}(b) $.
+  Consecutive trees in the sequence must form a continuous path of
+  execution. That is, the leaf node of one tree must represent a subset of the
+  states represented by the root node of the subsequent tree in the sequence.
+  \begin{align*}
+    &\forall i, 0 \le i < n,\\
+    &\quad\mathtt{concretize\_leaf}(\mathit{tree\_list}[i]) \subseteq
+\mathtt{concretize\_root}\mathit{tree\_list}[i+1].
+\end{align*}
+
 \end{property}
 
-These properties end up not being sufficient for proving the tool works. 
-We make Property 2 stronger by replacing it with the following property:
+We find these properties are not sufficient to prove correctness of the
+strategy. We strengthen Property~\ref{prop:enderror} by replacing it with the following.
 
 \setcounter{property}{1}
-\renewcommand{\theproperty}{Z.\arabic{property}'}
+\renewcommand{\theproperty}{Z.\arabic{property}'} 
 \begin{property}[Property~\ref{prop:enderror} correction]
+  The leaf node of interest in the last tree in the
+  sequence must represent a subset of the desired error states. The leaf node
+  can not represent any concrete state that is not an error state.
   \label{prop:correctedz2}
-$\mathtt{concretize\_leaf} (last\_elem (tree\_list))
-\subseteq error\_states $.
-\end{property}
+  \begin{align*}
+    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \subseteq \mathit{ER}.
+  \end{align*}
+
+ \end{property}
