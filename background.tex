@@ -28,6 +28,9 @@ tree represents a line of code in the program. Associated with each node is the
 of execution. A path in the tree from root to leaf
 represents a path of execution through the program.
 
+\ab{Figures not captioned or labeled.}
+
+
 Figure~\ref{fig:se} demonstrates the idea. 
 For example, for the code in
 Figure~\ref{fig:sea}, if $\mathtt{reset}$ and $\mathtt{count}$ are initialized
@@ -101,12 +104,11 @@ vector of registers containing a combination of symbolic and concrete state $S
 := <s_0, s_1, \ldots, s_n>$. As execution continues, symbolic values propagate
 through the design.
 
-
+\ab{We need to add the circle ops and how we call them concretize root and concretize leaf.}
 
 
 \subsection{Using Coq as a Verification Tool}
-\cks{Alyssa, can you add more information about how Coq works, what is
-  expressible in Coq, and what libraries we made use of?}
+
 Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems. 
 It implements the inductive language Gallina, which is based on the \textit{Calculus of Inductive Constructions}, a typed $\lambda$-calculus. It allows definitions of methods that can be evaluated, the expression of theorems and software specifications, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
 
@@ -121,7 +123,7 @@ It implements the inductive language Gallina, which is based on the \textit{Calc
 
  
 
-Additionally, we make use of Coq's module system, representing different parts of our system as modules.  There is a module defining concrete execution, a module defining symbolic execution that includes the King properties as axioms, and a module defining the backwards symbolic execution tool that includes the tool requirements as axioms and the correctness property expressed as a theorem.
+Additionally, we make use of Coq's module system, representing different parts of our system as modules.  There is a module defining concrete execution, a module defining symbolic execution that includes the King properties as axioms, and a module defining the recursive symbolic execution strategy that includes the requirements laid out by Zhang et al. as axioms and the correctness property expressed as a theorem.
 
 Our definitions and fixpoints are the methods that are implemented
 in the system, such as execution of the list of trees provided by the recursive
@@ -131,9 +133,7 @@ initial state and the error states, and they are contained in the backwards symb
 We utilize the built-in ``logic'' library for assistance in small proofs and the ``ensembles'' library for assistance reasoning about finite sets. Additionally, we use the built-in ``list'' structure to represent lists of symbolic execution trees.
 
 
-\cks{Rather than give these details about the syntax of Coq here, use the
-  background section to provide the reader a sense of how Coq works with a focus
-  on the features we make use of.}
+
 
 
 
