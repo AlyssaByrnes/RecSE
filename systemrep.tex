@@ -1,7 +1,7 @@
 \subsection{Coq Representation of Recursive Strategy}
 Our system contains the following three global variables:
 \begin{itemize}
-\item A list of symbolic execution trees $\in \tree$ called \textit{tree\_list} that represent the list of trees returned by the recursive strategy.
+\item A list of symbolic execution trees $\in \trees$ called \textit{tree\_list} that represent the list of trees returned by the recursive strategy.
 \item A concrete state $\in \concstates$ to represent the initial system state, called \textit{init\_concrete state}.
 \item A set of concrete states $\in \concstates$ to represent all of the system error states, called \textit{error\_states}.
 \end{itemize}
@@ -15,8 +15,8 @@ This method is bound by the requirement,
 $ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $m = \mathtt{map(\cdot)}$
 if $\exists$ a symbolic state $s \in \symstates$  such that
 $n$ is a leaf of the tree output by $\symexecution(s, i)$ and 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (n.\pathcondition, m)) = \texttrue$, then
-$\mathtt{instantiate}(i, m) = \mathtt{get\_input}(i)$.
+$\mathtt{pc\_eval} (\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m))) = \texttrue$, then
+$\mathtt{simplify}(\mathtt{applymap} (i, m)) = \mathtt{get\_input}(i)$.
 \end{definition}
 
 
