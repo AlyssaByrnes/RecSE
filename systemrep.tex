@@ -6,7 +6,7 @@ Our system contains the following three global variables:
 \item A set of concrete states $\in \concstates$ to represent all of the system error states, called \textit{error\_states}.
 \end{itemize}
 
-We then define the method $ \mathtt{execute\_tree\_list} : \{t\} \rightarrow \{\concstates\}$ , that takes a list of symbolic execution trees and executes them according to the inputs given by the leaves.
+We then define the method $ \mathtt{execute\_tree\_list} : \{ \trees \} \rightarrow \{\concstates\}$ , that takes a list of symbolic execution trees and executes them according to the inputs given by the leaves.
 
 Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
 This method is bound by the requirement,
