@@ -134,7 +134,7 @@ counter this complexity that Zhang et al. developed their recursive search strat
 
 \subsection{Using Coq as a Verification Tool}
 
-Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems. 
+Coq is a formal, interactive proof assistant that allows for machine-checked proofs of systems~\cite{coqtool}. 
 It implements the inductive language Gallina, which is based on the \textit{Calculus of Inductive Constructions}, a typed $\lambda$-calculus. It allows definitions of methods that can be evaluated, the expression of theorems and software specifications, and assists the user in building machine-checkable proofs. If the proof is complete, it will compile.
 
 
@@ -153,9 +153,9 @@ Additionally, we make use of Coq's module system, representing different parts o
 Our definitions and fixpoints are the methods that are implemented
 in the system, such as execution of the list of trees provided by the recursive
 symbolic execution tool. Our variables are system-specific variables, such as the
-initial state and the error states, and they are contained in the backwards symbolic execution module as well.
+initial state and the error states, and they are contained in the recursive symbolic execution module as well.
 
-We utilize the built-in ``logic'' library for assistance in small proofs and the ``ensembles'' library for assistance reasoning about finite sets. Additionally, we use the built-in ``list'' structure to represent lists of symbolic execution trees.
+We use the built-in Logic library for assistance in small proofs and the Ensembles library for assistance reasoning about finite sets. Additionally, we use the built-in List structure to represent lists of symbolic execution trees.
 
 
 
