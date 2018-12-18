@@ -107,7 +107,8 @@ n_1 \neq n_2 \\
   \item simplify: $\{\concexpression\} \rightarrow \{\concvalue\}$
   \end{itemize}
 
-
+The instantiation of some symbolic state $l \in \symstate$ can be defined as: 
+$\mathtt{instantiate}(l) = \mathtt{simplify} (\mathtt{plugin}(l.\pathcondition,  \mathtt{maptoalph}(\mathrm{alphabet}))) $.
 
 
 \begin{align*}
@@ -117,6 +118,8 @@ n_1 \neq n_2 \\
 &\rightarrow \mathtt{simplify}(\mathtt{plugin}(l.\symstate,a)) = \\
 &\qquad\concexecution(\mathtt{simplify}(\mathtt{plugin}(\symstate)),\mathtt{simplify}(\mathtt{plugin}(\syminput)))
 \end{align*}
+
+
 \end{property}
 
 
