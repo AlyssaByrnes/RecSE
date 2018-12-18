@@ -19,32 +19,6 @@ $\mathtt{pc\_eval} (\mathtt{instantiate} (n.\pathcondition, m)) = \texttrue$, th
 $\mathtt{instantiate}(i, m) = \mathtt{get\_input}(i)$.
 \end{definition}
 
-\subsubsection{Instantiation Operations}
-
-Our two instantiation operations are defined in the following way: 
-$$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
-
-$$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
-
-They are bound by the following requirements:
-
-\begin{definition}[\emph{concretize\_root}]
-$\forall$ symbolic execution trees $t$,  concrete states $cs$,
-$cs \in$ circle\_op\_1($t$) $\leftrightarrow$ 
-$\exists$ a symbolic state $s$, a tree node $s'$, and $m = \mathtt{map(\cdot)}$ such that
-$s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, m)) = \texttrue$, and 
-$cs = \mathtt{instantiate}(s, m)$.
-\end{definition}
-
-\begin{definition}[\emph{concretize\_leaf}]
-$\forall$ symbolic execution trees $t$,  concrete states $cs$,
-$cs \in$ circle\_op\_2($t$) $\leftrightarrow$ 
-$\exists$ a symbolic state $s$, a tree node $s'$, and $m = \mathtt{map(\cdot)}$ such that
-$s$ is the root of $t$, $s'$ is the selected leaf of $t$, 
-$\mathtt{pc\_eval} (\mathtt{instantiate} (s'.\pathcondition, m)) = \texttrue$, and 
-$cs = \mathtt{instantiate}(s', m)$.
-\end{definition}
 
 
 We now can formally prove the following lemma, which we will use in our proof:
@@ -59,41 +33,6 @@ where $l$ is a leaf of $t$ and $t = $ \symexecution($s, i'$).
 In order to prove this, we utilize the commutativity property expressed earlier.
 
 
-\subsubsection{Recursive Strategy Requirements}
-We formally express the requirements stated of the strategy by Zhang et al. \cite{zhang2018recursive}.
-The following requirements, when placed on our system, should be enough to prove that the strategy works as expected:
-
-\setcounter{property}{0}
-\renewcommand{\theproperty}{Z.\arabic{property}}
-\begin{property}[Start in initial state]
-  \label{prop:startinit}
-$init\_concrete state \in \mathtt{concretize\_root}(first\_elem (tree\_list))$.
-\end{property}
-
-\begin{property}[End in error state]
-  \label{prop:enderror}
-$ \mathtt{concretize\_leaf} (last\_elem (tree\_list)) \cap error\_states 
-\neq empty\_set $.
-\end{property}
-
-\begin{property}[Stitch trees together]
-  \label{prop:stitch}
-for all symbolic execution trees $a$ $b$, 
-if $a$ and $b$ are consecutive in $tree\_list$, then 
-$\mathtt{concretize\_leaf} (a) \subseteq
-\mathtt{concretize\_root}(b) $.
-\end{property}
-
-These properties end up not being sufficient for proving the tool works. 
-We make Property 2 stronger by replacing it with the following property:
-
-\setcounter{property}{1}
-\renewcommand{\theproperty}{Z.\arabic{property}'}
-\begin{property}[Property~\ref{prop:enderror} correction]
-  \label{prop:correctedz2}
-$\mathtt{concretize\_leaf} (last\_elem (tree\_list))
-\subseteq error\_states $.
-\end{property}
 
 
 

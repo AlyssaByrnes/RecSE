@@ -1,5 +1,5 @@
 \section{Proof Strategy}
-For our proof, we show that, given a Coq model of both symbolic execution and the backwards symbolic execution tool and a set of properties, 
+We show that given a Coq model of both symbolic execution and the backwards symbolic execution tool and a set of properties, 
 the backwards symbolic execution tool will give us a list of symbolic execution trees with corresponding leaves that, when executed, will result in an error state.
 
 In other words, we define a list of symbolic execution trees, called \textit{tree\_list}, the we bind with a set of properties and a method to execute the relevant leaves, called \textit{execute\_tree\_list},

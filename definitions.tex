@@ -34,7 +34,7 @@ module explicitly; it is the identity function taken over a subset of the
 registers in the design.
 
 \subsection{Symbolic Execution}
-The result of symbolic execution is a rooted, binary $\tree = (N, E, l)$, where
+The result of symbolic execution is a rooted, binary tree $\tree = (N, E, l)$, where
 $N$ is the set of nodes of the tree, $E$ is the set of directed edges connecting
 two nodes, and $l \in N$ is a particular leaf node of interest in the tree. This
 leaf node represents a desired next-state of the module being symbolically
@@ -215,3 +215,115 @@ Where $l$ is a leaf node of the tree returned by \symexecution.
 
 
 
+\subsection{Recursive Strategy Requirements}
+We express the three original requirements of the recursive strategy as
+laid out by Zhang et al.~\cite{zhang2018recursive}. 
+%The following requirements, when placed on our system, should be enough to prove that the strategy works as expected:
+We start by formally defining two instantiation operations that are only informally described
+by Zhang et al. but that are used by the strategy requirements.
+
+\subsubsection{Instantiation Operations} 
+
+The root node of a symbolic execution tree $t$ contains a symbolic state
+  ($\mathtt{getroot}(t).\symstate$), which can be viewed as a representation of
+  a set of possible concrete states. If \symstate{} is fully symbolic, meaning
+  that all registers in the design are assigned symbolic expressions ($r_0 =
+  \sigma_0, r_1 = \sigma_1, \ldots$), then it represents the set of all
+  possible concrete states $\concstates$. From the set of all possible concrete
+  states, all possible next states are reachable, and these are represented by
+  the leaves of the symbolic execution tree. The symbolic state of each leaf node of the tree
+  represents a subset of $\concstates$.
+
+  The effect of the
+operations ($\mathtt{concretize\_root}$ and $\mathtt{concretize\_leaf}$) is to take a node (root or leaf) of a symbolic execution tree and
+find the set of concrete states represented by the symbolic state of that
+node. 
+%% Our two instantiation operations are defined in the following way: 
+%% $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
+
+%% $$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
+
+%% They are bound by the following requirements:
+
+\begin{mydefinition}[\emph{concretize\_root}]
+  \label{def:concroot}
+  
+  For any given leaf node of the
+  tree, the set of concrete states represented by that node is reachable, with a
+  given input, from a subset of the concrete states represented by the root
+  node. This instantiation operation finds that subset of concrete states
+  for the particular leaf node of interest of a tree. The operation takes as
+  input a tree (remember that a tree is
+  the tuple $t = (N, E, l)$, where $l$ is a particular leaf node of interest of
+  the tree) and returns
+  a set of concrete states. We define it formally here.
+
+  \begin{align*}
+\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+\mathtt{concretize\_root}(t) \leftrightarrow \\
+&\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+&r = \mathtt{getroot}(t), n = t.l,
+\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)).
+    \end{align*}
+\end{mydefinition}
+
+The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
+the path condition of the leaf node evaluate to \texttrue{} will, when applied to
+the symbolic state of the root node, produce a concrete state in the set returned
+by $\mathtt{concretize\_root}$.
+
+\begin{mydefinition}[\emph{concretize\_leaf}]
+  \label{def:concleaf}
+
+  This instantiation operation finds the set of concrete states represented by
+  the particular leaf node of interest of a tree.
+  \begin{align*}
+\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+\mathtt{concretize\_leaf}(t) \leftrightarrow \\
+&\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+&n = t.l,
+\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)).
+    \end{align*}
+
+   The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
+the path condition of the leaf node evaluate to \texttrue{} will, when applied to
+the symbolic state of that same leaf node, produce a concrete state in the set returned
+by $\mathtt{concretize\_leaf}$.
+
+
+\end{mydefinition}
+
+
+\setcounter{property}{0}
+\renewcommand{\theproperty}{Z.\arabic{property}}
+\begin{property}[Start in initial state]
+  \label{prop:startinit}
+$init\_concrete state \in \mathtt{concretize\_root}(first\_elem (tree\_list))$.
+\end{property}
+
+\begin{property}[End in error state]
+  \label{prop:enderror}
+$ \mathtt{concretize\_leaf} (last\_elem (tree\_list)) \cap error\_states 
+\neq empty\_set $.
+\end{property}
+
+\begin{property}[Stitch trees together]
+  \label{prop:stitch}
+for all symbolic execution trees $a$ $b$, 
+if $a$ and $b$ are consecutive in $tree\_list$, then 
+$\mathtt{concretize\_leaf} (a) \subseteq
+\mathtt{concretize\_root}(b) $.
+\end{property}
+
+These properties end up not being sufficient for proving the tool works. 
+We make Property 2 stronger by replacing it with the following property:
+
+\setcounter{property}{1}
+\renewcommand{\theproperty}{Z.\arabic{property}'}
+\begin{property}[Property~\ref{prop:enderror} correction]
+  \label{prop:correctedz2}
+$\mathtt{concretize\_leaf} (last\_elem (tree\_list))
+\subseteq error\_states $.
+\end{property}
