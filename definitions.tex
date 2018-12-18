@@ -1,50 +1,95 @@
 \section{Definitions and Notation}
-
+\subsection{Concrete Execution}
 
 
 
 We model a hardware module as a tuple $\hardwaredesign = (\concstates,
-\concexecution, \concinputs)$, where
+\concstate_0, \concinputs,\concexecution)$, where
 \begin{itemize}
-\item $\concstates: \{(\variable_0,\concvalue), (\variable_1,\concvalue), \ldots, (\variable_n,\concvalue)\}$ is the finite set of state variables and their valuation,
-\item $\concexecution: \{\concstates\} \times \{\concinputs\} \rightarrow 
-  \{\concstates\}$ is the transition function of the module, and
-\item $\concinputs: \{(\inputvariable_0,\concvalue), (\inputvariable_1,\concvalue),
-  \ldots, (\inputvariable_m,\concvalue)\}$ is the set of input parameters and their valuation.
+\item $\concstates$ is the finite set of states of the module,
+\item $\concstate_0 \in \concstates$ is the initial state of the module,
+\item $\concinputs = \{0,1\}^n$ is the finite set of input values---the domain---of the module, and
+\item $\concexecution: \concstates \times \concinputs \rightarrow \concstates$ is the transition function of the module.
 \end{itemize}
 
+%% : \{(\variable_0,\concvalue), (\variable_1,\concvalue), \ldots, (\variable_n,\concvalue)\}$ is the finite set of state variables and their valuation,
+%% : $\{(\inputvariable_0,\concvalue), (\inputvariable_1,\concvalue),$
+%%   \ldots, $(\inputvariable_m,\concvalue)\}$ is the set of input parameters and
+%%   their valuation.
 
-We model a symbolic execution engine as a transducer $\symbolicexecutionengine =
-(\symstates, \rootsymstate, \symexecution, \pathconditions, \symalphabet,
-\trees)$, where
+A state $\concstate \in \concstates$ of the module is a concrete valuation to all
+registers in the design: $r_0 = i, r_1 = j, \ldots, r_m = k$, where $r_0, r_1,
+r_m$ represent the stateful registers and $i, j, k
+\in \{0,1\}^*$. 
+The initial state of the module, $\concstate_0$, sometimes called the reset state, is the
+valuation taken by the stateful registers of the design after the power-on
+cycle.
+The domain of the module is the set of binary strings of length $n$, which
+represents the concatenation of multiple input parameters to the module.
+The transition function takes the module from one state to the next state. It
+represents the execution of a single clock-cycle in hardware. The transition function is
+left-total: for every $\concstate \in \concstates$ and every $\concinput \in
+\concinputs$ \concexecution{} is defined. We do not model the output of the
+module explicitly; it is the identity function taken over a subset of the
+registers in the design.
+
+\subsection{Symbolic Execution}
+The result of symbolic execution is a rooted, binary $\tree = (N, E, l)$, where
+$N$ is the set of nodes of the tree, $E$ is the set of directed edges connecting
+two nodes, and $l \in N$ is a particular leaf node of interest in the tree. This
+leaf node represents a desired next-state of the module being symbolically
+explored, and in the recursive strategy, it is this leaf node that is joined to
+the root node of a subsequent tree in the search.
+
+Each node $n \in N$ of the tree is a tuple $n = (\symstate, \pathcondition)$, where
 \begin{itemize}
-\item $\symstates: \{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
-\item $\rootsymstate \in \symstates$
-\item $\symexecution: \{\symstates,\pathcondition\}
-  \times \{\syminputs\} \rightarrow \trees$
-\item $\pathconditions$
-\item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
-  and symbolic assignments.
-\item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
+\item $\symstate$ is a (partially) symbolic state of the module and
+\item $\pathcondition$ is the current path condition.
 \end{itemize}
 
-
-\begin{itemize}
-\item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
-\item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
-  symexpressions. The set of all path conditions is a subset of the set of all
-  symexpressions.
-\item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
-  and $\pathcondition \in \pathconditions$.
-\item $\syminputs: <(\inputvariable_0, \symexpression), (\inputvariable_1,
-  \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
-\end{itemize}
-
-A symbolic expression \symexpression{} is an expression involving at least one
-symbol in \symalphabet. The expression may contain zero or more concrete
+A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
+\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
+\symexpression{} contains at least one symbol and may contain zero or more concrete
 literals, arithmetic operators, and logical operators. Examples of
-symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where $\alpha,
-\beta \in \symalphabet$.
+symbolic expressions include `$\alpha$' and `$\alpha + 1 \le \beta$,' where
+$\alpha$ and 
+$\beta$ are symbols used by the symbolic execution engine.
+
+We define \symexecution() for a particular hardware module as an abstract method
+that takes as input an initial symbolic
+state $\symstate$, an initial path condition $\pathcondition = \texttrue$, a
+set of symbolic input values $\Sigma$, and 
+returns a tree of explored paths. In the recursive strategy, \symexecution{} is
+always called with an initial
+symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
+
+
+%% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
+%% (\symstates, \rootsymstate, \symalphabet, \pathconditions, \symexecution,  
+%% \trees)$, where
+%% \begin{itemize}
+%% \item $\symstates$ is the set of (partially) symbolic states : $\{(\variable_0,\symvalue), (\variable_1,\symvalue), \ldots, (\variable_n,\symvalue)\}$
+%% \item $\rootsymstate \in \symstates$
+%% \item $\symexecution: \{\symstates,\pathcondition\}
+%%   \times \{\syminputs\} \rightarrow \trees$
+%% \item $\pathconditions$
+%% \item $\symalphabet$ The alphabet of symbols that appear in symbolic expressions
+%%   and symbolic assignments.
+%% \item $\trees$ The set of trees $\tree = \{E,\nodes\}$. Each tree is a binary tree of nodes.
+%% \end{itemize}
+
+
+%% \begin{itemize}
+%% \item $\pathcondition \in \pathconditions$ is the path condition of a particular node of a tree.
+%% \item $\pathconditions \subseteq \mathrm{symexpressions}$ Path condition is a subtype of
+%%   symexpressions. The set of all path conditions is a subset of the set of all
+%%   symexpressions.
+%% \item $\nodes: \{\symstate,\pathcondition\}$, where $\symstate \in \symstates$
+%%   and $\pathcondition \in \pathconditions$.
+%% \item $\syminputs: <(\inputvariable_0, \symexpression), (\inputvariable_1,
+%%   \symexpression), \ldots, (\inputvariable_m, \symexpression)>$
+%% \end{itemize}
+
 
 
 %% We model the program to be symbolically executed
