@@ -20,15 +20,8 @@ $\mathtt{instantiate}(i, a) = \mathtt{get\_input}(i)$.
 \end{definition}
 
 \subsubsection{Instantiation Operations}
-The recursive symbolic execution strategy utilizes two instantiation operations. 
-They define them in the following way: 
 
-``Let $\mathcal{E}$ represent the symbolic exploration of one clock cycle of a processor modeled by $M$. Let $n_r = (s_r,\pi_r)$ be the root node of tree $\mathcal{E}$ and let $n_l = (s_l,\pi_l)$ be a leaf node of the same tree. 
-Then $s_r \circ \pi_l$ represents the set of concrete states, and $s_l \circ \pi_l$ represents the set of concrete next-states, that are at the end-points of the path from $n_r$ to $n_l$.'' \cite{zhang2018recursive}
-
-For our proof we let $\mathtt{concretize\_root}=  s_r \circ \pi_l$ and $\mathtt{concretize\_leaf} =  s_l \circ \pi_l$.
-
-Both are defined in the following way: 
+Our two instantiation operations are defined in the following way: 
 $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
 
 $$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
