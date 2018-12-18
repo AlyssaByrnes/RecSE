@@ -286,16 +286,24 @@ by $\mathtt{concretize\_root}$.
 \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
 &\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)).
     \end{align*}
+\end{mydefinition}
 
-   The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
+The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
 the path condition of the leaf node evaluate to \texttrue{} will, when applied to
 the symbolic state of that same leaf node, produce a concrete state in the set returned
 by $\mathtt{concretize\_leaf}$.
 
-
-\end{mydefinition}
-
-
+\subsubsection{Three Original Requirements} The goal of the symbolic execution
+of a hardware design is to find a sequence of $n$ inputs that will take the hardware
+module from an initial reset state to an error state in $n$ clock cycles. The
+gist of the recursive search strategy is to search backward from the error
+state as follows. First use symbolic execution to find a state $s_i$ that has the error
+state as one of its possible next-state transitions. Then use symbolic execution
+to find a state $s_{i-1}$ that has $s_i$ has one of its possible next-state
+transitions. This search continues until one of the found $s_i$'s is a reset
+state. Each application of symbolic execution produces a tree with a particular
+leaf node of interest -- the desired next-state $s_i$. This sequence of trees
+must satisfy these three requirements as laid out by Zhang et al.
 \setcounter{property}{0}
 \renewcommand{\theproperty}{Z.\arabic{property}}
 \begin{property}[Start in initial state]
