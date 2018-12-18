@@ -6,14 +6,14 @@ In other words, we define a list of symbolic execution trees, called \textit{tre
 and show that it leads to a set of error states, called \textit{error\_states}. This can be expressed as the following theorem
 
 
-\begin{theorem}
+\begin{theorem}[Correctness of Recursive Strategy]
 \label{thm:sufficiency}
 $execute\_tree\_list (tree\_list) \in error\_states$.
 \end{theorem}
  
  In order to prove this, we first prove the following theorem:
 
-\begin{theorem} 
+\begin{theorem}[Execution ends in leaf of the last tree]
 \label{thm:etl}
  $execute\_tree\_list (tree\_list) \in concretize\_leaf (t)$, where $t$ is the last element of $tree\_list$.
 \end{theorem}
