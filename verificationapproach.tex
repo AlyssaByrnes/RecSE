@@ -54,10 +54,10 @@ We know:
 \item$ \mathtt{execute\_tree\_list}(tree\_list') \in
         \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list')) $. (Inductive Hypothesis)
 \item 
-$\mathtt{concretize\_leaf} (\mathtt{last\_element} tree\_list') \subseteq \mathtt{concretize\_root} (\mathtt{last\_element} tree\_list)$. (Property $3$)
+$\mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list')) \subseteq \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. (Property $3$)
  \end{itemize}
  
- So, using Theorem \ref{thm:set1}, we conclude that $\mathtt{execute\_tree\_list} (tree\_list') \in \mathtt{concretize\_root} (\mathtt{last\_element} tree\_list)$. \qed
+ So, using Theorem \ref{thm:set1}, we conclude that $\mathtt{execute\_tree\_list} (tree\_list') \in \mathtt{concretize\_root} (\mathtt{last\_element} (tree\_list))$. \qed
 \end{proof}
 
 Now, to prove our inductive step, we know:
