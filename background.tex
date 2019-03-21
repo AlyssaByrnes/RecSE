@@ -93,7 +93,15 @@ reset state, and then, for each leaf in that tree, a new symbolic execution of
 the design, this time starting at the state described by the leaf node. It is to
 counter this complexity that Zhang et al. developed their recursive search strategy.
 
+\cks{c\&p from elsewhere. Maybe belongs here: The initial state of the module, sometimes called the reset state, is the
+valuation taken by the stateful registers of the design after the power-on
+cycle.}
 
+\cks{Also discuss stateful registers -- those that involve sequential logic --
+  and stateless input signals and registers -- those that are constantly driven
+  with combinational logic.}
+\cks{c\&p from elsewhere: Input signals are stateless---they receive a new value
+  at each clock cycle}
 
 %% \subsection{Recursive Search Strategy for Symbolic Execution}
 
