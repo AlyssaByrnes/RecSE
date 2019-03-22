@@ -75,33 +75,31 @@ combinational logic connecting those registers. A complete simulation of the des
 corresponds to a single clock cycle; the symbolic execution of the design
 produces a tree where the root node represents the design in a given state and
 each leaf node represents a possible next-state of the design at the next clock
-cycle. The hardware design differs from software code in that it is not meant
-to be executed sequentially, rather it describes a design in which all
-transitions happen simultaneously. When run in simulation---during which it must
+cycle.
+
+The hardware design differs from software code in that it is not meant
+to be executed sequentially, rather it describes a design in which updates to
+different registers are all done in parallel. When run in simulation---during
+which the design code must
 be executed sequentially---an order of execution
 is imposed and temporary variables may be introduced in order to achieve the
-correct next state. The same strategy is used during symbolic execution and therefore, the root and leaf nodes of the resulting symbolic
-execution tree correspond to valid states of the hardware design, but
-intermediate nodes of the tree do not and are largely ignored.
+correct next state. The same strategy is used during symbolic execution and
+therefore, while the root and leaf nodes of the resulting symbolic
+execution tree correspond to valid states of the hardware design, the
+intermediate nodes of the tree do not and are largely ignored. 
 
 The symbolic execution tree represents an exploration of the design for a single
 clock cycle. But it is often desirable to find states that arise only after many
 steps of execution. Because of this the complexity of the search space quickly
-becomes untenable. To explore a design for two clock cycles would require first
+becomes untenable. Exploring a design for two clock cycles would require first
 producing the symbolic execution tree of the design when started at the initial,
 reset state, and then, for each leaf in that tree, a new symbolic execution of
 the design, this time starting at the state described by the leaf node. It is to
-counter this complexity that Zhang et al. developed their recursive search strategy.
+counter this combinatorial explosion that Zhang et al. developed their recursive
+search strategy. 
 
-\cks{c\&p from elsewhere. Maybe belongs here: The initial state of the module, sometimes called the reset state, is the
-valuation taken by the stateful registers of the design after the power-on
-cycle.}
 
-\cks{Also discuss stateful registers -- those that involve sequential logic --
-  and stateless input signals and registers -- those that are constantly driven
-  with combinational logic.}
-\cks{c\&p from elsewhere: Input signals are stateless---they receive a new value
-  at each clock cycle}
+
 
 %% \subsection{Recursive Search Strategy for Symbolic Execution}
 

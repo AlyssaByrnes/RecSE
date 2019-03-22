@@ -1,47 +1,82 @@
 \section{Definitions and Notation}
 \subsection{Concrete Execution}
 We represent a register transfer level hardware design as a tuple $\hardwaredesign =
-(\registers,\inputsignals,\assignments,\init,\concexecution)$, which is defined as
+(\registers,\inputsignals,\assignments_{\registers},\assignments_{\inputsignals},\init,\delta)$, which is defined as
 follows.
 \begin{itemize}
 \item $\registers = \{r_0,r_1,\ldots,r_n\}$ is the finite set of state-holding
   registers in the design.
 \item $\inputsignals = \{\inputsignal_0, \inputsignal_1, \ldots,
   \inputsignal_m\}$ is the finite set of input signals to the design.
-\item $\assignments \subseteq \registers \cup \inputsignals \times \{0,1\}^d$
-  is the finite set of assignments---valuations---to the state and input
-  variables. An assignment  to a
-  bitvector of length $d$. The bitvector represents the concatenation of valuations to registers $r_0,
-  r_1, \ldots, r_n$ and inputs signals $\inputsignal_0, \inputsignal_1, \ldots,
-  \inputsignal_m$. The length of the bitvector, $d$, can be thought of in some
-  sense as the length or dimension of hte design. We sometimes use
-  $\assignments_{\registers}$ or $\assignments_{\inputsignals}$ to refer to the
-  mapping of bitvector values to just the state holding registers or just the
-  input signals, respectively.
+\item $\assignments_{\registers} \subseteq \{0,1\}^d$
+  is the finite set of assignments---valuations---to the state-holding registers. An assignment $\assignment \in \assignments_{\registers}$ is a bitvector that is the
+  concatenation of valuations to all registers in $\registers$.
+\item $\assignments_{\inputsignals} \subseteq \{0,1\}^e$ is the finite set of
+  assignments---valuations---to the input signals. An assignment $\assignment
+  \in \assignments_{\inputsignals}$ is a bitvector that is the concatenation of
+  valuations to all input signals in $\inputsignals$.
 \item $\init \in \assignments_{\registers}$ is the valuation to state-holding
   registers immediately after the hardware design's initialization sequence
-  completes. I.e., $\init$ represents the initial state of the hardware
-  module. \cks{Make sure the background section on RTL HW design describes
-    initialization.} \cks{The coq model doesn't include an init state? Double
-    check.}
-\item $\concexecution: \assignments_{\registers} \times
+  completes. $\init$ represents the initial state of the hardware
+  design.
+\item $\delta: \assignments_{\registers} \times
   \assignments_{\inputsignals} \rightarrow \assignments_{\registers}$ is the
-  transition function that represents concrete execution of hte hardware
-  module. 
+  transition function, which represents execution of the hardware
+  design. 
 \end{itemize}
 
-A state $\concstate \in \concstates$ of the module is a concrete valuation to all
-registers in the design: $r_0 = i, r_1 = j, \ldots, r_m = k$, where $r_0, r_1,
-r_m$ represent the stateful registers and $i, j, k
-\in \{0,1\}^*$. 
-The domain of the module is the set of binary strings of length $n$, which
-represents the concatenation of multiple input parameters to the module.
-The transition function takes the module from one state to the next state. It
-represents the execution of a single clock-cycle in hardware. The transition function is
-left-total: for every $\concstate \in \concstates$ and every $\concinput \in
-\concinputs$ \concexecution{} is defined. We do not model the output of the
+The set $\registers$ of state-holding registers in the design include both
+microarchitectural and software-visible registers. They are \emph{state-holding}
+in that they hold their current value up to and until getting updated at the
+next clock cycle. As such, their current value can be an input to the
+calculation of their next-state value.
+
+A valuation $\assignment \in \assignments_{\registers}$ represents a concrete
+state of the design. The length $d$ of the valuation bitvector is fixed for a
+given design; every state is represented by a bitvector of length $d$. We do not
+require, however, that all registers $r_i, r_j \in \registers$ have the same bit
+length. the size of the state space of the design is determined by $d$:
+$|\hardwaredesign| = 2^d$.
+
+The initial state of the design, $\init$, is sometimes called the reset state and is the
+valuation of the state-holding registers immediately after the power-on
+cycle completes.
+
+The transition function, $\delta$, is left-total: for every
+$\assignment_{\registers} \in \assignments_{\registers}$ and every
+$\assignment_{\inputsignals} \in \assignments_{\inputsignals}$, $\delta$ is
+defined.
+
+We do not model the output of the
 module explicitly; it is the identity function taken over a subset of the
-registers in the design.
+state-holding registers in the design.
+
+%% \cks{scrap: to a
+%%   bitvector of length $d$. The bitvector represents the concatenation of valuations to registers $r_0,
+%%   r_1, \ldots, r_n$ and inputs signals $\inputsignal_0, \inputsignal_1, \ldots,
+%%   \inputsignal_m$. The length of the bitvector, $d$, can be thought of in some
+%%   sense as the length or dimension of hte design.   We use $\assignment_{\registers}$ or $\assignment_{\inputsignals}$ to refer to the
+%%   slice of an assignment that pertains to the valuation of just the state
+%%   holding registers or just the input signals, respectively.
+%%  }
+%%   $\inputsignals$. It is useful to treat each $\assignment \in \assignments$ as
+%%   a tuple $(\assignment_{\registers},\assignment_{\inputsignals})$ in which
+%%   $\assignment_{\registers} = \assignment[0:c]$ is the bitvector valuation to
+%%   only the state-holding registers and $\assignment_{\inputsignals} =
+%%   \assignment[c:d]$ is the bitvector valuation to only the input
+%%   signals.\footnote{In this slice notation the first index is inclusive
+%%     and the second index is exclusive.} Let $\assignments_{\registers}$ be the
+%%   set of all $\assignment_{\registers}$ and $\assignments_{\inputsignals}$ be
+%%   the set of all $\assignment_{\inputsignals}$.
+
+%% A state $\concstate \in \concstates$ of the module is a concrete valuation to all
+%% registers in the design: $r_0 = i, r_1 = j, \ldots, r_m = k$, where $r_0, r_1,
+%% r_m$ represent the stateful registers and $i, j, k
+%% \in \{0,1\}^*$. 
+%% The domain of the module is the set of binary strings of length $n$, which
+%% represents the concatenation of multiple input parameters to the module.
+%% The transition function takes the module from one state to the next state. It
+%% represents the execution of a single clock-cycle in hardware. 
 
 \subsection{Symbolic Execution}
 The result of symbolic execution is a rooted, binary tree $\tree = (N, E, l)$, where
