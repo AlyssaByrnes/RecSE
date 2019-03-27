@@ -83,13 +83,13 @@
 \begin{abstract}
 Prior work has proposed the use of symbolic execution for the security
 validation of a processor design. The approach uses a recursive search strategy
-that is designed to counter the exponential path growth inherent in multi-cycle
+that is designed to counter the combinatorial explosion of paths inherent in multi-cycle
 processor execution. In this work, we examine the search strategy in order to
-prove its correctness. We formulate an abstract model of symbolic execution with
-the recursive search strategy in Coq, and we find that the
+prove its correctness. We first formulate an abstract model of symbolic
+execution in Coq. We then implement the recursive search strategy, and we find that the
 strategy as proposed is not guaranteed to be sound---that is, the
 search may find a symbolic path for which no concrete path from the processor's initial state
-to the given error state exists. We tighten one of the requirements of the
+to the searched-for error state exists. We tighten one of the requirements of the
 search strategy and then prove the modified strategy correct. 
 \end{abstract}
 
