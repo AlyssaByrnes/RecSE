@@ -1,5 +1,52 @@
 \section{Definitions and Notation}
-\subsection{Concrete Execution}
+\subsection{Processor Model}
+\label{sec:procmodel}
+In the formalization of their search strategy~\cite{fmspaper}, Zhang et
+al. model a processor as a tuple $M = (S, s_0, I, \delta, O, \omega)$, where
+\begin{itemize}
+  \item $S = \{s_0, s_1, \ldots, s_k\}$ is the finite set of states of the
+    processor,
+  \item $s_0 \in S$ is the initial state of the processor,
+  \item $I = \{0,1\}^n$ is the finite set of input strings to the processor,
+  \item $\delta: S \times I \rightarrow S$ is the transition function of the processor,
+  \item $O = \{0,1\}^m$ is the finite set of output strings of the processor,
+    and
+  \item $\omega: S \rightarrow O$ is the output function of the processor.
+\end{itemize}
+
+A state $s \in S$ is determined by the values of the \emph{stateful} registers
+of the design. These include both architectural registers, which are visible to
+software, and microarchitectural registers, which are not visible to
+software. Examples of the former include general purpose registers, the stack
+pointer, the instruction pointer, and some control registers. Examples of the
+latter include the buffers between stages of a pipeline, branch prediction
+registers, reorder buffers, and many control signals. They are stateful in that
+they hold their current value up to and until getting updated at the next clock
+cycle. As such, their current value can be an input to the calculation of their
+next-state value. 
+
+The initial state $s_0$ represents the starting state of the processor after a
+power-on or reset cycle. Many registers have a value of 0 in this state.
+
+An input string $i \in I$ represents the concatenation of the several input
+signals to the processor. The string has a fixed length $n$. The list of input
+signals includes the instructions and data fetched from memory (or from a
+cache), plus control, error, debug, and interrupt signals.
+
+The transition function $\delta$ defines how state is updated in a single clock
+cycle. It is left-total: for every $s \in S$ and every $i \in I$, $\delta$ is defined.
+
+An output string $o \in O$ represents the concatenation of the several output
+signals of the processor. The string has a fixed length. The list of output
+signals includes addresses and data values to be written to memory, control
+signals, and error signals.
+
+The output function $\omega$ determines the value of $o$ in each clock cycle. It
+is typically the identity function taken over a subset of the stateful registers
+in the design.
+
+\subsection{Coq Model of a Processor Design}
+\cks{Come back to this}
 We represent a register transfer level hardware design as a tuple $\hardwaredesign =
 (\registers,\inputsignals,\assignments_{\registers},\assignments_{\inputsignals},\init,\delta)$, which is defined as
 follows.
@@ -25,11 +72,9 @@ follows.
   design. 
 \end{itemize}
 
-The set $\registers$ of state-holding registers in the design include both
-microarchitectural and software-visible registers. They are \emph{state-holding}
-in that they hold their current value up to and until getting updated at the
-next clock cycle. As such, their current value can be an input to the
-calculation of their next-state value.
+The set $\registers$ are the stateful registers of the design. These are exactly
+the set of registers that make up the state $s \in S$ in the abstract tuple
+described in Section~\ref{sec:procmodel}.
 
 A valuation $\assignment \in \assignments_{\registers}$ represents a concrete
 state of the design. The length $d$ of the valuation bitvector is fixed for a
@@ -79,6 +124,8 @@ state-holding registers in the design.
 %% represents the execution of a single clock-cycle in hardware. 
 
 \subsection{Symbolic Execution}
+\cks{*********HERE************}
+
 The result of symbolic execution is a rooted, binary tree $\tree = (N, E, l)$, where
 $N$ is the set of nodes of the tree, $E$ is the set of directed edges connecting
 two nodes, and $l \in N$ is a particular leaf node of interest in the tree. This
@@ -115,6 +162,9 @@ The alphabet of symbols that can appear in a path condition is the union of the
 alphabet of symbols used to define a symbolic state and the alphabet of symbols
 used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
 
+\subsection{Coq Model of Symbolic Execution}
+    \cks{ToDo}
+    
 
 %% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
 %% (\symstates, \rootsymstate, \symalphabet, \pathconditions, \symexecution,  
