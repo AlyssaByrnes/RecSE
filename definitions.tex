@@ -65,11 +65,12 @@ Each node is a tuple $n = (\symstate, \pathcondition)$, where
 
 As with standard execution, in symbolic execution, a symbolic state $\symstate$
 is determined by the values of the stateful registers of the design. However,
-the values may be symbolic (represented by the symbols $\alpha, \beta$, etc.) or
+the values may be symbolic, or
 concrete literals as in standard execution, or a combination of the two.
 
 The path condition $\pathcondition$ is a Boolean formula over a subset of the input signals and
-stateful registers of the design. It is initialized to true in the root node. 
+stateful registers of the design. The path condition of the root node of the
+tree is always initialized to true: $n_r = (\symstate, \texttrue)$.
 
 \subsection{Coq Model of a Processor Design}
 \cks{Come back to this}
