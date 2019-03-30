@@ -62,29 +62,14 @@ Each node is a tuple $n = (\symstate, \pathcondition)$, where
   execution.
 \end{itemize}
 
-\cks{*********HERE************}
-A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
-\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
-\symexpression{} contains at least one symbol and may contain zero or more concrete
-literals, arithmetic operators, and logical operators. Examples of
-symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
-$\alpha$ is a symbol used by the symbolic execution engine.
 
-A path condition, \pathcondition, is a conjunction of propositions involving
-symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
-possible path condition.
+As with standard execution, in symbolic execution, a symbolic state $\symstate$
+is determined by the values of the stateful registers of the design. However,
+the values may be symbolic (represented by the symbols $\alpha, \beta$, etc.) or
+concrete literals as in standard execution, or a combination of the two.
 
-We define \symexecution() for a particular hardware module as an abstract method
-that takes as input an initial symbolic
-state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
-set of symbolic inputs, and 
-returns a tree of explored paths. In the recursive strategy, \symexecution{} is
-always called with an initial
-symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
-
-The alphabet of symbols that can appear in a path condition is the union of the
-alphabet of symbols used to define a symbolic state and the alphabet of symbols
-used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
+The path condition $\pathcondition$ is a Boolean formula over a subset of the input signals and
+stateful registers of the design. It is initialized to true in the root node. 
 
 \subsection{Coq Model of a Processor Design}
 \cks{Come back to this}
@@ -166,8 +151,35 @@ state-holding registers in the design.
 
 
 \subsection{Coq Model of Symbolic Execution}
-    \cks{ToDo}
-    
+\cks{*********HERE************}
+A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
+\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
+\symexpression{} contains at least one symbol and may contain zero or more concrete
+literals, arithmetic operators, and logical operators. Examples of
+symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
+$\alpha$ is a symbol used by the symbolic execution engine.
+
+A path condition, \pathcondition, is a conjunction of propositions involving
+symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+possible path condition.
+
+We define \symexecution() for a particular hardware module as an abstract method
+that takes as input an initial symbolic
+state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
+set of symbolic inputs, and 
+returns a tree of explored paths. In the recursive strategy, \symexecution{} is
+always called with an initial
+symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
+
+
+\cks{Define expressions \symexpression{} in terms of symbols $\alpha$,
+  etc. Define symbolic state \symstate{} in terms of expressions. Ditto for path
+conditions \pathcondition}
+
+The alphabet of symbols that can appear in a path condition is the union of the
+alphabet of symbols used to define a symbolic state and the alphabet of symbols
+used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
+
 
 %% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
 %% (\symstates, \rootsymstate, \symalphabet, \pathconditions, \symexecution,  
