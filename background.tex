@@ -23,7 +23,8 @@ with the path condition updated appropriately for each branch.
 
 All the paths explored through the program form a logical tree \tree. The root represents the
 program's entry point and each node of the
-tree represents a line of code in the program. Associated with each node is the
+tree represents a line of code \cks{Just a conditional branch, not every line of
+  code} in the program. Associated with each node is the
 (partially) symbolic state of the program and the path condition at that point
 of execution. A path in the tree from root to leaf
 represents a path of execution through the program.
@@ -66,7 +67,7 @@ code fragment.
   \caption{Symbolic Execution}
   \label{fig:se}
   \end{figure}
-  
+
 \subsection{Register Transfer Level Hardware Designs}
 For their recursive strategy, Zhang et al. are targeting the symbolic execution
 of a synchronous hardware design described at the register transfer level (RTL)
@@ -88,6 +89,8 @@ therefore, while the root and leaf nodes of the resulting symbolic
 execution tree correspond to valid states of the hardware design, the
 intermediate nodes of the tree do not and are largely ignored. 
 
+
+\subsection{Recursive Search Strategy}
 The symbolic execution tree represents an exploration of the design for a single
 clock cycle. But it is often desirable to find states that arise only after many
 steps of execution. Because of this the complexity of the search space quickly
@@ -97,6 +100,11 @@ reset state, and then, for each leaf in that tree, a new symbolic execution of
 the design, this time starting at the state described by the leaf node. It is to
 counter this combinatorial explosion that Zhang et al. developed their recursive
 search strategy. 
+
+\cks{Fill in explanation here.} This
+leaf node represents a desired next-state of the module being symbolically
+explored, and in the recursive strategy, it is this leaf node that is joined to
+the root node of a subsequent tree in the search.
 
 
 

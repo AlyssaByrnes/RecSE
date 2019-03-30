@@ -45,6 +45,47 @@ The output function $\omega$ determines the value of $o$ in each clock cycle. It
 is typically the identity function taken over a subset of the stateful registers
 in the design.
 
+\subsection{Symbolic Execution}
+
+
+The result of symbolically exploring a design is a rooted, binary tree $\tree = (N, E)$, where
+$N$ is the set of nodes of the tree and $E$ is the set of directed edges connecting
+two nodes. Each node $n \in N$ of the tree represents a conditional branch point in the
+design. The two edges connecting $n$ to its two children nodes represent the two
+possible paths of forward execution at that branch point.
+
+Each node is a tuple $n = (\symstate, \pathcondition)$, where
+\begin{itemize}
+\item $\symstate$ is the symbolic state of the module at the current point of
+  execution, and
+\item $\pathcondition$ is the path condition associated with the current path of
+  execution.
+\end{itemize}
+
+\cks{*********HERE************}
+A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
+\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
+\symexpression{} contains at least one symbol and may contain zero or more concrete
+literals, arithmetic operators, and logical operators. Examples of
+symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
+$\alpha$ is a symbol used by the symbolic execution engine.
+
+A path condition, \pathcondition, is a conjunction of propositions involving
+symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+possible path condition.
+
+We define \symexecution() for a particular hardware module as an abstract method
+that takes as input an initial symbolic
+state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
+set of symbolic inputs, and 
+returns a tree of explored paths. In the recursive strategy, \symexecution{} is
+always called with an initial
+symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
+
+The alphabet of symbols that can appear in a path condition is the union of the
+alphabet of symbols used to define a symbolic state and the alphabet of symbols
+used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
+
 \subsection{Coq Model of a Processor Design}
 \cks{Come back to this}
 We represent a register transfer level hardware design as a tuple $\hardwaredesign =
@@ -123,44 +164,6 @@ state-holding registers in the design.
 %% The transition function takes the module from one state to the next state. It
 %% represents the execution of a single clock-cycle in hardware. 
 
-\subsection{Symbolic Execution}
-\cks{*********HERE************}
-
-The result of symbolic execution is a rooted, binary tree $\tree = (N, E, l)$, where
-$N$ is the set of nodes of the tree, $E$ is the set of directed edges connecting
-two nodes, and $l \in N$ is a particular leaf node of interest in the tree. This
-leaf node represents a desired next-state of the module being symbolically
-explored, and in the recursive strategy, it is this leaf node that is joined to
-the root node of a subsequent tree in the search.
-
-Each node $n \in N$ of the tree is a tuple $n = (\symstate, \pathcondition)$, where
-\begin{itemize}
-\item $\symstate$ is a (partially) symbolic state of the module and
-\item $\pathcondition$ is the current path condition.
-\end{itemize}
-
-A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
-\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
-\symexpression{} contains at least one symbol and may contain zero or more concrete
-literals, arithmetic operators, and logical operators. Examples of
-symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
-$\alpha$ is a symbol used by the symbolic execution engine.
-
-A path condition, \pathcondition, is a conjunction of propositions involving
-symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
-possible path condition.
-
-We define \symexecution() for a particular hardware module as an abstract method
-that takes as input an initial symbolic
-state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
-set of symbolic inputs, and 
-returns a tree of explored paths. In the recursive strategy, \symexecution{} is
-always called with an initial
-symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
-
-The alphabet of symbols that can appear in a path condition is the union of the
-alphabet of symbols used to define a symbolic state and the alphabet of symbols
-used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
 
 \subsection{Coq Model of Symbolic Execution}
     \cks{ToDo}
