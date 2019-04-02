@@ -152,13 +152,44 @@ state-holding registers in the design.
 
 
 \subsection{Coq Model of Symbolic Execution}
-\cks{*********HERE************}
-A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
-\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. A symbolic expression
+In Coq, we model the symbolic execution of a processor design \hardwaredesign{}
+with the introductin of symbolic state, symbolic inputs, and symbolic
+execution. Recall that in the standard model \hardwaredesign{}, the current
+state is given by concrete valuations \cks{Ar? In Coq concrete execution model
+  introduce the notion of list of tuples <(),(),...>}. For symbolic execution we
+replace concrete valuations \cks{Ar?} with symbolic expressions
+\symexpression. A symbolic expression
 \symexpression{} contains at least one symbol and may contain zero or more concrete
 literals, arithmetic operators, and logical operators. Examples of
 symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
-$\alpha$ is a symbol used by the symbolic execution engine.
+$\alpha$ is a symbol used by the symbolic execution engine. Concrete inputs are
+replaced with symbolic expressions as well \cks{Ir?}
+
+Symbolic execution is modeled as a function that takes as input a symbolic state
+and symbolic inputs and returns a tree that represents the complete symbolic
+exploration of the design starting from the given symbolic state. We formalize
+this as follows.
+
+$\symexecution: \symstates \times \syminputs \rightarrow \trees$, where
+\begin{itemize}
+\item $\symstates = $\cks{figure this out}
+\item $\syminputs =$\cks{figure this out}
+\item $\trees =$\cks{figure this out}.
+\end{itemize}
+
+A \symstate{} is ...
+
+A \syminput{} is...
+
+A tree $\tree \in \tress$ is a binary tree of nodes $n = (\symstate,\pi)$. In
+the Coq model \pi is modeled as a conjunction of symbolic expressions. Let
+$\tree = \symexecution(\symstate,\syminput); the root node of $\tree$ will have
+the path condition \trueexpression{} and the symbolic state provided as input to
+the call to \symexecution{}: $\tree.root = (\symstate,\trueexpression).
+
+\cks{*********HERE************}
+A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
+\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. 
 
 A path condition, \pathcondition, is a conjunction of propositions involving
 symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
