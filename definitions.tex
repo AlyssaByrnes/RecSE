@@ -181,11 +181,11 @@ A \symstate{} is ...
 
 A \syminput{} is...
 
-A tree $\tree \in \tress$ is a binary tree of nodes $n = (\symstate,\pi)$. In
-the Coq model \pi is modeled as a conjunction of symbolic expressions. Let
+A tree $\tree \in \trees$ is a binary tree of nodes $n = (\symstate,\pi)$. In
+the Coq model $\pi$ is modeled as a conjunction of symbolic expressions. Let
 $\tree = \symexecution(\symstate,\syminput); the root node of $\tree$ will have
-the path condition \trueexpression{} and the symbolic state provided as input to
-the call to \symexecution{}: $\tree.root = (\symstate,\trueexpression).
+the path condition \texttrue{} and the symbolic state provided as input to
+the call to \symexecution{}: $\tree.root = (\symstate,\texttrue).
 
 \cks{*********HERE************}
 A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
