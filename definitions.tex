@@ -74,7 +74,33 @@ stateful registers of the design. The path condition of the root node of the
 tree is always initialized to true: $n_r = (\symstate, \texttrue)$.
 
 \subsection{Coq Model of a Processor Design}
-We bhild a Coq model of a hardware design that represents the stateful
+We model the RTL design as a Coq program with the following types and function.
+\begin{itemize}
+\item Types
+  \begin{itemize}
+  \item \textsf{Register} is an abstract type that is used to represent the
+    stateful registers in the RTL design.
+  \item \textsf{InputSignal} is an abstract type that is used to represent the
+    input signals in the RTL design.
+  \item \textsf{Value} is an abstract type that is used to represent the
+    literals that can be assigned to \textsf{Register}s or \textsf{InputSignal}s.
+  \item $\textsf{Assignment} : (r: \textsf{Register}, v: \textsf{Value})$ is a
+    tuple type that represents the assignment of a value $v \in \textsf{Value}$
+    to a register $r \in \textsf{Register}$.
+  \item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, a:
+    \textsf{Assignment})$ is a tuple type that represents the assignment of a
+    value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
+  \end{itemize}
+\item Function
+  \begin{itemize}
+  \item $\delta$ : (State, Input) : State
+  \end{itemize}
+\end{itemize}
+       
+\cks{A state is represented as a list of state tuples}
+
+
+We build a Coq model of a hardware design that represents the stateful
 registers, their values at clock cycle boundaries, and the transition
 function. The model is abstract and suitable to the representation of any design
 that is synchronous (i.e., clocked) and includes sequential logic (i.e.,
