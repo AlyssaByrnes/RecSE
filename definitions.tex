@@ -25,7 +25,8 @@ they hold their current value up to and until getting updated at the next clock
 cycle. As such, their current-state value can be an input to the calculation of their
 next-state value. 
 
-The initial state $s_0$ represents the starting state of the processor after a
+The initial state $s_0$ represents the starting state of the processor
+immediately after a
 power-on or reset cycle. Many registers have a value of 0 in this state.
 
 An input string $i \in I$ represents the concatenation of the several input
@@ -73,114 +74,93 @@ The path condition $\pathcondition$ is a Boolean formula over a subset of the in
 stateful registers of the design. The path condition of the root node of the
 tree is always initialized to true: $n_r = (\symstate, \texttrue)$.
 
-\subsection{Coq Model of a Processor Design}
-We model the RTL design as a Coq program with the following types and function.
-\begin{itemize}
-\item Types
-  \begin{itemize}
-  \item \textsf{Register} is an abstract type that is used to represent the
-    stateful registers in the RTL design.
-  \item \textsf{InputSignal} is an abstract type that is used to represent the
-    input signals in the RTL design.
-  \item \textsf{Value} is an abstract type that is used to represent the
-    literals that can be assigned to \textsf{Register}s or \textsf{InputSignal}s.
-  \item $\textsf{Assignment} : (r: \textsf{Register}, v: \textsf{Value})$ is a
-    tuple type that represents the assignment of a value $v \in \textsf{Value}$
-    to a register $r \in \textsf{Register}$.
-  \item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, a:
-    \textsf{Assignment})$ is a tuple type that represents the assignment of a
-    value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
-  \end{itemize}
-\item Function
-  \begin{itemize}
-  \item $\delta$ : (State, Input) : State
-  \end{itemize}
-\end{itemize}
-       
-\cks{A state is represented as a list of state tuples}
-
-
-We build a Coq model of a hardware design that represents the stateful
+\subsection{Coq Model of a Processor Design}W
+We build a model of a hardware design that represents the stateful
 registers, their values at clock cycle boundaries, and the transition
 function. The model is abstract and suitable to the representation of any design
 that is synchronous (i.e., clocked) and includes sequential logic (i.e.,
 stateful registers).
 
-We present the model here as a tuple $\hardwaredesign =
-(\registers,\inputsignals,\assignments_{\registers},\assignments_{\inputsignals},\init,\delta)$, which is defined as
-follows.
+We model the design as a Coq program with the following types.
 \begin{itemize}
-\item $\registers = \{r_0,r_1,\ldots,r_n\}$ is the finite set of state-holding
-  registers in the design.
-\item $\inputsignals = \{\inputsignal_0, \inputsignal_1, \ldots,
-  \inputsignal_m\}$ is the finite set of input signals to the design.
-\item $\assignments_{\registers} \subseteq \{0,1\}^d$
-  is the finite set of assignments---valuations---to the state-holding registers. An assignment $\assignment \in \assignments_{\registers}$ is a bitvector that is the
-  concatenation of valuations to all registers in $\registers$.
-\item $\assignments_{\inputsignals} \subseteq \{0,1\}^e$ is the finite set of
-  assignments---valuations---to the input signals. An assignment $\assignment
-  \in \assignments_{\inputsignals}$ is a bitvector that is the concatenation of
-  valuations to all input signals in $\inputsignals$.
-\item $\init \in \assignments_{\registers}$ is the valuation to state-holding
-  registers immediately after the hardware design's initialization sequence
-  completes. $\init$ represents the initial state of the hardware
-  design.
-\item $\delta: \assignments_{\registers} \times
-  \assignments_{\inputsignals} \rightarrow \assignments_{\registers}$ is the
-  transition function, which represents execution of the hardware
-  design. 
+\item \textsf{Register} is an abstract type that is used to represent the
+  stateful registers in the RTL design.
+\item \textsf{InputSignal} is an abstract type that is used to represent the
+  input signals in the RTL design.
+\item \textsf{Value} is an abstract type that is used to represent the
+  literals that can be assigned to \textsf{Register}s or \textsf{InputSignal}s.
+\item $\textsf{Assignment} : (r: \textsf{Register}, v: \textsf{Value})$ is a
+  tuple type that represents the assignment of a value $v \in \textsf{Value}$
+  to a register $r \in \textsf{Register}$.
+\item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, a:
+  \textsf{Assignment})$ is a tuple type that represents the assignment of a
+  value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
 \end{itemize}
 
-The set $\registers$ are the stateful registers of the design. These are exactly
-the set of registers that make up the state $s \in S$ in the abstract tuple
-described in Section~\ref{sec:procmodel}.
+A state of the processor is represented by a list of \textsf{Assignment}s, $<a_0, a_1, a_2,
+\ldots>$. The list is defined inductively and has unbounded length in the Coq
+program. The initial state of the processor is represented by a particular list
+of \textsf{Assignment}s, denoted as $\mathit{init}$. We will use vector notation to
+represent a list of a given type (e.g., $\vv{\textsf{Assignments}}$).
 
-A valuation $\assignment \in \assignments_{\registers}$ represents a concrete
-state of the design. The length $d$ of the valuation bitvector is fixed for a
-given design; every state is represented by a bitvector of length $d$. We do not
-require, however, that all registers $r_i, r_j \in \registers$ have the same bit
-length. the size of the state space of the design is determined by $d$:
-$|\hardwaredesign| = 2^d$.
+Execution is modeled by a function, $\concexecution$, that maps a list of \textsf{Assignment}s and
+a list of \textsf{InputAssignment}s to a list of
+\textsf{Assignment}s. As in our abstract model, it is deterministic and left-total:
 
-The initial state of the design, $\init$, is sometimes called the reset state and is the
-valuation of the state-holding registers immediately after the power-on
-cycle completes.
+\begin{itemize}
+\item $\concexecution (\vv{\textsf{Assignments}},
+  \vv{\textsf{InputAssignments}}) : \vv{\textsf{Assignments}}$
+\end{itemize}
+       
+We do not model the output signals of the hardware design explicitly as they not needed
+for our proof. If needed, they could be modeled as a subset the \textsf{Register} type.
 
-The transition function, $\delta$, is left-total: for every
-$\assignment_{\registers} \in \assignments_{\registers}$ and every
-$\assignment_{\inputsignals} \in \assignments_{\inputsignals}$, $\delta$ is
-defined.
+%% We present the model here as a tuple $\hardwaredesign =
+%% (\registers,\inputsignals,\assignments_{\registers},\assignments_{\inputsignals},\init,\delta)$, which is defined as
+%% follows.
+%% \begin{itemize}
+%% \item $\registers = \{r_0,r_1,\ldots,r_n\}$ is the finite set of state-holding
+%%   registers in the design.
+%% \item $\inputsignals = \{\inputsignal_0, \inputsignal_1, \ldots,
+%%   \inputsignal_m\}$ is the finite set of input signals to the design.
+%% \item $\assignments_{\registers} \subseteq \{0,1\}^d$
+%%   is the finite set of assignments---valuations---to the state-holding registers. An assignment $\assignment \in \assignments_{\registers}$ is a bitvector that is the
+%%   concatenation of valuations to all registers in $\registers$.
+%% \item $\assignments_{\inputsignals} \subseteq \{0,1\}^e$ is the finite set of
+%%   assignments---valuations---to the input signals. An assignment $\assignment
+%%   \in \assignments_{\inputsignals}$ is a bitvector that is the concatenation of
+%%   valuations to all input signals in $\inputsignals$.
+%% \item $\init \in \assignments_{\registers}$ is the valuation to state-holding
+%%   registers immediately after the hardware design's initialization sequence
+%%   completes. $\init$ represents the initial state of the hardware
+%%   design.
+%% \item $\delta: \assignments_{\registers} \times
+%%   \assignments_{\inputsignals} \rightarrow \assignments_{\registers}$ is the
+%%   transition function, which represents execution of the hardware
+%%   design. 
+%% \end{itemize}
 
-We do not model the output of the
-module explicitly; it is the identity function taken over a subset of the
-state-holding registers in the design.
+%% The set $\registers$ are the stateful registers of the design. These are exactly
+%% the set of registers that make up the state $s \in S$ in the abstract tuple
+%% described in Section~\ref{sec:procmodel}.
 
-%% \cks{scrap: to a
-%%   bitvector of length $d$. The bitvector represents the concatenation of valuations to registers $r_0,
-%%   r_1, \ldots, r_n$ and inputs signals $\inputsignal_0, \inputsignal_1, \ldots,
-%%   \inputsignal_m$. The length of the bitvector, $d$, can be thought of in some
-%%   sense as the length or dimension of hte design.   We use $\assignment_{\registers}$ or $\assignment_{\inputsignals}$ to refer to the
-%%   slice of an assignment that pertains to the valuation of just the state
-%%   holding registers or just the input signals, respectively.
-%%  }
-%%   $\inputsignals$. It is useful to treat each $\assignment \in \assignments$ as
-%%   a tuple $(\assignment_{\registers},\assignment_{\inputsignals})$ in which
-%%   $\assignment_{\registers} = \assignment[0:c]$ is the bitvector valuation to
-%%   only the state-holding registers and $\assignment_{\inputsignals} =
-%%   \assignment[c:d]$ is the bitvector valuation to only the input
-%%   signals.\footnote{In this slice notation the first index is inclusive
-%%     and the second index is exclusive.} Let $\assignments_{\registers}$ be the
-%%   set of all $\assignment_{\registers}$ and $\assignments_{\inputsignals}$ be
-%%   the set of all $\assignment_{\inputsignals}$.
+%% A valuation $\assignment \in \assignments_{\registers}$ represents a concrete
+%% state of the design. The length $d$ of the valuation bitvector is fixed for a
+%% given design; every state is represented by a bitvector of length $d$. We do not
+%% require, however, that all registers $r_i, r_j \in \registers$ have the same bit
+%% length. the size of the state space of the design is determined by $d$:
+%% $|\hardwaredesign| = 2^d$.
 
-%% A state $\concstate \in \concstates$ of the module is a concrete valuation to all
-%% registers in the design: $r_0 = i, r_1 = j, \ldots, r_m = k$, where $r_0, r_1,
-%% r_m$ represent the stateful registers and $i, j, k
-%% \in \{0,1\}^*$. 
-%% The domain of the module is the set of binary strings of length $n$, which
-%% represents the concatenation of multiple input parameters to the module.
-%% The transition function takes the module from one state to the next state. It
-%% represents the execution of a single clock-cycle in hardware. 
+%% The initial state of the design, $\init$, is sometimes called the reset state and is the
+%% valuation of the state-holding registers immediately after the power-on
+%% cycle completes.
+
+%% The transition function, $\delta$, is left-total: for every
+%% $\assignment_{\registers} \in \assignments_{\registers}$ and every
+%% $\assignment_{\inputsignals} \in \assignments_{\inputsignals}$, $\delta$ is
+%% defined.
+
+
 
 
 \subsection{Coq Model of Symbolic Execution}
