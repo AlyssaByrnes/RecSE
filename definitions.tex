@@ -51,8 +51,8 @@ in the design.
 
 The symbolic exploration of a design is modeled by a tuple $\tree = (N,E)$ representing a rooted, binary tree, where
 $N$ is the set of nodes of the tree and $E$ is the set of directed edges connecting
-two nodes. Each node $n \in N$ of the tree represents a conditional branch point in the
-design; in our model we elide the non-branching nodes---those that represent
+two nodes.  model, each node $n \in N$ of the tree represents a conditional branch point in the
+design; we elide the non-branching nodes---those that represent
 straight-line code and would have only a single child node. The two edges connecting $n$ to its two children nodes represent the two
 possible paths of forward execution at that branch point.
 
@@ -74,7 +74,7 @@ The path condition $\pathcondition$ is a Boolean formula over a subset of the in
 stateful registers of the design. The path condition of the root node of the
 tree is always initialized to true: $n_r = (\symstate, \texttrue)$.
 
-\subsection{Coq Model of a Processor Design}W
+\subsection{Coq Model of a Processor Design}
 We build a model of a hardware design that represents the stateful
 registers, their values at clock cycle boundaries, and the transition
 function. The model is abstract and suitable to the representation of any design
@@ -92,20 +92,22 @@ We model the design as a Coq program with the following types.
 \item $\textsf{Assignment} : (r: \textsf{Register}, v: \textsf{Value})$ is a
   tuple type that represents the assignment of a value $v \in \textsf{Value}$
   to a register $r \in \textsf{Register}$.
-\item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, a:
-  \textsf{Assignment})$ is a tuple type that represents the assignment of a
+\item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, v:
+  \textsf{Value})$ is a tuple type that represents the assignment of a
   value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
 \end{itemize}
 
-A state of the processor is represented by a list of \textsf{Assignment}s, $<a_0, a_1, a_2,
-\ldots>$. The list is defined inductively and has unbounded length in the Coq
+A state of the processor is represented by a list of \textsf{Assignment} elements, $<a_0, a_1, a_2,
+\ldots>$, where each element is a tuple as defined by the type. The list is defined inductively and has unbounded length in the Coq
 program. The initial state of the processor is represented by a particular list
-of \textsf{Assignment}s, denoted as $\mathit{init}$. We will use vector notation to
-represent a list of a given type (e.g., $\vv{\textsf{Assignments}}$).
+of \textsf{Assignment} elements, denoted as $\mathit{init}$. We will use vector notation to
+represent a list of a given type (e.g., $\vv{\textsf{Assignments}} \doteq <a_0,
+a_1, a_2, \ldots>$).
 
-Execution is modeled by a function, $\concexecution$, that maps a list of \textsf{Assignment}s and
-a list of \textsf{InputAssignment}s to a list of
-\textsf{Assignment}s. As in our abstract model, it is deterministic and left-total:
+Execution is modeled by a function, $\concexecution$, that maps a list of
+\textsf{Assignment} elements and
+a list of \textsf{InputAssignment} elements to a list of
+\textsf{Assignment} elements. As in our abstract model, it is deterministic and left-total:
 
 \begin{itemize}
 \item $\concexecution (\vv{\textsf{Assignments}},
@@ -113,7 +115,7 @@ a list of \textsf{InputAssignment}s to a list of
 \end{itemize}
        
 We do not model the output signals of the hardware design explicitly as they not needed
-for our proof. If needed, they could be modeled as a subset the \textsf{Register} type.
+for our proof. If needed, they could be modeled as a subset of the \textsf{Register} type.
 
 %% We present the model here as a tuple $\hardwaredesign =
 %% (\registers,\inputsignals,\assignments_{\registers},\assignments_{\inputsignals},\init,\delta)$, which is defined as
@@ -164,18 +166,28 @@ for our proof. If needed, they could be modeled as a subset the \textsf{Register
 
 
 \subsection{Coq Model of Symbolic Execution}
-In Coq, we model the symbolic execution of a processor design \hardwaredesign{}
-with the introductin of symbolic state, symbolic inputs, and symbolic
-execution. Recall that in the standard model \hardwaredesign{}, the current
-state is given by concrete valuations \cks{Ar? In Coq concrete execution model
-  introduce the notion of list of tuples <(),(),...>}. For symbolic execution we
-replace concrete valuations \cks{Ar?} with symbolic expressions
-\symexpression. A symbolic expression
-\symexpression{} contains at least one symbol and may contain zero or more concrete
-literals, arithmetic operators, and logical operators. Examples of
-symbolic expressions include `$\alpha$' and `$\alpha + 1$,' where
-$\alpha$ is a symbol used by the symbolic execution engine. Concrete inputs are
-replaced with symbolic expressions as well \cks{Ir?}
+To model the symbolic execution of the processor in our Coq program we introduce
+types representing symbolic state, symbolic
+execution, and path constraints. The first three types are used in our
+representation of symbolic state. 
+\begin{itemize}
+  \item \textsf{SymbolicExpression} is an abstract type that is used to
+    represent the symbolic expression that can be assigned to \textsf{Register}s
+    or \textsf{InputSignal}s.
+  \item $\textsf{SymbolicAssignment} : (r: \textsf{Register},
+    \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
+    represents the assignmet of an expression $\symexpression \in
+    \textsf{SymbolicExpression}$ to a register $r \in \textsf{Register}$.
+  \item $\textsf{SymbolicInputAssignment} : (i: \textsf{InputSignal},
+    \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
+    represents the assignment of a symbolic expression $\symexpression \in
+    \textsf{SymbolicExpression}$ to an input signal $i \in \textsf{InputSignal}$.
+\end{itemize}
+
+A symbolic state of the processor is represented by a list of
+\textsf{SymbolicAssignment} elements, $\vv{\textsf{SymbolicAssignments}}$. 
+
+
 
 Symbolic execution is modeled as a function that takes as input a symbolic state
 and symbolic inputs and returns a tree that represents the complete symbolic
