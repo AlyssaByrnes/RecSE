@@ -98,16 +98,18 @@ We model the design as a Coq program with the following types.
 \end{itemize}
 
 A state of the processor is represented by a list of \textsf{Assignment} elements, $<a_0, a_1, a_2,
-\ldots>$, where each element is a tuple as defined by the type. The list is defined inductively and has unbounded length in the Coq
+\ldots>$, where each element is a tuple as defined by the type. The list is
+defined inductively and has unbounded length in the Coq
 program. The initial state of the processor is represented by a particular list
 of \textsf{Assignment} elements, denoted as $\mathit{init}$. We will use vector notation to
 represent a list of a given type (e.g., $\vv{\textsf{Assignments}} \doteq <a_0,
 a_1, a_2, \ldots>$).
 
-Execution is modeled by a function, $\concexecution$, that maps a list of
+Execution is modeled by a function, $\concexecution()$, that maps a list of
 \textsf{Assignment} elements and
 a list of \textsf{InputAssignment} elements to a list of
-\textsf{Assignment} elements. As in our abstract model, it is deterministic and left-total:
+\textsf{Assignment} elements. In other words, $\concexecution()$ takes a
+processor state and a set of inputs and returns a new processor state. As in our abstract model, it is deterministic and left-total:
 
 \begin{itemize}
 \item $\concexecution (\vv{\textsf{Assignments}},
@@ -176,7 +178,7 @@ representation of symbolic state.
     or \textsf{InputSignal}s.
   \item $\textsf{SymbolicAssignment} : (r: \textsf{Register},
     \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
-    represents the assignmet of an expression $\symexpression \in
+    represents the assignment of an expression $\symexpression \in
     \textsf{SymbolicExpression}$ to a register $r \in \textsf{Register}$.
   \item $\textsf{SymbolicInputAssignment} : (i: \textsf{InputSignal},
     \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
@@ -189,52 +191,33 @@ A symbolic state of the processor is represented by a list of
 
 
 
-Symbolic execution is modeled as a function that takes as input a symbolic state
-and symbolic inputs and returns a tree that represents the complete symbolic
-exploration of the design starting from the given symbolic state. We formalize
-this as follows.
+Symbolic execution is modeled by a function, $\symexecution()$, that maps a list
+of \textsf{SymbolicAssignment} elements and a list of
+\textsf{SymbolicInputAssignment} elements to a binary tree. In other words, it
+takes a symbolic state and a set of symbolic inputs and returns a tree that
+represents the complete symbolic exploration of the design starting from the given symbolic state. The function is defined as
+follows. (We define the \textsf{SymExecTree} type in the following paragraph.)
 
-$\symexecution: \symstates \times \syminputs \rightarrow \trees$, where
 \begin{itemize}
-\item $\symstates = $\cks{figure this out}
-\item $\syminputs =$\cks{figure this out}
-\item $\trees =$\cks{figure this out}.
+\item $\symexecution (\vv{\textsf{SymbolicAssignments}}, 
+  \vv{\textsf{SymbolicInputAssignments}}) : \textsf{SymExecTree}$
 \end{itemize}
 
-A \symstate{} is ...
+The tree returned by $\symexecution()$ is a binary tree of nodes, where each
+node contains a symbolic state and a path condition. We introduce the following
+types in our Coq program.
 
-A \syminput{} is...
+\begin{itemize}
+\item \textsf{PathCondition} is an abstract type that represents a
+  propositional formula over the symbols used in symbolic expressions.
+\item $\textsf{Node} : (\vv{\sigma} : \vv{\textsf{SymbolicAssignment}}, \pi :
+  \textsf{PathCondition})$ is a tuple type that represents a node in the
+  binary tree, containing a symbolic state (the list of
+  \textsf{SymbolicAssignment} elements) and a path condition.
+\end{itemize}
 
-A tree $\tree \in \trees$ is a binary tree of nodes $n = (\symstate,\pi)$. In
-the Coq model $\pi$ is modeled as a conjunction of symbolic expressions. Let
-$\tree = \symexecution(\symstate,\syminput); the root node of $\tree$ will have
-the path condition \texttrue{} and the symbolic state provided as input to
-the call to \symexecution{}: $\tree.root = (\symstate,\texttrue).
+A $\textsf{SymExecTree}$ is defined inductively as a binary tree of \textsf{Node}s.
 
-\cks{*********HERE************}
-A symbolic state assigns a symbolic expression, \symexpression, to every register in the design: $r_0 =
-\symexpression_0, r_1 = \sigma_1, \ldots, r_m = \sigma_m$. 
-
-A path condition, \pathcondition, is a conjunction of propositions involving
-symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
-possible path condition.
-
-We define \symexecution() for a particular hardware module as an abstract method
-that takes as input an initial symbolic
-state $\symstate$, an initial path condition $\pathcondition_0 = \texttrue$, and a
-set of symbolic inputs, and 
-returns a tree of explored paths. In the recursive strategy, \symexecution{} is
-always called with an initial
-symbolic state that is fully symbolic: $r_0 = \alpha, r_1 = \beta, \ldots, r_m = \omega$.
-
-
-\cks{Define expressions \symexpression{} in terms of symbols $\alpha$,
-  etc. Define symbolic state \symstate{} in terms of expressions. Ditto for path
-conditions \pathcondition}
-
-The alphabet of symbols that can appear in a path condition is the union of the
-alphabet of symbols used to define a symbolic state and the alphabet of symbols
-used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\symstate} \cup \Sigma_i$.
 
 
 %% We model a symbolic execution engine as a tuple $\symbolicexecutionengine =
@@ -270,6 +253,9 @@ used as input values by \symexecution{}: $\Sigma_{\pathcondition} = \Sigma_{\sym
 %% symInp = {(inp_0, symexpr_0), (inp_1, symexpr_1), ..., (inp_k, symexpr_k)} (edited)
 %% Inp = {(inp_0, inpval_0), (inp_1, inpval_1), ..., (inp_k, inpval_k)} (edited)
 %% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
+
+\subsection{Relating Symbolic to Concrete Execution}
+\cks{Use this section to introduce and define the notions of mapping.}
 
 \subsection{Properties of Symbolic Execution}
 King formalized the use of symbolic execution~\cite{king1976symbolic} and

@@ -26,6 +26,10 @@ c$. If neither $\pathcondition \rightarrow c$ nor $\pathcondition \rightarrow \n
 branches are possible. Execution forks and each branch is explored in turn
 with the path condition updated appropriately for each branch.
 
+In general, a path condition \pathcondition is a conjunction of propositions involving
+symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+possible path condition.
+
 All the paths explored through the program form a logical tree \tree. The root represents the
 program's entry point and each node of the
 tree represents a line of code in the program. Associated with each node is the
