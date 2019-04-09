@@ -255,7 +255,18 @@ A $\textsf{SymExecTree}$ is defined inductively as a binary tree of \textsf{Node
 %% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
 
 \subsection{Relating Symbolic to Concrete Execution}
-\cks{Use this section to introduce and define the notions of mapping.}
+Any symbolic state, $\vv{\sigma} = \vv{\textsf{SymbolicAssignments}}$, is an abstraction
+representing a set of possible concrete states: the symbols used in a
+\textsf{SymbolicAssignment} can be replaced with literals and the resulting
+expressions can be evaluated to produce a possible
+concrete state. For example, given the symbolic state $\vv{\sigma} =
+<(r_0,\alpha), (r_1,\alpha+1)>$, which assigns the symbolic expression
+``$\alpha$'' to register $r_0$ and the symbolic expression ``$\alpha+1$'' to
+register $r_1$, replacing ``$\alpha$'' with the literal ``1'' (and then
+evaluating ``1+1'') would produce the
+concrete state $\vv{s} = <(r_0,1), (r_1,2)>$; replacing ``$\alpha$'' with the
+literal ``2'' would produce the concrete state $\vv{s} = <(r_0,2), (r_1,3)>$,
+and so on.
 
 \subsection{Properties of Symbolic Execution}
 King formalized the use of symbolic execution~\cite{king1976symbolic} and
