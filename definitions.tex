@@ -89,10 +89,10 @@ We model the design as a Coq program with the following types.
   input signals in the RTL design.
 \item \textsf{Value} is an abstract type that is used to represent the
   literals that can be assigned to \textsf{Register}s or \textsf{InputSignal}s.
-\item $\textsf{Assignment} : (r: \textsf{Register}, v: \textsf{Value})$ is a
+\item $\textsf{Assignment} : (r: \textsf{Register},~ v: \textsf{Value})$ is a
   tuple type that represents the assignment of a value $v \in \textsf{Value}$
   to a register $r \in \textsf{Register}$.
-\item $\textsf{InputAssignment} : (i: \textsf{InputSignal}, v:
+\item $\textsf{InputAssignment} : (i: \textsf{InputSignal},~ v:
   \textsf{Value})$ is a tuple type that represents the assignment of a
   value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
 \end{itemize}
@@ -112,7 +112,7 @@ a list of \textsf{InputAssignment} elements to a list of
 processor state and a set of inputs and returns a new processor state. As in our abstract model, it is deterministic and left-total:
 
 \begin{itemize}
-\item $\concexecution (\vv{\textsf{Assignments}},
+\item $\concexecution (\vv{\textsf{Assignments}},~
   \vv{\textsf{InputAssignments}}) : \vv{\textsf{Assignments}}$
 \end{itemize}
        
@@ -176,11 +176,11 @@ representation of symbolic state.
   \item \textsf{SymbolicExpression} is an abstract type that is used to
     represent the symbolic expression that can be assigned to \textsf{Register}s
     or \textsf{InputSignal}s.
-  \item $\textsf{SymbolicAssignment} : (r: \textsf{Register},
+  \item $\textsf{SymbolicAssignment} : (r: \textsf{Register},~
     \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
     represents the assignment of an expression $\symexpression \in
     \textsf{SymbolicExpression}$ to a register $r \in \textsf{Register}$.
-  \item $\textsf{SymbolicInputAssignment} : (i: \textsf{InputSignal},
+  \item $\textsf{SymbolicInputAssignment} : (i: \textsf{InputSignal},~
     \symexpression: \textsf{SymbolicExpression})$ is a tuple type that
     represents the assignment of a symbolic expression $\symexpression \in
     \textsf{SymbolicExpression}$ to an input signal $i \in \textsf{InputSignal}$.
@@ -199,7 +199,7 @@ represents the complete symbolic exploration of the design starting from the giv
 follows. (We define the \textsf{SymExecTree} type in the following paragraph.)
 
 \begin{itemize}
-\item $\symexecution (\vv{\textsf{SymbolicAssignments}}, 
+\item $\symexecution (\vv{\textsf{SymbolicAssignments}},~ 
   \vv{\textsf{SymbolicInputAssignments}}) : \textsf{SymExecTree}$
 \end{itemize}
 
@@ -210,7 +210,7 @@ types in our Coq program.
 \begin{itemize}
 \item \textsf{PathCondition} is an abstract type that represents a
   propositional formula over the symbols used in symbolic expressions.
-\item $\textsf{Node} : (\vv{\sigma} : \vv{\textsf{SymbolicAssignment}}, \pi :
+\item $\textsf{Node} : (\vv{\sigma} : \vv{\textsf{SymbolicAssignment}},~ \pi :
   \textsf{PathCondition})$ is a tuple type that represents a node in the
   binary tree, containing a symbolic state (the list of
   \textsf{SymbolicAssignment} elements) and a path condition.
