@@ -97,13 +97,13 @@ We model the design as a Coq program with the following types.
   value $v \in \textsf{Value}$ to an input signal $i \in \textsf{InputSignal}$.
 \end{itemize}
 
-A state of the processor is represented by a list of \textsf{Assignment} elements, $<a_0, a_1, a_2,
-\ldots>$, where each element is a tuple as defined by the type. The list is
+A state of the processor is represented by a list of \textsf{Assignment} elements, $[a_0, a_1, a_2,
+\ldots]$, where each element is a tuple as defined by the type. The list is
 defined inductively and has unbounded length in the Coq
 program. The initial state of the processor is represented by a particular list
 of \textsf{Assignment} elements, denoted as $\mathit{init}$. We will use vector notation to
-represent a list of a given type (e.g., $\vv{\textsf{Assignments}} \doteq <a_0,
-a_1, a_2, \ldots>$).
+represent a list of a given type (e.g., $\vv{\textsf{Assignments}} \doteq [a_0,
+a_1, a_2, \ldots]$).
 
 Execution is modeled by a function, $\concexecution()$, that maps a list of
 \textsf{Assignment} elements and
@@ -255,18 +255,29 @@ A $\textsf{SymExecTree}$ is defined inductively as a binary tree of \textsf{Node
 %% C = {(reg_0, concval_0), (reg_1, concval_1), ..., (reg_n, concval_n)}
 
 \subsection{Relating Symbolic to Concrete Execution}
-Any symbolic state, $\vv{\sigma} = \vv{\textsf{SymbolicAssignments}}$, is an abstraction
-representing a set of possible concrete states: the symbols used in a
-\textsf{SymbolicAssignment} can be replaced with literals and the resulting
-expressions can be evaluated to produce a possible
-concrete state. For example, given the symbolic state $\vv{\sigma} =
-<(r_0,\alpha), (r_1,\alpha+1)>$, which assigns the symbolic expression
-``$\alpha$'' to register $r_0$ and the symbolic expression ``$\alpha+1$'' to
-register $r_1$, replacing ``$\alpha$'' with the literal ``1'' (and then
-evaluating ``1+1'') would produce the
-concrete state $\vv{s} = <(r_0,1), (r_1,2)>$; replacing ``$\alpha$'' with the
-literal ``2'' would produce the concrete state $\vv{s} = <(r_0,2), (r_1,3)>$,
-and so on.
+The nodes of a symbolic execution tree are abstractions, each representing a set
+of possible concrete states. Given a node $n=(\vv{\sigma},\pi)$, the corresponding
+concrete states can be produced by replacing the symbols used in the symbolic state,
+$\vv{\sigma}$, and path condition, $\pi$, with literals in the
+following way. Let $\Sigma$ be the alphabet of symbols appearing in $\vv{\sigma}$
+or $\pi$. Let $\mathcal{L}$ be the domain of literals used in the program. For
+each $\alpha \in \Sigma$, choose a literal $l \in \mathcal{L}$. Replace the
+symbols appearing in the path condition $\pi$ with their mapped-to literal and
+evaluate the resulting expression. If it evaluates to \texttrue, then
+use the same mapping to replace the symbols appearing in the symbolic state
+$\vv{\sigma}$ with literals. Evaluating the resulting expressions will produce a
+concrete state.
+
+As an example, consider the node $n=([(r_0,\alpha), (r_1,\alpha+1)], \alpha < 2)$,
+which assigns the symbolic expression
+``$\alpha$'' to register $r_0$, the symbolic expression ``$\alpha+1$'' to
+register $r_1$, and has the path condition that constrains $\alpha$ to be less
+than 2. Mapping the symbol ``$\alpha$'' to the literal ``1'' would produce the
+path condition $1 < 2$, which is valid. Replacing symbols with their mapped-to
+literals in the symbolic state would produce the concrete state $[(r_0,1),
+(r_1,2)]$. A second concrete state, $[(r_0,0),(r_1,1)]$, is also in the set of
+concrete states represented by node $n$.
+
 
 \subsection{Properties of Symbolic Execution}
 King formalized the use of symbolic execution~\cite{king1976symbolic} and
