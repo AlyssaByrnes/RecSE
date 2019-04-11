@@ -102,7 +102,7 @@ A state of the processor is represented by a list of \textsf{Assignment} element
 defined inductively and has unbounded length in the Coq
 program. The initial state of the processor is represented by a particular list
 of \textsf{Assignment} elements, denoted as $\mathit{init}$. We will use vector notation to
-represent a list of a given type (e.g., $\vv{\textsf{Assignments}} \doteq [a_0,
+represent a list of a given type (e.g., $\vv{\textsf{Assignment}} \doteq [a_0,
 a_1, a_2, \ldots]$).
 
 Execution is modeled by a function, $\concexecution()$, that maps a list of
@@ -112,8 +112,8 @@ a list of \textsf{InputAssignment} elements to a list of
 processor state and a set of inputs and returns a new processor state. As in our abstract model, it is deterministic and left-total:
 
 \begin{itemize}
-\item $\concexecution (\vv{\textsf{Assignments}},~
-  \vv{\textsf{InputAssignments}}) : \vv{\textsf{Assignments}}$
+\item $\concexecution (\vv{\textsf{Assignment}},~
+  \vv{\textsf{InputAssignment}}) : \vv{\textsf{Assignment}}$
 \end{itemize}
        
 We do not model the output signals of the hardware design explicitly as they not needed
@@ -187,7 +187,7 @@ representation of symbolic state.
 \end{itemize}
 
 A symbolic state of the processor is represented by a list of
-\textsf{SymbolicAssignment} elements, $\vv{\textsf{SymbolicAssignments}}$. 
+\textsf{SymbolicAssignment} elements, $\vv{\textsf{SymbolicAssignment}}$. 
 
 
 
@@ -199,8 +199,8 @@ represents the complete symbolic exploration of the design starting from the giv
 follows. (We define the \textsf{SymExecTree} type in the following paragraph.)
 
 \begin{itemize}
-\item $\symexecution (\vv{\textsf{SymbolicAssignments}},~ 
-  \vv{\textsf{SymbolicInputAssignments}}) : \textsf{SymExecTree}$
+\item $\symexecution (\vv{\textsf{SymbolicAssignment}},~ 
+  \vv{\textsf{SymbolicInputAssignment}}) : \textsf{SymExecTree}$
 \end{itemize}
 
 The tree returned by $\symexecution()$ is a binary tree of nodes, where each
@@ -277,6 +277,17 @@ path condition $1 < 2$, which is valid. Replacing symbols with their mapped-to
 literals in the symbolic state would produce the concrete state $[(r_0,1),
 (r_1,2)]$. A second concrete state, $[(r_0,0),(r_1,1)]$, is also in the set of
 concrete states represented by node $n$.
+
+We define the following function in our Coq model, which takes a symbolic state (the list of
+\textsf{SymbolicAssignemnts}) and a mapping from symbols to literals, and
+returns the concrete state produced by replacing all symbols with mapped-to
+literals and evaluating the resulting expression.
+
+\begin{itemize}
+  \item $\mathit{instantiateState}(\vv{\textsf{SymbolicAssignment}},
+    \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$.
+\end{itemize}
+
 
 
 \subsection{Properties of Symbolic Execution}
