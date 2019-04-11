@@ -331,8 +331,9 @@ and for each, give our formal expression of the property.
 %%   \end{align*}
 
   \begin{align*}
-    \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
-    & \mathtt{simplify}(\mathtt{applymap}(n.\pathcondition,m)) = \texttrue.
+    \forall ~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
+     \exists m = \mathtt{map(\cdot)}, \\
+    & \mathtt{evaluatePC}(n.\pathcondition,m) = \texttrue.
   \end{align*}
   Where $\mathtt{map(\cdot)}$ is the set of all functions that map from the set
   of symbols $\Sigma$ to the set of concrete values, \symstates{} is the set of all
@@ -355,7 +356,7 @@ execution tree. We express this in the following. \cks{This needs to be updated}
 & n_1 \neq n_2 \\
 &  \wedge
 (\mathtt{ischildof}(n_1, n_2) \vee  \mathtt{ischildof}(n_2, n_1))= \textfalse \\
-&\rightarrow \mathtt{simplify}(\mathtt{applymap}(n_1.\pathcondition \wedge n_2.\pathcondition,m)) = \textfalse.
+&\rightarrow \mathtt{evaluatePC}(n_1.\pathcondition \wedge n_2.\pathcondition,m) = \textfalse.
 \end{align*}
 
 %% \begin{align*}
@@ -392,8 +393,9 @@ execution tree. We express this in the following. \cks{This needs to be updated}
 
 
 \begin{align*}
-\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha) \wedge
-\mathtt{simplify}(\mathtt{applymap}(l.\pathcondition,m)) = \texttrue \\
+\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
+&\mathtt{isleaf}(l,\tree)  = \texttrue \wedge
+\mathtt{evaluatePC}(l.\pathcondition,m) = \texttrue \\
 &\rightarrow \mathtt{simplify}(\mathtt{applymap}(l.\symstate,m)) = \\
 &\qquad\concexecution(\mathtt{simplify}(\mathtt{applymap}(\symstate,m)),\mathtt{simplify}(\mathtt{applymap}(\syminput,m))).
 \end{align*}
