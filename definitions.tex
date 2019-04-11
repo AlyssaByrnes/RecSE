@@ -112,10 +112,14 @@ a list of \textsf{InputAssignment} elements to a list of
 processor state and a set of inputs and returns a new processor state. As in our abstract model, it is deterministic and left-total:
 
 \begin{itemize}
-\item $\concexecution (\vv{\textsf{Assignment}},~
-  \vv{\textsf{InputAssignment}}) : \vv{\textsf{Assignment}}$
+\item $\concexecution (\concstate: \vv{\textsf{Assignment}},~
+  i: \vv{\textsf{InputAssignment}}) : \vv{\textsf{Assignment}}$
 \end{itemize}
        
+We use \concstate{} as the name for the first parameter
+to $\concexecution$ to emphasize that $\vv{\textsf{Assignment}}$ represents a
+concrete state.
+
 We do not model the output signals of the hardware design explicitly as they not needed
 for our proof. If needed, they could be modeled as a subset of the \textsf{Register} type.
 
@@ -199,8 +203,8 @@ represents the complete symbolic exploration of the design starting from the giv
 follows. (We define the \textsf{SymExecTree} type in the following paragraph.)
 
 \begin{itemize}
-\item $\symexecution (\vv{\textsf{SymbolicAssignment}},~ 
-  \vv{\textsf{SymbolicInputAssignment}}) : \textsf{SymExecTree}$
+\item $\symexecution (\sigma: \vv{\textsf{SymbolicAssignment}},~ 
+  \iota: \vv{\textsf{SymbolicInputAssignment}}) : \textsf{SymExecTree}$
 \end{itemize}
 
 The tree returned by $\symexecution()$ is a binary tree of nodes, where each
@@ -210,7 +214,7 @@ types in our Coq program.
 \begin{itemize}
 \item \textsf{PathCondition} is an abstract type that represents a
   propositional formula over the symbols used in symbolic expressions.
-\item $\textsf{Node} : (\vv{\sigma} : \vv{\textsf{SymbolicAssignment}},~ \pi :
+\item $\textsf{Node} : (\sigma : \vv{\textsf{SymbolicAssignment}},~ \pi :
   \textsf{PathCondition})$ is a tuple type that represents a node in the
   binary tree, containing a symbolic state (the list of
   \textsf{SymbolicAssignment} elements) and a path condition.
@@ -256,16 +260,16 @@ A $\textsf{SymExecTree}$ is defined inductively as a binary tree of \textsf{Node
 
 \subsection{Relating Symbolic to Concrete Execution}
 The nodes of a symbolic execution tree are abstractions, each representing a set
-of possible concrete states. Given a node $n=(\vv{\sigma},\pi)$, the corresponding
+of possible concrete states. Given a node $n=(\sigma,\pi)$, the corresponding
 concrete states can be produced by replacing the symbols used in the symbolic state,
-$\vv{\sigma}$, and path condition, $\pi$, with literals in the
-following way. Let $\Sigma$ be the alphabet of symbols appearing in $\vv{\sigma}$
-or $\pi$. Let $\mathcal{L}$ be the domain of literals used in the program. For
+$\sigma$, and the path condition, $\pi$, with literals in the
+following way. Let $\Sigma$ be the alphabet of symbols appearing in $\sigma$
+or $\pi$. Let $\mathcal{L}$ be the domain of values for the program. For
 each $\alpha \in \Sigma$, choose a literal $l \in \mathcal{L}$. Replace the
 symbols appearing in the path condition $\pi$ with their mapped-to literal and
 evaluate the resulting expression. If it evaluates to \texttrue, then
 use the same mapping to replace the symbols appearing in the symbolic state
-$\vv{\sigma}$ with literals. Evaluating the resulting expressions will produce a
+$\sigma$ with literals. Evaluating the resulting expressions will produce a
 concrete state.
 
 As an example, consider the node $n=([(r_0,\alpha), (r_1,\alpha+1)], \alpha < 2)$,
@@ -285,8 +289,8 @@ state to concrete state.
 \item $\vv{\textsf{SymbolicMapping}}$ is an abstract type. Members of this type
   can be viewed as functions mapping symbols appearing in symbolic expressions to literals
   in the domain of the program.
-\item $\mathit{instantiateState}(\vv{\textsf{SymbolicAssignment}},
-    \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$ is a function that takes a symbolic state and a mapping from symbols to literals, and
+\item $\mathit{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},
+    m: \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$ is a function that takes a symbolic state and a mapping from symbols to literals, and
 returns the concrete state produced by replacing all symbols with mapped-to
 literals and evaluating the resulting expression.
 \end{itemize}
