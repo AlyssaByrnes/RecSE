@@ -69,3 +69,15 @@ Our inductive hypothesis is that $execute\_tree\_list (tree\_list') \in concreti
 \caption{Visual depiction of the inductive step of the proof.}
 \label{fig:indstep}
 \end{figure}
+
+The reason we need Property $2'$ is because Property $2$ is not sufficient. 
+This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$ and \\
+$\mathtt{concretize\_leaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
+$\mathtt{execute\_tree\_list} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
+
+\begin{figure}
+  \centering
+\includegraphics[width=.4\textwidth]{prop2.eps}
+\caption{Example of Property $2$ not being sufficient to show $\mathtt{execute\_tree\_list} (tree\_list) \in error\_states$.}
+\label{fig:Prop2}
+\end{figure}
