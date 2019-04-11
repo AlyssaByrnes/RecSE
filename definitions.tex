@@ -282,17 +282,22 @@ literals in the symbolic state would produce the concrete state $[(r_0,1),
 (r_1,2)]$. A second concrete state, $[(r_0,0),(r_1,1)]$, is also in the set of
 concrete states represented by node $n$.
 
-We define the following type and function in our Coq model to relate symbolic
+We define the following type and functions in our Coq model to relate symbolic
 state to concrete state. 
 
 \begin{itemize}
 \item $\textsf{SymbolicMapping}$ is an abstract type. Members of this type
   can be viewed as functions mapping symbols appearing in symbolic expressions to literals
   in the domain of the program.
-\item $\mathit{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},
+\item $\mathit{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},~
     m: \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$ is a function that takes a symbolic state and a mapping from symbols to literals, and
 returns the concrete state produced by replacing all symbols with mapped-to
 literals and evaluating the resulting expression.
+\item $\mathit{evaluatePC}(\pi : \textsf{PathCondition},~m:
+  \textsf{SymbolicMapping}) : \textsf{Prop}$ is a function that takes a path
+  condition and a mapping from symbols to literals and returns the proposition
+  (\texttrue{} or \textfalse) produced by replacing all symbols with mapped-to
+  literals and evaluating the resulting Boolean formula.
 \end{itemize}
 
 
@@ -446,23 +451,40 @@ The root node of a symbolic execution tree \tree{} contains a symbolic state
   node. The \emph{concretizeRoot} instantiation operation finds that subset of concrete states
   for the particular leaf node of interest of a tree. The operation takes as
   input a tree \tree{} and a particular leaf node of interest $l$ and returns
-  a set of concrete states. We define it formally here.
+  a set of concrete states. We define it formally here. \cks{Alyssa, double
+    check that I got this right.}
+
 
   \begin{align*}
-\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-\mathit{concretizeRoot}(t) \leftrightarrow \\
-&\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
-&r = \mathtt{getroot}(t), n = t.l,
-\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)),
+\forall~ \tree \in \trees,~n \in \nodes,~ \concstate \in \concstates,~& \concstate \in
+\mathit{concretizeRoot}(\tree,n) \leftrightarrow \\
+&\exists~ r,l \in \tree,~m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
+&r = \mathtt{getroot}(\tree),~ l = \mathtt{isleaf}(\tree),~ l = n,\\
+&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~ \mathrm{and} \\
+&c = \mathit{instantiateState}(r.\symstate, m).
     \end{align*}
 \end{mydefinition}
-where \trees{} is the set of all possible symbolic execution trees.
+
+%%   \begin{align*}
+%% \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+%% \mathit{concretizeRoot}(t) \leftrightarrow \\
+%% &\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+%% &r = \mathtt{getroot}(t), n = t.l,
+%% \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+%% &\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)),
+%%     \end{align*}
+%% \end{mydefinition}
+
+
+Where \trees{} is the set of all possible symbolic execution trees, \nodes{} is
+the set of all possible tree nodes, and
+\concstates{} is the set of all possible concrete states.
 
 The definition says that a concrete state \concstate{} is in the set returned by
 \emph{concretizeRoot} if and only if there exists a mapping from symbols to
 literals that makes the path condition of the leaf node evaluate to true
-and, when applied to the symbolic state of the root node, produces \concstate{}.
+and, when applied to the symbolic state of the root node, produces
+\concstate{}. \cks{Alyssa, double check that I got this right.}
 
 \begin{mydefinition}[\emph{concretizeLeaf}]
   \label{def:concleaf}
@@ -470,15 +492,30 @@ and, when applied to the symbolic state of the root node, produces \concstate{}.
   This instantiation operation finds the set of concrete states represented by
   the particular leaf node of interest of a tree.
   \begin{align*}
-\forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-\mathtt{concretize\_leaf}(t) \leftrightarrow \\
-&\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
-&n = t.l,
-\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-&\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)),
+\forall ~\tree \in \trees,~n \in \nodes,~\concstate \in \concstates,~& \concstate \in
+\mathit{concretizeLeaf}(\tree,n) \leftrightarrow \\
+&\exists~ l \in \tree,~ m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
+&l = \mathtt{isleaf}(\tree), l = n,\\
+&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~\mathrm{and}  \\
+&c = \mathit{instantiateState}(l.\symstate, m).
     \end{align*}
 \end{mydefinition}
-where \trees{} is the set of all possible symbolic execution trees.
+
+
+%%   \begin{align*}
+%% \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
+%% \mathtt{concretize\_leaf}(t) \leftrightarrow \\
+%% &\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
+%% &n = t.l,
+%% \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
+%% &\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)),
+%%     \end{align*}
+%% \end{mydefinition}
+
+Where \trees{} is the set of all possible symbolic execution trees, \nodes{} is
+the set of all possible tree nodes, and
+\concstates{} is the set of all possible concrete states.
+
 
 The definition says that a concrete state \concstate{} is in the set returned by
 \emph{concretizeLeaf} if and only if there exists a mapping from symbols to
