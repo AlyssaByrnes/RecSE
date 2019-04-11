@@ -1,9 +1,9 @@
 \subsection{Coq Representation of Recursive Strategy}
 Our system contains the following three global variables:
 \begin{itemize}
-\item A list of symbolic execution trees $\in \trees$ (where $\trees$ is the set of all trees $\tree$) called \textit{tree\_list} that represent the list of trees returned by the recursive strategy.
-\item A concrete state $\in \concstates$ to represent the initial system state, called \textit{init\_concrete state}.
-\item A set of concrete states $\in \concstates$ to represent all of the system error states, called \textit{error\_states}.
+\item $\mathit{tree\_list} = [\tree_0, \tree_1, \ldots]$ represents the list of symbolic execution trees returned by the recursive strategy.
+\item $\mathit{init\_conc\_state} \in \concstates$ represents the initial concrete state.
+\item $\mathit{error\_states} \subseteq \concstates$ represents the error concrete states.
 \end{itemize}
 
 We then define the method $ \mathtt{execute\_tree\_list} : \{ \trees \} \rightarrow \{\concstates\}$ , that takes a list of symbolic execution trees and executes them according to the inputs given by the leaves.
