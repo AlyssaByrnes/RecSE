@@ -115,7 +115,7 @@ search strategy.
 The recursive search strategy works to find $n$ inputs that will take the hardware module
  from an initial reset state to an error state in $n$ clock cycles. 
  It starts with a node $s_i$ that contains an error state, and uses symbolic execution to find 
- a state $s_{i−1}$ that has $s_i$ as one of its possible next-state transitions.  
+ a state $s_{i-1}$ that has $s_i$ as one of its possible next-state transitions.  
 This search continues until one of the found $s_i$’s is a reset state. 
 Each application of symbolic execution produces a tree with a particular leaf node of interest—the desired next-state $s_i$.
 The path conditions of each of these leaf nodes can be used to find an input leading to the next leaf node, 
