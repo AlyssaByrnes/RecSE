@@ -1,6 +1,20 @@
+\section{Recursive Search Strategy}
+The goal of the symbolic execution
+of a hardware design is to find a sequence of $n$ inputs that will take the hardware
+module from an initial reset state to an error state in $n$ clock cycles.
 
+The recursive search strategy works to find $n$ inputs that will take the hardware module
+ from an initial reset state to an error state in $n$ clock cycles. 
+ It starts with a node $s_i$ that contains an error state, and uses symbolic execution to find 
+ a state $s_{i-1}$ that has $s_i$ as one of its possible next-state transitions.  
+This search continues until one of the found $s_i$'s is a reset state. 
+Each application of symbolic execution produces a tree with a particular leaf node of interest---the desired next-state $s_i$.
+The path conditions of each of these leaf nodes can be used to find an input leading to the next leaf node, 
+producing a string of inputs leading to an error state.
 
-\section{Recursive Strategy Requirements}
+Each application of symbolic execution produces a tree with a particular
+leaf node of interest---the desired next-state $s_i$. 
+
 We express the three original requirements of the recursive strategy as
 laid out by Zhang et al.~\cite{zhang2018recursive}. 
 %The following requirements, when placed on our system, should be enough to prove that the strategy works as expected:
@@ -111,16 +125,7 @@ The definition says that a concrete state \concstate{} is in the set returned by
 literals that makes the path condition of the leaf node evaluate to true and,
 when applied to the symbolic state of the leaf node, produces \concstate{}.
 
-\subsubsection{Three Original Requirements} The goal of the symbolic execution
-of a hardware design is to find a sequence of $n$ inputs that will take the hardware
-module from an initial reset state to an error state in $n$ clock cycles. The
-gist of the recursive search strategy is to search backward from the error
-state as follows. First use symbolic execution to find a state $s_i$ that has the error
-state as one of its possible next-state transitions. Then use symbolic execution
-to find a state $s_{i-1}$ that has $s_i$ as one of its possible next-state
-transitions. This search continues until one of the found $s_i$'s is a reset
-state. Each application of symbolic execution produces a tree with a particular
-leaf node of interest---the desired next-state $s_i$. This sequence of trees ($\mathit{tree\_list}$)
+\subsubsection{Three Original Requirements} This sequence of trees ($\mathit{tree\_list}$)
 must satisfy these three requirements as laid out by Zhang et al.
 \setcounter{property}{0}
 \renewcommand{\theproperty}{Z.\arabic{property}}

@@ -111,15 +111,16 @@ the design, this time starting at the state described by the leaf node. It is to
 counter this combinatorial explosion that Zhang et al. developed their recursive
 search strategy. 
 
+The gist of the recursive search strategy is to search backward from the error
+state as follows. First use (forward) symbolic execution to find a state $s_i$ that has the error
+state as one of its possible next-state transitions. Then use (forward) symbolic execution
+to find a state $s_{i-1}$ that has $s_i$ as one of its possible next-state
+transitions. This search continues until one of the found $s$'s is an initial
+state of the processor. The result is a sequence of symbolic execution trees
+that can be used to produce a sequence of concrete input values that take the
+processor from its initial state to the error state.
 
-The recursive search strategy works to find $n$ inputs that will take the hardware module
- from an initial reset state to an error state in $n$ clock cycles. 
- It starts with a node $s_i$ that contains an error state, and uses symbolic execution to find 
- a state $s_{i-1}$ that has $s_i$ as one of its possible next-state transitions.  
-This search continues until one of the found $s_i$’s is a reset state. 
-Each application of symbolic execution produces a tree with a particular leaf node of interest—the desired next-state $s_i$.
-The path conditions of each of these leaf nodes can be used to find an input leading to the next leaf node, 
-producing a string of inputs leading to an error state.
+
 
 
 
