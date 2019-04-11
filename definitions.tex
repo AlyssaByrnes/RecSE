@@ -278,15 +278,20 @@ literals in the symbolic state would produce the concrete state $[(r_0,1),
 (r_1,2)]$. A second concrete state, $[(r_0,0),(r_1,1)]$, is also in the set of
 concrete states represented by node $n$.
 
-We define the following function in our Coq model, which takes a symbolic state (the list of
-\textsf{SymbolicAssignemnts}) and a mapping from symbols to literals, and
-returns the concrete state produced by replacing all symbols with mapped-to
-literals and evaluating the resulting expression.
+We define the following type and function in our Coq model to relate symbolic
+state to concrete state. 
 
 \begin{itemize}
-  \item $\mathit{instantiateState}(\vv{\textsf{SymbolicAssignment}},
-    \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$.
+\item $\vv{\textsf{SymbolicMapping}}$ is an abstract type. Members of this type
+  can be viewed as functions mapping symbols appearing in symbolic expressions to literals
+  in the domain of the program.
+\item $\mathit{instantiateState}(\vv{\textsf{SymbolicAssignment}},
+    \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$ is a function that takes a symbolic state and a mapping from symbols to literals, and
+returns the concrete state produced by replacing all symbols with mapped-to
+literals and evaluating the resulting expression.
 \end{itemize}
+
+
 
 
 
