@@ -51,7 +51,7 @@ in the design.
 
 The symbolic exploration of a design is modeled by a tuple $\tree = (N,E)$ representing a rooted, binary tree, where
 $N$ is the set of nodes of the tree and $E$ is the set of directed edges connecting
-two nodes.  model, each node $n \in N$ of the tree represents a conditional branch point in the
+two nodes. Each node $n \in N$ of the tree represents a conditional branch point in the
 design; we elide the non-branching nodes---those that represent
 straight-line code and would have only a single child node. The two edges connecting $n$ to its two children nodes represent the two
 possible paths of forward execution at that branch point.
@@ -59,7 +59,7 @@ possible paths of forward execution at that branch point.
 Each node is a tuple $n = (\symstate, \pathcondition)$, where
 \begin{itemize}
 \item $\symstate$ is the symbolic state of the module at the current point of
-  execution, and
+  execution (later in this paper, we will often refer to it as the symbolic assignment), and
 \item $\pathcondition$ is the path condition associated with the current
   symbolic state.
 \end{itemize}
@@ -174,7 +174,7 @@ for our proof. If needed, they could be modeled as a subset of the \textsf{Regis
 \subsection{Coq Model of Symbolic Execution}
 To model the symbolic execution of the processor in our Coq program we introduce
 types representing symbolic state, symbolic
-execution, and path constraints. The first three types are used in our
+execution, and path conditions. The first three types are used in our
 representation of symbolic state. 
 \begin{itemize}
   \item \textsf{SymbolicExpression} is an abstract type that is used to
@@ -409,177 +409,3 @@ Where $l$ is a leaf node of the tree returned by \symexecution.
 
 \end{property}
 
-
-
-\subsection{Recursive Strategy Requirements}
-We express the three original requirements of the recursive strategy as
-laid out by Zhang et al.~\cite{zhang2018recursive}. 
-%The following requirements, when placed on our system, should be enough to prove that the strategy works as expected:
-We start by formally defining two instantiation operations that are only informally described
-by Zhang et al. but that are used by the strategy requirements.
-
-\subsubsection{Instantiation Operations} 
-
-The root node of a symbolic execution tree \tree{} contains a symbolic state
-  ($\mathtt{getroot}(\tree).\vv{\symstate}$), which can be viewed as a representation of
-  a set of possible concrete states. If $\vv{\symstate}$ is fully symbolic, meaning
-  that all registers in the design are assigned symbolic expressions ($[(r_0,e_0),(r_1,e_1),\ldots]$), then it represents the set of all
-  possible concrete states $\concstates$ (including states that may be
-  unreachable from the initial state). From the set of all possible concrete
-  states, all possible next states are reachable, and these are represented by
-  the leaves of the symbolic execution tree. The symbolic state of each leaf node of the tree
-  represents a subset of $\concstates$.
-
-  There are two instantiation operations: $\mathit{concretizeRoot}$ and
-  $\mathit{concretizeLeaf}$. The effect of the first is to find a particular
-  subset of the concrete states represented by a root node of a symbolic
-  execution tree. The effect of the second is to find the set of concrete states
-  represented by a particular leaf node of a symbolic execution tree. 
-%% Our two instantiation operations are defined in the following way: 
-%% $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
-
-%% $$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
-
-%% They are bound by the following requirements:
-
-\begin{mydefinition}[\emph{concretizeRoot}]
-  \label{def:concroot}
-  
-  For any given leaf node of the
-  tree, the set of concrete states represented by that node is reachable, with a
-  given input, from a subset of the concrete states represented by the root
-  node. The \emph{concretizeRoot} instantiation operation finds that subset of concrete states
-  for the particular leaf node of interest of a tree. The operation takes as
-  input a tree \tree{} and a particular leaf node of interest $l$ and returns
-  a set of concrete states. We define it formally here. \cks{Alyssa, double
-    check that I got this right.}
-
-
-  \begin{align*}
-\forall~ \tree \in \trees,~n \in \nodes,~ \concstate \in \concstates,~& \concstate \in
-\mathit{concretizeRoot}(\tree,n) \leftrightarrow \\
-&\exists~ r,l \in \tree,~m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
-&r = \mathtt{getroot}(\tree),~ l = \mathtt{isleaf}(\tree),~ l = n,\\
-&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~ \mathrm{and} \\
-&c = \mathit{instantiateState}(r.\symstate, m).
-    \end{align*}
-\end{mydefinition}
-
-%%   \begin{align*}
-%% \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-%% \mathit{concretizeRoot}(t) \leftrightarrow \\
-%% &\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
-%% &r = \mathtt{getroot}(t), n = t.l,
-%% \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-%% &\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(r.\symstate, m)),
-%%     \end{align*}
-%% \end{mydefinition}
-
-
-Where \trees{} is the set of all possible symbolic execution trees, \nodes{} is
-the set of all possible tree nodes, and
-\concstates{} is the set of all possible concrete states.
-
-The definition says that a concrete state \concstate{} is in the set returned by
-\emph{concretizeRoot} if and only if there exists a mapping from symbols to
-literals that makes the path condition of the leaf node evaluate to true
-and, when applied to the symbolic state of the root node, produces
-\concstate{}. \cks{Alyssa, double check that I got this right.}
-
-\begin{mydefinition}[\emph{concretizeLeaf}]
-  \label{def:concleaf}
-
-  This instantiation operation finds the set of concrete states represented by
-  the particular leaf node of interest of a tree.
-  \begin{align*}
-\forall ~\tree \in \trees,~n \in \nodes,~\concstate \in \concstates,~& \concstate \in
-\mathit{concretizeLeaf}(\tree,n) \leftrightarrow \\
-&\exists~ l \in \tree,~ m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
-&l = \mathtt{isleaf}(\tree), l = n,\\
-&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~\mathrm{and}  \\
-&c = \mathit{instantiateState}(l.\symstate, m).
-    \end{align*}
-\end{mydefinition}
-
-
-%%   \begin{align*}
-%% \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-%% \mathtt{concretize\_leaf}(t) \leftrightarrow \\
-%% &\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
-%% &n = t.l,
-%% \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
-%% &\mathrm{and~}  c = \mathtt{simplify}(\mathtt{applymap}(n.\symstate, m)),
-%%     \end{align*}
-%% \end{mydefinition}
-
-Where \trees{} is the set of all possible symbolic execution trees, \nodes{} is
-the set of all possible tree nodes, and
-\concstates{} is the set of all possible concrete states.
-
-
-The definition says that a concrete state \concstate{} is in the set returned by
-\emph{concretizeLeaf} if and only if there exists a mapping from symbols to
-literals that makes the path condition of the leaf node evaluate to true and,
-when applied to the symbolic state of the leaf node, produces \concstate{}.
-
-\subsubsection{Three Original Requirements} The goal of the symbolic execution
-of a hardware design is to find a sequence of $n$ inputs that will take the hardware
-module from an initial reset state to an error state in $n$ clock cycles. The
-gist of the recursive search strategy is to search backward from the error
-state as follows. First use symbolic execution to find a state $s_i$ that has the error
-state as one of its possible next-state transitions. Then use symbolic execution
-to find a state $s_{i-1}$ that has $s_i$ has one of its possible next-state
-transitions. This search continues until one of the found $s_i$'s is a reset
-state. Each application of symbolic execution produces a tree with a particular
-leaf node of interest---the desired next-state $s_i$. This sequence of trees ($\mathit{tree\_list}$)
-must satisfy these three requirements as laid out by Zhang et al.
-\setcounter{property}{0}
-\renewcommand{\theproperty}{Z.\arabic{property}}
-\begin{property}[Start in initial state]
-  \label{prop:startinit} The leaf node of interest in the first tree in the
-  sequence must be reachable from the initial, reset state.
-  \begin{align*}
-    \concstate_0 \in \mathtt{concretize\_root}(\mathit{tree\_list}[0]).
-  \end{align*}
-\end{property}
-
-\begin{property}[End in error state]
-  \label{prop:enderror} The leaf node of interest in the last tree in the
-  sequence must include, in the set of concrete states it represents, one of the
-  desired error states. 
-  \begin{align*}
-    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \cap \mathit{ER} \neq
-    \emptyset,
-  \end{align*}
-\end{property}
-where $\mathit{ER}$ represents the set of desired error states.
-
-\begin{property}[Stitch trees together]
-  \label{prop:stitch}
-  Consecutive trees in the sequence must form a continuous path of
-  execution. That is, the leaf node of one tree must represent a subset of the
-  states represented by the root node of the subsequent tree in the sequence.
-  \begin{align*}
-    &\forall i, 0 \le i < n,\\
-    &\quad\mathtt{concretize\_leaf}(\mathit{tree\_list}[i]) \subseteq
-\mathtt{concretize\_root}\mathit{tree\_list}[i+1].
-\end{align*}
-
-\end{property}
-
-\subsubsection{Modified Requirement}
-We find the above properties are not sufficient to prove correctness of the
-recursive strategy. We strengthen Property~\ref{prop:enderror} by replacing it with the following.
-
-\setcounter{property}{1}
-\renewcommand{\theproperty}{Z.\arabic{property}'} 
-\begin{property}[Property~\ref{prop:enderror} correction]
-  The leaf node of interest in the last tree in the
-  sequence must represent a subset of the desired error states. The leaf node
-  can not represent any concrete state that is not an error state.
-  \label{prop:correctedz2}
-  \begin{align*}
-    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \subseteq \mathit{ER}.
-  \end{align*}
-
- \end{property}

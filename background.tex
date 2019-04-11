@@ -5,7 +5,7 @@ explain the recursive strategy for symbolic execution and provide some
 background on the Coq proof assistant.
 
 \subsection{Symbolic Execution}
-In symbolic execution formal parameters to a program's entry point are
+In symbolic execution actual parameters to a program's entry point are
 assigned symbolic values. The program is then simulated by a symbolic execution
 engine that uses the symbolic values in place of concrete literals. As
 execution continues the resulting symbolic expressions propagate throughout the program's
@@ -27,7 +27,7 @@ branches are possible. Execution forks and each branch is explored in turn
 with the path condition updated appropriately for each branch.
 
 In general, a path condition \pathcondition{} is a conjunction of propositions involving
-symbolic expressions. For example `$\pathcondition = \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
+symbolic expressions. For example `$\pathcondition := \alpha + 1 \ge 0 \wedge \alpha < 1$' is a
 possible path condition.
 
 All the paths explored through the program form a logical tree \tree. The root represents the
@@ -111,10 +111,17 @@ the design, this time starting at the state described by the leaf node. It is to
 counter this combinatorial explosion that Zhang et al. developed their recursive
 search strategy. 
 
-\cks{Fill in explanation here.} This
-leaf node represents a desired next-state of the module being symbolically
-explored, and in the recursive strategy, it is this leaf node that is joined to
-the root node of a subsequent tree in the search.
+
+The recursive search strategy works to find $n$ inputs that will take the hardware module
+ from an initial reset state to an error state in $n$ clock cycles. 
+ It starts with a node $s_i$ that contains an error state, and uses symbolic execution to find 
+ a state $s_{i−1}$ that has $s_i$ as one of its possible next-state transitions.  
+This search continues until one of the found $s_i$’s is a reset state. 
+Each application of symbolic execution produces a tree with a particular leaf node of interest—the desired next-state $s_i$.
+The path conditions of each of these leaf nodes can be used to find an input leading to the next leaf node, 
+producing a string of inputs leading to an error state.
+
+
 
 
 
