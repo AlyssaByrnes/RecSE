@@ -293,8 +293,6 @@ literals and evaluating the resulting expression.
 
 
 
-
-
 \subsection{Properties of Symbolic Execution}
 King formalized the use of symbolic execution~\cite{king1976symbolic} and
 described three fundamental
@@ -314,9 +312,7 @@ and for each, give our formal expression of the property.
   concrete execution would follow the same path through the program as was taken
   by the symbolic execution engine to arrive at the leaf node $l$. In other
   words, all paths taken by the symbolic execution engine correspond to feasible
-  paths through the program.
-  
-  We express this in the following way: 
+  paths through the program. We express this in the following.
   
 %%   \begin{align*}
 %%   \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
@@ -337,12 +333,10 @@ and for each, give our formal expression of the property.
 
 \begin{property}[Unique Paths]
   \label{prop:kingunique}
-The path condition $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
+The path conditions $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
 tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
-execution tree.
-
-We express this the following way: 
+execution tree. We express this in the following.
 
 \begin{align*}
 \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
@@ -368,11 +362,12 @@ We express this the following way:
 \begin{property}[Commutativity]
   \label{prop:kingcommutativity}
   The actions of symbolically executing a program and instantiating symbols with
-  concrete values ($\mathtt{applymap(\cdot)}$ in our model) are commutative. If a
-  mapping is first chosen and then the program is executed concretely, the end
-  state will be the same as if the program is executed symbolically and then,
-  for a particular leaf, a mapping is chosen such that the path constraint of
-  that leaf is satisfied.
+  concrete values are commutative. For any mapping of symbols to literals, let
+  $s$ be the end state produced by first applying the mapping and then executing
+  the program concretely. The
+  same state $s$ will be found by first executing the program symbolically and
+  then applying the mapping to every leaf node and choosing the leaf node whose path condition
+  evaluates to \texttrue. We express this in the following.
 
   %% We define some functions.
   %% \begin{itemize}
@@ -414,20 +409,21 @@ by Zhang et al. but that are used by the strategy requirements.
 
 \subsubsection{Instantiation Operations} 
 
-The root node of a symbolic execution tree $t$ contains a symbolic state
-  ($\mathtt{getroot}(t).\symstate$), which can be viewed as a representation of
-  a set of possible concrete states. If \symstate{} is fully symbolic, meaning
-  that all registers in the design are assigned symbolic expressions ($r_0 =
-  \sigma_0, r_1 = \sigma_1, \ldots$), then it represents the set of all
-  possible concrete states $\concstates$. From the set of all possible concrete
+The root node of a symbolic execution tree \tree{} contains a symbolic state
+  ($\mathtt{getroot}(\tree).\vv{\symstate}$), which can be viewed as a representation of
+  a set of possible concrete states. If $\vv{\symstate}$ is fully symbolic, meaning
+  that all registers in the design are assigned symbolic expressions ($[(r_0,e_0),(r_1,e_1),\ldots]$), then it represents the set of all
+  possible concrete states $\concstates$ (including states that may be
+  unreachable from the initial state). From the set of all possible concrete
   states, all possible next states are reachable, and these are represented by
   the leaves of the symbolic execution tree. The symbolic state of each leaf node of the tree
   represents a subset of $\concstates$.
 
-  The effect of the
-operations ($\mathtt{concretize\_root}$ and $\mathtt{concretize\_leaf}$) is to take a node (root or leaf) of a symbolic execution tree and
-find the set of concrete states represented by the symbolic state of that
-node. 
+  There are two instantiation operations: $\mathit{concretizeRoot}$ and
+  $\mathit{concretizeLeaf}$. The effect of the first is to find a particular
+  subset of the concrete states represented by a root node of a symbolic
+  execution tree. The effect of the second is to find the set of concrete states
+  represented by a particular leaf node of a symbolic execution tree. 
 %% Our two instantiation operations are defined in the following way: 
 %% $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
 
@@ -435,22 +431,20 @@ node.
 
 %% They are bound by the following requirements:
 
-\begin{mydefinition}[\emph{concretize\_root}]
+\begin{mydefinition}[\emph{concretizeRoot}]
   \label{def:concroot}
   
   For any given leaf node of the
   tree, the set of concrete states represented by that node is reachable, with a
   given input, from a subset of the concrete states represented by the root
-  node. This instantiation operation finds that subset of concrete states
+  node. The \emph{concretizeRoot} instantiation operation finds that subset of concrete states
   for the particular leaf node of interest of a tree. The operation takes as
-  input a tree (remember that a tree is
-  the tuple $t = (N, E, l)$, where $l$ is a particular leaf node of interest of
-  the tree) and returns
+  input a tree \tree{} and a particular leaf node of interest $l$ and returns
   a set of concrete states. We define it formally here.
 
   \begin{align*}
 \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-\mathtt{concretize\_root}(t) \leftrightarrow \\
+\mathit{concretizeRoot}(t) \leftrightarrow \\
 &\exists r,n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
 &r = \mathtt{getroot}(t), n = t.l,
 \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
@@ -459,12 +453,12 @@ node.
 \end{mydefinition}
 where \trees{} is the set of all possible symbolic execution trees.
 
-The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
-the path condition of the leaf node evaluate to \texttrue{} will, when applied to
-the symbolic state of the root node, produce a concrete state in the set returned
-by $\mathtt{concretize\_root}$.
+The definition says that a concrete state \concstate{} is in the set returned by
+\emph{concretizeRoot} if and only if there exists a mapping from symbols to
+literals that makes the path condition of the leaf node evaluate to true
+and, when applied to the symbolic state of the root node, produces \concstate{}.
 
-\begin{mydefinition}[\emph{concretize\_leaf}]
+\begin{mydefinition}[\emph{concretizeLeaf}]
   \label{def:concleaf}
 
   This instantiation operation finds the set of concrete states represented by
@@ -480,10 +474,10 @@ by $\mathtt{concretize\_root}$.
 \end{mydefinition}
 where \trees{} is the set of all possible symbolic execution trees.
 
-The definition says that any mapping ($\mathtt{map(\cdot)}$) from symbolic to concrete values that makes
-the path condition of the leaf node evaluate to \texttrue{} will, when applied to
-the symbolic state of that same leaf node, produce a concrete state in the set returned
-by $\mathtt{concretize\_leaf}$.
+The definition says that a concrete state \concstate{} is in the set returned by
+\emph{concretizeLeaf} if and only if there exists a mapping from symbols to
+literals that makes the path condition of the leaf node evaluate to true and,
+when applied to the symbolic state of the leaf node, produces \concstate{}.
 
 \subsubsection{Three Original Requirements} The goal of the symbolic execution
 of a hardware design is to find a sequence of $n$ inputs that will take the hardware
