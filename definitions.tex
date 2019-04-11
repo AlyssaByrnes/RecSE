@@ -286,7 +286,7 @@ We define the following type and function in our Coq model to relate symbolic
 state to concrete state. 
 
 \begin{itemize}
-\item $\vv{\textsf{SymbolicMapping}}$ is an abstract type. Members of this type
+\item $\textsf{SymbolicMapping}$ is an abstract type. Members of this type
   can be viewed as functions mapping symbols appearing in symbolic expressions to literals
   in the domain of the program.
 \item $\mathit{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},
@@ -316,7 +316,8 @@ and for each, give our formal expression of the property.
   concrete execution would follow the same path through the program as was taken
   by the symbolic execution engine to arrive at the leaf node $l$. In other
   words, all paths taken by the symbolic execution engine correspond to feasible
-  paths through the program. We express this in the following.
+  paths through the program. We express this in the following. \cks{This needs
+    to be updated.}
   
 %%   \begin{align*}
 %%   \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
@@ -340,7 +341,7 @@ and for each, give our formal expression of the property.
 The path conditions $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
 tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
-execution tree. We express this in the following.
+execution tree. We express this in the following. \cks{This needs to be updated}
 
 \begin{align*}
 \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
@@ -371,7 +372,8 @@ execution tree. We express this in the following.
   the program concretely. The
   same state $s$ will be found by first executing the program symbolically and
   then applying the mapping to every leaf node and choosing the leaf node whose path condition
-  evaluates to \texttrue. We express this in the following.
+  evaluates to \texttrue. We express this in the following. \cks{This needs to
+    be updated.}
 
   %% We define some functions.
   %% \begin{itemize}
