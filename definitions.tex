@@ -331,7 +331,7 @@ and for each, give our formal expression of the property.
 
   \begin{align*}
     \forall ~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
-     \exists m \in \textsf{SymbolicMapping}, \\
+    & \exists m \in \textsf{SymbolicMapping}, \\
     & \mathtt{evaluatePC}(n.\pathcondition,m) = \texttrue.
   \end{align*}
   Where \symstates{} is the set of all
@@ -348,8 +348,8 @@ valuation that could drive execution down two distinct paths of the symbolic
 execution tree. We express this in the following.
 
 \begin{align*}
-\forall m \in \textsf{SymbolicMapping},~\symstate \in \symstates,~\alpha \in
-\Sigma_i,~& n_1,~ n_2 \in \tree =
+\forall m \in \textsf{SymbolicMapping},~&\symstate \in \symstates,~\alpha \in
+\Sigma_i,~ n_1,~ n_2 \in \tree =
 \symexecution(\symstate,\pathcondition_0,\alpha), \\
 & n_1 \neq n_2 \\
 &  \wedge
@@ -389,7 +389,7 @@ execution tree. We express this in the following.
 
 
 \begin{align*}
-\forall m \in \textsf{SymbolicMapping},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
+\forall m \in \textsf{SymbolicMapping},~&\symstate \in \symstates,~\alpha \in \Sigma_i,~ l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
 &\mathtt{isleaf}(l,\tree)  = \texttrue \wedge
 \mathtt{evaluatePC}(l.\pathcondition,m) = \texttrue \\
 &\rightarrow \mathtt{instantiateState}(l.\symstate,m) = \\

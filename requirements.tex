@@ -120,7 +120,7 @@ when applied to the symbolic state of the leaf node, produces \concstate{}.
 
 Next, we express and prove the following lemma, stating that for root $r$ and selected leaf $l$ in tree $\tree \in \trees$ , the execution of $\mathtt{concretizeRoot}(r,l)$ for all valid inputs will result in a state $\in \mathtt{concretizeLeaf}(\tree)$
 \begin{lemma} \label{cop}
-$\forall s \in \textsf{SymbolicAssignment}, i \in \textsf{SymbolicInputAssignment}, c \in \textsf{Assignment}, and m \in \textsf{SymbolicMapping},$
+$\forall s \in \textsf{SymbolicAssignment}, i \in \textsf{SymbolicInputAssignment}, c \in \textsf{Assignment}, and~ m \in \textsf{SymbolicMapping},$
 if $c \in \mathtt{concretizeRoot}(t),$
 then 
 $conc\_ex(c, \mathtt{get\_input} (i, m)) \in \mathtt{concretizeLeaf}(\tree),$
