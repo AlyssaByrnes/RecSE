@@ -202,7 +202,7 @@ The two functions are defined as follows.
 \item $\mathtt{executeTreeList}(t : \vv{\textsf{SymExecTree}}) :
   \vv{\textsf{Assignment}}$ takes a list of symbolic execution trees and
   returns a concrete state.
-\item $\mathtt{getInput}()$
+\item $\mathtt{getInput}(\pi : \textsf{PathCondition}) : \vv{\textsf{InputAssignment}}$
 \end{itemize}
   
 The function $\mathtt{executeTreeList}$ uses the
@@ -210,7 +210,7 @@ The function $\mathtt{executeTreeList}$ uses the
     sequence of concrete input values, and then executes the model concretely to
     arrive at a final concrete state.
 
-Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
+Additionally, we define the abstract method, $ \mathtt{get\_input}$ which finds a mapping that does not violate a given symbolic state's path constraint, applies that mapping, and returns a concrete input.
 %This method is bound by the requirement,
 
 %\begin{definition}[\emph{get\_input}]
