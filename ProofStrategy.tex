@@ -37,13 +37,13 @@ $\mathtt{execute\_tree\_list }(tree\_list) \in error\_states$.
 
 \begin{theorem}[Execution ends in leaf of the last tree]
 \label{thm:etl}
- $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\tree)$, where $\tree$ is the last element of $tree\_list$.
+ $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretizeLeaf} (\tree)$, where $\tree$ is the last element of $tree\_list$.
 \end{theorem}
 
-We then show that $\mathtt{concretize\_leaf} (\tree) \in error\_states$, giving us our result.
+We then show that $\mathtt{concretizeLeaf} (\tree) \in error\_states$, giving us our result.
 
 We prove Theorem \ref{thm:etl} by induction. 
-For our base case, we show that if the list only contains one tree, execution of that tree's root node with input specified by a selected leaf will result in an element of $\mathtt{concretize\_leaf}(\tree)$.
+For our base case, we show that if the list only contains one tree, execution of that tree's root node with input specified by a selected leaf will result in an element of $\mathtt{concretizeLeaf}(\tree)$.
 
 \begin{figure}
 \centering
@@ -52,13 +52,13 @@ For our base case, we show that if the list only contains one tree, execution of
 \label{fig:basecase}
 \end{figure}
 
-In other words, as depicted in Figure \ref{fig:basecase}, we show that the initial state is an element of $\mathtt{concretize\_root}(\tree)$ of the tree \tree, and that concretely executing any element of $\mathtt{concretize\_root}(\tree)$ will result n an element inside $\mathtt{concretize\_leaf}(\tree).$
+In other words, as depicted in Figure \ref{fig:basecase}, we show that the initial state is an element of $\mathtt{concretizeRoot}(\tree)$ of the tree \tree, and that concretely executing any element of $\mathtt{concretizeRoot}(\tree)$ will result n an element inside $\mathtt{concretizeLeaf}(\tree).$
 
 
 
-For our inductive step, as depicted in Figures  \ref{fig:tlist} and \ref{fig:indstep}, we show that execution of each root with inputs from each specified leaf in a tree list of size $n$ will result in an element of $\mathtt{concretize\_leaf}(\tree_n)$.
+For our inductive step, as depicted in Figures  \ref{fig:tlist} and \ref{fig:indstep}, we show that execution of each root with inputs from each specified leaf in a tree list of size $n$ will result in an element of $\mathtt{concretizeLeaf}(\tree_n)$.
 
-Our inductive hypothesis is that $\mathtt{execute\_tree\_list }(tree\_list') \in \mathtt{concretize\_leaf} (\tree_{n-1})$, where $tree\_list'$ is a $tree\_list$ with the last element removed. We then show that $\mathtt{concretize\_leaf} (\tree_{n-1}) \subseteq \mathtt{concretize\_root} (\tree_{n}) $, and therefore the concrete execution of any element in $\mathtt{concretize\_leaf} (\tree_{n-1}) $ is in the set of of the concrete execution of any element in $\mathtt{concretize\_root} (\tree_{n})$. Next, we show that $\mathtt{concretize\_root} (\tree_{n}) \subseteq \mathtt{concretize\_leaf} (\tree_{n})$, giving us our result.
+Our inductive hypothesis is that $\mathtt{execute\_tree\_list }(tree\_list') \in \mathtt{concretizeLeaf} (\tree_{n-1})$, where $tree\_list'$ is a $tree\_list$ with the last element removed. We then show that $\mathtt{concretizeLeaf} (\tree_{n-1}) \subseteq \mathtt{concretizeRoot} (\tree_{n}) $, and therefore the concrete execution of any element in $\mathtt{concretizeLeaf} (\tree_{n-1}) $ is in the set of of the concrete execution of any element in $\mathtt{concretizeRoot} (\tree_{n})$. Next, we show that $\mathtt{concretizeRoot} (\tree_{n}) \subseteq \mathtt{concretizeLeaf} (\tree_{n})$, giving us our result.
  
 \begin{figure}
 \centering
@@ -78,8 +78,8 @@ Our inductive hypothesis is that $\mathtt{execute\_tree\_list }(tree\_list') \in
 
 
 The reason we need \ref{prop:correctedz2} is because \ref{prop:enderror} is not sufficient. 
-This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretize\_leaf} (\mathtt{last\_element}(tree\_list))$ and \\
-$\mathtt{concretize\_leaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
+This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretizeLeaf} (\mathtt{last\_element}(tree\_list))$ and \\
+$\mathtt{concretizeLeaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
 $\mathtt{execute\_tree\_list} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
 
 \begin{figure}
