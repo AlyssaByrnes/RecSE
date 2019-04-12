@@ -78,8 +78,8 @@ Our inductive hypothesis is that $\mathtt{executeTreeList }(tree\_list') \in \ma
 
 
 The reason we need \ref{prop:correctedz2} is because \ref{prop:enderror} is not sufficient. 
-This is because if $\mathtt{executeTreeList} (tree\_list) \in \mathtt{concretizeLeaf} (\mathtt{last\_element}(tree\_list))$ and \\
-$\mathtt{concretizeLeaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
+This is because if $\mathtt{executeTreeList} (tree\_list) \in \mathtt{concretizeLeaf} (\mathtt{lastElement}(tree\_list))$ and \\
+$\mathtt{concretizeLeaf} (\mathtt{lastElement} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
 $\mathtt{executeTreeList} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
 
 \begin{figure}

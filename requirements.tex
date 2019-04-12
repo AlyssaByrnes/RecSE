@@ -125,7 +125,7 @@ $\forall s \in \textsf{SymbolicAssignment}, i \in
   and $m \in \textsf{SymbolicMapping},$
 if $c \in \mathtt{concretizeRoot}(t),$
 then\\ 
-$\mathtt{exec}(c, \mathtt{get\_input} (i, m)) \in \mathtt{concretizeLeaf}(\tree),$
+$\mathtt{exec}(c, \mathtt{getInput} (i, m)) \in \mathtt{concretizeLeaf}(\tree),$
 where $l$ is a leaf of $\tree =  \symexecution(s, i)$.
 \end{lemma} 
 
@@ -212,15 +212,15 @@ The function $\mathtt{executeTreeList}$ uses the
     sequence of concrete input values, and then executes the model concretely to
     arrive at a final concrete state.
 
-Additionally, we define the abstract method, $ \mathtt{get\_input}$ which finds a mapping that does not violate a given symbolic state's path constraint, applies that mapping, and returns a concrete input.
+Additionally, we define the abstract method, $ \mathtt{getInput}$ which finds a mapping that does not violate a given symbolic state's path constraint, applies that mapping, and returns a concrete input.
 %This method is bound by the requirement,
 
-%\begin{definition}[\emph{get\_input}]
+%\begin{definition}[\emph{getInput}]
 %$ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $m = \mathtt{map(\cdot)}$
 %if $\exists$ a symbolic state $s \in \symstates$  such that
 %$n$ is a leaf of the tree output by $\symexecution(s, i)$ and 
 %$\mathtt{pc\_eval} (\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m))) = \texttrue$, then
-%$\mathtt{simplify}(\mathtt{applymap} (i, m)) = \mathtt{get\_input}(i)$.
+%$\mathtt{simplify}(\mathtt{applymap} (i, m)) = \mathtt{getInput}(i)$.
 %\end{definition}
 
 
