@@ -40,26 +40,24 @@ The root node of a symbolic execution tree \tree{} contains a symbolic state
 
 %% They are bound by the following requirements:
 
-\begin{mydefinition}[\emph{concretizeRoot}]
+\begin{mydefinition}[$\mathtt{concretizeRoot}$]
   \label{def:concroot}
   
   For any given leaf node of the
   tree, the set of concrete states represented by that node is reachable, with a
   given input, from a subset of the concrete states represented by the root
-  node. The \emph{concretizeRoot} instantiation operation finds that subset of concrete states
+  node. The $\mathtt{concretizeRoot}$ instantiation operation finds that subset of concrete states
   for the particular leaf node of interest of a tree. The operation takes as
   input a tree \tree{} and a particular leaf node of interest $l$ and returns
-  a set of concrete states. We define it formally here. \cks{Alyssa, double
-    check that I got this right.}
-
+  a set of concrete states. We define it formally here.
 
   \begin{align*}
 \forall~ \tree \in \trees,~n \in \nodes,~ \concstate \in \concstates,~& \concstate \in
-\mathit{concretizeRoot}(\tree,n) \leftrightarrow \\
+\mathtt{concretizeRoot}(\tree,n) \leftrightarrow \\
 &\exists~ r,l \in \tree,~m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
 &r = \mathtt{getroot}(\tree),~ l = \mathtt{isleaf}(\tree),~ l = n,\\
-&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~ \mathrm{and} \\
-&c = \mathit{instantiateState}(r.\symstate, m).
+&\mathtt{evaluatePC}(l.\pathcondition, m) = \texttrue~ \mathrm{and} \\
+&c = \mathtt{instantiateState}(r.\symstate, m).
     \end{align*}
 \end{mydefinition}
 
@@ -79,23 +77,23 @@ the set of all possible tree nodes, and
 \concstates{} is the set of all possible concrete states.
 
 The definition says that a concrete state \concstate{} is in the set returned by
-\emph{concretizeRoot} if and only if there exists a mapping from symbols to
+$\mathtt{concretizeRoot}$ if and only if there exists a mapping from symbols to
 literals that makes the path condition of the leaf node evaluate to true
 and, when applied to the symbolic state of the root node, produces
 \concstate{}. 
 
-\begin{mydefinition}[\emph{concretizeLeaf}]
+\begin{mydefinition}[$\mathtt{concretizeLeaf}$]
   \label{def:concleaf}
 
   This instantiation operation finds the set of concrete states represented by
   the particular leaf node of interest of a tree.
   \begin{align*}
 \forall ~\tree \in \trees,~n \in \nodes,~\concstate \in \concstates,~& \concstate \in
-\mathit{concretizeLeaf}(\tree,n) \leftrightarrow \\
+\mathtt{concretizeLeaf}(\tree,n) \leftrightarrow \\
 &\exists~ l \in \tree,~ m \in \textsf{SymbolicMap} \mathrm{~such~that}\\
 &l = \mathtt{isleaf}(\tree), l = n,\\
-&\mathit{evaluatePC}(l.\pathcondition, m) = \texttrue~\mathrm{and}  \\
-&c = \mathit{instantiateState}(l.\symstate, m).
+&\mathtt{evaluatePC}(l.\pathcondition, m) = \texttrue~\mathrm{and}  \\
+&c = \mathtt{instantiateState}(l.\symstate, m).
     \end{align*}
 \end{mydefinition}
 
@@ -116,18 +114,18 @@ the set of all possible tree nodes, and
 
 
 The definition says that a concrete state \concstate{} is in the set returned by
-\emph{concretizeLeaf} if and only if there exists a mapping from symbols to
+$\mathtt{concretizeLeaf}$ if and only if there exists a mapping from symbols to
 literals that makes the path condition of the leaf node evaluate to true and,
 when applied to the symbolic state of the leaf node, produces \concstate{}.
 
-Next, we express and prove the following lemma, stating that for root $r$ and selected leaf $l$ in tree $\tree \in \trees$ , the execution of \emph{concretizeRoot($r,l$)} for all valid inputs will result in a state $\in$  \emph{concretizeLeaf($l$)}
+Next, we express and prove the following lemma, stating that for root $r$ and selected leaf $l$ in tree $\tree \in \trees$ , the execution of $\mathtt{concretizeRoot}(r,l)$ for all valid inputs will result in a state $\in \mathtt{concretizeLeaf}(\tree)$
 \begin{lemma} \label{cop}
-forall symbolic states $s$, symbolic inputs $i'$, concrete states $c$, and $m = \mathtt{map(\cdot)}$,
-if $cs \in \mathtt{concretize\_root}(t)$,
+$\forall s \in \textsf{SymbolicAssignment}, i \in \textsf{SymbolicInputAssignment}, c \in \textsf{Assignment}, and m \in \textsf{SymbolicMapping},$
+if $c \in \mathtt{concretize\_root}(t),$
 then 
-$conc\_ex(cs, \mathtt{get\_input} ($i'$)) \in \mathtt{concretize\_leaf}(t)$,
-where $l$ is a leaf of $t$ and $t = $ \symexecution($s, i'$).
-\end{lemma}
+$conc\_ex(c, \mathtt{get\_input} (i, m)) \in \mathtt{concretize\_leaf}(\tree),$
+where $l$ is a leaf of $\tree =  \symexecution(s, i)$.
+\end{lemma} 
 
 In order to prove this, we utilize the commutativity property expressed earlier.
 
@@ -204,24 +202,24 @@ The two functions are defined as follows.
 \item $\mathtt{executeTreeList}(t : \vv{\textsf{SymExecTree}}) :
   \vv{\textsf{Assignment}}$ takes a list of symbolic execution trees and
   returns a concrete state.
-\item $\mathtt{getInput}()$ \cks{???}
+\item $\mathtt{getInput}()$
 \end{itemize}
   
 The function $\mathtt{executeTreeList}$ uses the
     path conditions in the leaf nodes of interest of the sequence of trees to find a
     sequence of concrete input values, and then executes the model concretely to
     arrive at a final concrete state.
-    
-\cks{???}Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
-This method is bound by the requirement,
 
-\begin{definition}[\emph{get\_input}]
-$ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $m = \mathtt{map(\cdot)}$
-if $\exists$ a symbolic state $s \in \symstates$  such that
-$n$ is a leaf of the tree output by $\symexecution(s, i)$ and 
-$\mathtt{pc\_eval} (\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m))) = \texttrue$, then
-$\mathtt{simplify}(\mathtt{applymap} (i, m)) = \mathtt{get\_input}(i)$.
-\end{definition}
+Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
+%This method is bound by the requirement,
+
+%\begin{definition}[\emph{get\_input}]
+%$ \forall$ symbolic inputs $i' \in \syminputs$, tree nodes $n$, and $m = \mathtt{map(\cdot)}$
+%if $\exists$ a symbolic state $s \in \symstates$  such that
+%$n$ is a leaf of the tree output by $\symexecution(s, i)$ and 
+%$\mathtt{pc\_eval} (\mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m))) = \texttrue$, then
+%$\mathtt{simplify}(\mathtt{applymap} (i, m)) = \mathtt{get\_input}(i)$.
+%\end{definition}
 
 
 

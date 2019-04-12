@@ -289,11 +289,11 @@ state to concrete state.
 \item $\textsf{SymbolicMapping}$ is an abstract type. Members of this type
   can be viewed as functions mapping symbols appearing in symbolic expressions to literals
   in the domain of the program.
-\item $\mathit{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},~
+\item $\mathtt{instantiateState}(\sigma: \vv{\textsf{SymbolicAssignment}},~
     m: \textsf{SymbolicMapping}) : \vv{\textsf{Assignment}}$ is a function that takes a symbolic state and a mapping from symbols to literals, and
 returns the concrete state produced by replacing all symbols with mapped-to
 literals and evaluating the resulting expression.
-\item $\mathit{evaluatePC}(\pi : \textsf{PathCondition},~m:
+\item $\mathtt{evaluatePC}(\pi : \textsf{PathCondition},~m:
   \textsf{SymbolicMapping}) : \textsf{Prop}$ is a function that takes a path
   condition and a mapping from symbols to literals and returns the proposition
   (\texttrue{} or \textfalse) produced by replacing all symbols with mapped-to
@@ -331,12 +331,11 @@ and for each, give our formal expression of the property.
 
   \begin{align*}
     \forall ~\symstate \in \symstates,~\alpha \in \Sigma_i,~& n \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
-     \exists m = \mathtt{map(\cdot)}, \\
+     \exists m \in \textsf{SymbolicMapping}, \\
     & \mathtt{evaluatePC}(n.\pathcondition,m) = \texttrue.
   \end{align*}
-  Where $\mathtt{map(\cdot)}$ is the set of all functions that map from the set
-  of symbols $\Sigma$ to the set of concrete values, \symstates{} is the set of all
-  possible symbolic states, $\Sigma_i$ is the set of symbolic input values, and $n$ is a node in the tree $t$ produced by a call
+  Where \symstates{} is the set of all
+  possible symbolic states, $\Sigma_i$ is the set of symbolic input values, and $n$ is a node in the tree $\tree$ produced by a call
   to \symexecution.
 \end{property}
 
@@ -349,7 +348,7 @@ valuation that could drive execution down two distinct paths of the symbolic
 execution tree. We express this in the following.
 
 \begin{align*}
-\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
+\forall m \in \textsf{SymbolicMapping},~\symstate \in \symstates,~\alpha \in
 \Sigma_i,~& n_1,~ n_2 \in \tree =
 \symexecution(\symstate,\pathcondition_0,\alpha), \\
 & n_1 \neq n_2 \\
@@ -390,13 +389,13 @@ execution tree. We express this in the following.
 
 
 \begin{align*}
-\forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
+\forall m \in \textsf{SymbolicMapping},~\symstate \in \symstates,~\alpha \in \Sigma_i,~& l \in \tree = \symexecution(\symstate,\pathcondition_0,\alpha), \\
 &\mathtt{isleaf}(l,\tree)  = \texttrue \wedge
 \mathtt{evaluatePC}(l.\pathcondition,m) = \texttrue \\
-&\rightarrow \mathtt{simplify}(\mathtt{applymap}(l.\symstate,m)) = \\
-&\qquad\concexecution(\mathtt{simplify}(\mathtt{applymap}(\symstate,m)),\mathtt{simplify}(\mathtt{applymap}(\syminput,m))).
+&\rightarrow \mathtt{instantiateState}(l.\symstate,m) = \\
+&\qquad\concexecution(\mathtt{instantiateState}(\symstate,m),\mathtt{instantiateState}(\syminput,m)).
 \end{align*}
-Where $l$ is a leaf node of the tree returned by \symexecution.
+
 
 %% \begin{align*}
 %% \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & l =
