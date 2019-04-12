@@ -188,9 +188,13 @@ recursive strategy. We strengthen Property~\ref{prop:enderror} by replacing it w
 \subsection{Coq Representation of Recursive Strategy}
 Our system contains the following three global variables:
 \begin{itemize}
-\item $\mathit{tree\_list} = [\tree_0, \tree_1, \ldots]$ represents the list of symbolic execution trees returned by the recursive strategy.
-\item $\mathit{init\_conc\_state} \in \concstates$ represents the initial concrete state.
-\item $\mathit{error\_states} \subseteq \concstates$ represents the error concrete states.
+\item $\mathit{tree\_list} : \vv{\textsf{SymExecTree}}$ is a list of symbolic
+  execution trees. It represents the list returned by the recursive strategy.
+\item $\mathit{init\_conc\_state} : \vv{\textsf{Assignment}}$ is a concrete
+  state. It represents the initial state of the processor.
+\item $\mathit{error\_states} \subseteq \{\concstate ~|~
+  \vv{\textsf{Assignment}}\}$ is a set of concrete states. It represents the
+  error states of the processor.
 \end{itemize}
 
 We then define the method $ \mathtt{execute\_tree\_list} : \{ \trees \} \rightarrow \{\concstates\}$ , that takes a list of symbolic execution trees and executes them according to the inputs given by the leaves.
