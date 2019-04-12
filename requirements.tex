@@ -175,7 +175,9 @@ recursive strategy. We strengthen Property~\ref{prop:enderror} by replacing it w
  
  
 \subsection{Coq Representation of Recursive Strategy}
-Our system contains the following three global variables:
+Our model of the recursive strategy in Coq requires three global variables
+and two functions. The three global variables are defined as follows.
+
 \begin{itemize}
 \item $\mathit{tree\_list} : \vv{\textsf{SymExecTree}}$ is a list of symbolic
   execution trees. It represents the list returned by the recursive strategy.
@@ -186,9 +188,20 @@ Our system contains the following three global variables:
   error states of the processor.
 \end{itemize}
 
-We then define the method $ \mathtt{execute\_tree\_list} : \{ \trees \} \rightarrow \{\concstates\}$ , that takes a list of symbolic execution trees and executes them according to the inputs given by the leaves.
-
-Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
+The two functions are defined as follows.
+\begin{itemize}
+\item $\mathtt{executeTreeList}(t : \vv{\textsf{SymExecTree}}) :
+  \vv{\textsf{Assignment}}$ takes a list of symbolic execution trees and
+  returns a concrete state.
+\item $\mathtt{getInput}()$ \cks{???}
+\end{itemize}
+  
+The function $\mathtt{executeTreeList}$ uses the
+    path conditions in the leaf nodes of interest of the sequence of trees to find a
+    sequence of concrete input values, and then executes the model concretely to
+    arrive at a final concrete state.
+    
+\cks{???}Additionally, we define the abstract method, $ \mathtt{get\_input} : \{\syminput\} \times \{\symalphabet\} \rightarrow \{\concstates\}$ which returns a concrete input that does not violate a given symbolic state's path constraint.
 This method is bound by the requirement,
 
 \begin{definition}[\emph{get\_input}]
