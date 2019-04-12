@@ -30,14 +30,14 @@ concrete execution from the reset state to an error state.
 Properties~\ref{prop:kingsound}-\ref{prop:kingcommutativity}. If
 $\mathit{tree\_list}$ satisfies the requirements \ref{prop:startinit},
 \ref{prop:correctedz2}, \ref{prop:stitch}, then 
-$\mathtt{execute\_tree\_list }(tree\_list) \in error\_states$.
+$\mathtt{executeTreeList }(tree\_list) \in error\_states$.
 \end{theorem}
  
  In order to prove this, we first prove the following theorem:
 
 \begin{theorem}[Execution ends in leaf of the last tree]
 \label{thm:etl}
- $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretizeLeaf} (\tree)$, where $\tree$ is the last element of $tree\_list$.
+ $\mathtt{executeTreeList} (tree\_list) \in \mathtt{concretizeLeaf} (\tree)$, where $\tree$ is the last element of $tree\_list$.
 \end{theorem}
 
 We then show that $\mathtt{concretizeLeaf} (\tree) \in error\_states$, giving us our result.
@@ -58,7 +58,7 @@ In other words, as depicted in Figure \ref{fig:basecase}, we show that the initi
 
 For our inductive step, as depicted in Figures  \ref{fig:tlist} and \ref{fig:indstep}, we show that execution of each root with inputs from each specified leaf in a tree list of size $n$ will result in an element of $\mathtt{concretizeLeaf}(\tree_n)$.
 
-Our inductive hypothesis is that $\mathtt{execute\_tree\_list }(tree\_list') \in \mathtt{concretizeLeaf} (\tree_{n-1})$, where $tree\_list'$ is a $tree\_list$ with the last element removed. We then show that $\mathtt{concretizeLeaf} (\tree_{n-1}) \subseteq \mathtt{concretizeRoot} (\tree_{n}) $, and therefore the concrete execution of any element in $\mathtt{concretizeLeaf} (\tree_{n-1}) $ is in the set of of the concrete execution of any element in $\mathtt{concretizeRoot} (\tree_{n})$. Next, we show that $\mathtt{concretizeRoot} (\tree_{n}) \subseteq \mathtt{concretizeLeaf} (\tree_{n})$, giving us our result.
+Our inductive hypothesis is that $\mathtt{executeTreeList }(tree\_list') \in \mathtt{concretizeLeaf} (\tree_{n-1})$, where $tree\_list'$ is a $tree\_list$ with the last element removed. We then show that $\mathtt{concretizeLeaf} (\tree_{n-1}) \subseteq \mathtt{concretizeRoot} (\tree_{n}) $, and therefore the concrete execution of any element in $\mathtt{concretizeLeaf} (\tree_{n-1}) $ is in the set of of the concrete execution of any element in $\mathtt{concretizeRoot} (\tree_{n})$. Next, we show that $\mathtt{concretizeRoot} (\tree_{n}) \subseteq \mathtt{concretizeLeaf} (\tree_{n})$, giving us our result.
  
 \begin{figure}
 \centering
@@ -78,13 +78,13 @@ Our inductive hypothesis is that $\mathtt{execute\_tree\_list }(tree\_list') \in
 
 
 The reason we need \ref{prop:correctedz2} is because \ref{prop:enderror} is not sufficient. 
-This is because if $\mathtt{execute\_tree\_list} (tree\_list) \in \mathtt{concretizeLeaf} (\mathtt{last\_element}(tree\_list))$ and \\
+This is because if $\mathtt{executeTreeList} (tree\_list) \in \mathtt{concretizeLeaf} (\mathtt{last\_element}(tree\_list))$ and \\
 $\mathtt{concretizeLeaf} (\mathtt{last\_element} (tree\_list)) \cap error\_states \neq \{\}$, we could get the case where
-$\mathtt{execute\_tree\_list} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
+$\mathtt{executeTreeList} (tree\_list) \notin error\_states$, as shown in Figure \ref{fig:Prop2}.
 
 \begin{figure}
   \centering
 \includegraphics[width=.4\textwidth]{prop2.eps}
-\caption{Example of Property $2$ not being sufficient to show $\mathtt{execute\_tree\_list} (tree\_list) \in error\_states$.}
+\caption{Example of Property $2$ not being sufficient to show $\mathtt{executeTreeList} (tree\_list) \in error\_states$.}
 \label{fig:Prop2}
 \end{figure}
