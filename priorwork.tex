@@ -21,19 +21,16 @@ and have limits on how deep or broadly they can search.
 
 \subsection{Formalization of Symbolic Execution}
 
-Some work has been done to formalize symbolic execution. 
 Arusoaie et al. provide a formal framework for a symbolic execution tool that is language-independent~\cite{arusoaie2014generic,arusoaie2015symbolic,lucanu2017generic}. 
-However, they don't provide a formal representation of King's branching properties~\cite{king1976symbolic} nor do they formally verify their tool or its outputs. 
+However, they do not formally verify their tool or its outputs. Nor does the framework represent King's branching properties~\cite{king1976symbolic}. 
 
 \subsection{Backward Search Strategies in Symbolic Execution}
 
 A backward search strategy for symbolic execution of software has been
-studied~\cite{ma2011directed,chandra09,dinges04,charreteur10}. Although, to
-  the best of our knowledge, the
-  requirements for soundness have not been examined in the literature. 
+studied~\cite{ma2011directed,chandra09,dinges04,charreteur10}. 
   There the approach is to search
 backward through function call chains from a goal line of code to the program's
 entry point. The strategy is hindered by complications that arise in software,
 such as floating point calculations and external method calls. To the best of our knowledge, the strategy has not been formalized
-in the software community, nor its validity proven.
+in the software community, nor has its validity been proven.
 
