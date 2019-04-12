@@ -321,8 +321,7 @@ and for each, give our formal expression of the property.
   concrete execution would follow the same path through the program as was taken
   by the symbolic execution engine to arrive at the leaf node $l$. In other
   words, all paths taken by the symbolic execution engine correspond to feasible
-  paths through the program. We express this in the following. \cks{This needs
-    to be updated.}
+  paths through the program. We express this in the following. 
   
 %%   \begin{align*}
 %%   \forall a = \mathtt{maptoalph}(\mathrm{alphabet}), & n =
@@ -347,7 +346,7 @@ and for each, give our formal expression of the property.
 The path conditions $\pathcondition_1$ and $\pathcondition_2$ associated with any two paths of the
 tree are mutually unsatisfiable. In other words, there exists no concrete
 valuation that could drive execution down two distinct paths of the symbolic
-execution tree. We express this in the following. \cks{This needs to be updated}
+execution tree. We express this in the following.
 
 \begin{align*}
 \forall m = \mathtt{map(\cdot)},~\symstate \in \symstates,~\alpha \in
@@ -378,9 +377,7 @@ execution tree. We express this in the following. \cks{This needs to be updated}
   the program concretely. The
   same state $s$ will be found by first executing the program symbolically and
   then applying the mapping to every leaf node and choosing the leaf node whose path condition
-  evaluates to \texttrue. We express this in the following. \cks{This needs to
-    be updated.}
-
+  evaluates to \texttrue. We express this in the following.
   %% We define some functions.
   %% \begin{itemize}
   %% \item maptoalph: $\{\symalphabet\} \rightarrow \{\concvalue\}$
