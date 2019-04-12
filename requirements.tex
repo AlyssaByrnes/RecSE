@@ -34,9 +34,9 @@ The root node of a symbolic execution tree \tree{} contains a symbolic state
   execution tree. The effect of the second is to find the set of concrete states
   represented by a particular leaf node of a symbolic execution tree. 
 %% Our two instantiation operations are defined in the following way: 
-%% $$\mathtt{concretize\_root} : \{ \tree \} \rightarrow \{\concstates\}$$
+%% $$\mathtt{concretizeRoot} : \{ \tree \} \rightarrow \{\concstates\}$$
 
-%% $$\mathtt{concretize\_leaf} : \{ \tree \} \rightarrow \{\concstates\}$$
+%% $$\mathtt{concretizeLeaf} : \{ \tree \} \rightarrow \{\concstates\}$$
 
 %% They are bound by the following requirements:
 
@@ -100,7 +100,7 @@ and, when applied to the symbolic state of the root node, produces
 
 %%   \begin{align*}
 %% \forall \tree \in \trees,~ \concstate \in \concstates,~& \concstate \in
-%% \mathtt{concretize\_leaf}(t) \leftrightarrow \\
+%% \mathtt{concretizeLeaf}(t) \leftrightarrow \\
 %% &\exists n \in t,~ m = \mathtt{map(\cdot)} \mathrm{~such~that}\\
 %% &n = t.l,
 %% \mathtt{simplify}(\mathtt{applymap} (n.\pathcondition, m)) = \texttrue \\
@@ -121,9 +121,9 @@ when applied to the symbolic state of the leaf node, produces \concstate{}.
 Next, we express and prove the following lemma, stating that for root $r$ and selected leaf $l$ in tree $\tree \in \trees$ , the execution of $\mathtt{concretizeRoot}(r,l)$ for all valid inputs will result in a state $\in \mathtt{concretizeLeaf}(\tree)$
 \begin{lemma} \label{cop}
 $\forall s \in \textsf{SymbolicAssignment}, i \in \textsf{SymbolicInputAssignment}, c \in \textsf{Assignment}, and m \in \textsf{SymbolicMapping},$
-if $c \in \mathtt{concretize\_root}(t),$
+if $c \in \mathtt{concretizeRoot}(t),$
 then 
-$conc\_ex(c, \mathtt{get\_input} (i, m)) \in \mathtt{concretize\_leaf}(\tree),$
+$conc\_ex(c, \mathtt{get\_input} (i, m)) \in \mathtt{concretizeLeaf}(\tree),$
 where $l$ is a leaf of $\tree =  \symexecution(s, i)$.
 \end{lemma} 
 
@@ -137,7 +137,7 @@ must satisfy these three requirements as laid out by Zhang et al.
   \label{prop:startinit} The leaf node of interest in the first tree in the
   sequence must be reachable from the initial, reset state.
   \begin{align*}
-    \concstate_0 \in \mathtt{concretize\_root}(\mathit{tree\_list}[0]).
+    \concstate_0 \in \mathtt{concretizeRoot}(\mathit{tree\_list}[0]).
   \end{align*}
 \end{property}
 
@@ -146,7 +146,7 @@ must satisfy these three requirements as laid out by Zhang et al.
   sequence must include, in the set of concrete states it represents, one of the
   desired error states. 
   \begin{align*}
-    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \cap \mathit{ER} \neq
+    \mathtt{concretizeLeaf}(\mathit{tree\_list}[n]) \cap \mathit{ER} \neq
     \emptyset,
   \end{align*}
 \end{property}
@@ -159,8 +159,8 @@ where $\mathit{ER}$ represents the set of desired error states.
   states represented by the root node of the subsequent tree in the sequence.
   \begin{align*}
     &\forall i, 0 \le i < n,\\
-    &\quad\mathtt{concretize\_leaf}(\mathit{tree\_list}[i]) \subseteq
-\mathtt{concretize\_root}(\mathit{tree\_list}[i+1]).
+    &\quad\mathtt{concretizeLeaf}(\mathit{tree\_list}[i]) \subseteq
+\mathtt{concretizeRoot}(\mathit{tree\_list}[i+1]).
 \end{align*}
 
 \end{property}
@@ -177,7 +177,7 @@ recursive strategy. We strengthen Property~\ref{prop:enderror} by replacing it w
   can not represent any concrete state that is not an error state.
   \label{prop:correctedz2}
   \begin{align*}
-    \mathtt{concretize\_leaf}(\mathit{tree\_list}[n]) \subseteq \mathit{ER}.
+    \mathtt{concretizeLeaf}(\mathit{tree\_list}[n]) \subseteq \mathit{ER}.
   \end{align*}
 
  \end{property}
