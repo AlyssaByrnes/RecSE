@@ -5,7 +5,7 @@ explain the recursive strategy for symbolic execution and provide some
 background on the Coq proof assistant.
 
 \subsection{Symbolic Execution}
-In symbolic execution actual parameters to a program's entry point are
+In symbolic execution the parameters to a program's entry point are
 assigned symbolic values. The program is then simulated by a symbolic execution
 engine that uses the symbolic values in place of concrete literals. As
 execution continues the resulting symbolic expressions propagate throughout the program's
@@ -18,11 +18,11 @@ $\alpha$ is a symbol used by the symbolic execution engine.
 In addition to the symbolic state, the symbolic execution engine keeps track
 of the \emph{path condition} (\pathcondition) for the current path of
 execution. When execution begins the path condition is initialized 
-to \texttrue. At each conditional branch in the program, the branching condition $c$ is evaluated. If $\pathcondition
-\rightarrow c$ is valid, the $\mathtt{then}$ branch is taken and the path constraint is
-updated, $\pathcondition := \pathcondition \wedge c$. If $\pathcondition \rightarrow \neg c$ is valid, the $\mathtt{else}$
-branch is taken and the path constraint is updated, $\pathcondition := \pathcondition \wedge \neg
-c$. If neither $\pathcondition \rightarrow c$ nor $\pathcondition \rightarrow \neg c$ hold, then both
+to \texttrue. At each conditional branch in the program, the branching condition $b$ is evaluated. If $\pathcondition
+\rightarrow b$ is valid, the $\mathtt{then}$ branch is taken and the path condition is
+updated, $\pathcondition := \pathcondition \wedge b$. If $\pathcondition \rightarrow \neg b$ is valid, the $\mathtt{else}$
+branch is taken and the path condition is updated, $\pathcondition := \pathcondition \wedge \neg
+b$. If neither $\pathcondition \rightarrow b$ nor $\pathcondition \rightarrow \neg b$ hold, then both
 branches are possible. Execution forks and each branch is explored in turn
 with the path condition updated appropriately for each branch.
 
