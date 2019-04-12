@@ -12,16 +12,7 @@ it does yield a set of sequences of concrete inputs that take the abstract Coq m
 concrete execution from the reset state to an error state.
 
 
-We start by formally proving the following lemma, which we will use in our proof:
-\begin{lemma} \label{cop}
-forall symbolic states $s$, symbolic inputs $i'$, concrete states $c$, and $m = \mathtt{map(\cdot)}$,
-if $cs \in \mathtt{concretize\_root}(t)$,
-then 
-$conc\_ex(cs, \mathtt{get\_input} ($i'$)) \in \mathtt{concretize\_leaf}(t)$,
-where $l$ is a leaf of $t$ and $t = $ \symexecution($s, i'$).
-\end{lemma}
 
-\cks{Alyssa, what does the above lemma say? And where in the proof is it used?} In order to prove this, we utilize the commutativity property expressed earlier.
 
 %% Our main correctness theorem that we prove is Theorem \ref{thm:sufficiency}. In other words, given our three property requirements, executing our tree\_list will get us to an error state.
 

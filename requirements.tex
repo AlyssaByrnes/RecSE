@@ -82,7 +82,7 @@ The definition says that a concrete state \concstate{} is in the set returned by
 \emph{concretizeRoot} if and only if there exists a mapping from symbols to
 literals that makes the path condition of the leaf node evaluate to true
 and, when applied to the symbolic state of the root node, produces
-\concstate{}. \cks{Alyssa, double check that I got this right.}
+\concstate{}. 
 
 \begin{mydefinition}[\emph{concretizeLeaf}]
   \label{def:concleaf}
@@ -119,6 +119,17 @@ The definition says that a concrete state \concstate{} is in the set returned by
 \emph{concretizeLeaf} if and only if there exists a mapping from symbols to
 literals that makes the path condition of the leaf node evaluate to true and,
 when applied to the symbolic state of the leaf node, produces \concstate{}.
+
+Next, we express and prove the following lemma, stating that for root $r$ and selected leaf $l$ in tree $\tree \in \trees$ , the execution of \emph{concretizeRoot($r,l$)} for all valid inputs will result in a state $\in$  \emph{concretizeLeaf($l$)}
+\begin{lemma} \label{cop}
+forall symbolic states $s$, symbolic inputs $i'$, concrete states $c$, and $m = \mathtt{map(\cdot)}$,
+if $cs \in \mathtt{concretize\_root}(t)$,
+then 
+$conc\_ex(cs, \mathtt{get\_input} ($i'$)) \in \mathtt{concretize\_leaf}(t)$,
+where $l$ is a leaf of $t$ and $t = $ \symexecution($s, i'$).
+\end{lemma}
+
+In order to prove this, we utilize the commutativity property expressed earlier.
 
 \subsection{Three Original Requirements} This sequence of trees ($\mathit{tree\_list}$)
 must satisfy these three requirements as laid out by Zhang et al.
